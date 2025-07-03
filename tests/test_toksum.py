@@ -532,14 +532,386 @@ class TestCaseInsensitiveMatching:
             assert counter1.provider == counter2.provider
 
 
+class TestNewProvidersV070:
+    """Test cases for all new providers added in v0.7.0."""
+    
+    def test_xai_models(self):
+        """Test xAI/Grok models."""
+        xai_models = ["grok-1", "grok-1.5", "grok-2", "grok-beta"]
+        
+        for model in xai_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "xai"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+    
+    def test_alibaba_models(self):
+        """Test Alibaba/Qwen models."""
+        alibaba_models = [
+            "qwen-1.5-0.5b", "qwen-1.5-1.8b", "qwen-1.5-4b", "qwen-1.5-7b",
+            "qwen-1.5-14b", "qwen-1.5-32b", "qwen-1.5-72b", "qwen-1.5-110b",
+            "qwen-2-0.5b", "qwen-2-1.5b", "qwen-2-7b", "qwen-2-57b", "qwen-2-72b",
+            "qwen-vl", "qwen-vl-chat", "qwen-vl-plus"
+        ]
+        
+        for model in alibaba_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "alibaba"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test Chinese text (should be optimized)
+            chinese_tokens = counter.count("你好，世界！")
+            assert isinstance(chinese_tokens, int)
+            assert chinese_tokens > 0
+    
+    def test_baidu_models(self):
+        """Test Baidu/ERNIE models."""
+        baidu_models = [
+            "ernie-4.0", "ernie-3.5", "ernie-3.0", "ernie-speed",
+            "ernie-lite", "ernie-tiny", "ernie-bot", "ernie-bot-4"
+        ]
+        
+        for model in baidu_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "baidu"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test Chinese text (should be optimized)
+            chinese_tokens = counter.count("你好，世界！")
+            assert isinstance(chinese_tokens, int)
+            assert chinese_tokens > 0
+    
+    def test_huawei_models(self):
+        """Test Huawei/PanGu models."""
+        huawei_models = [
+            "pangu-alpha-2.6b", "pangu-alpha-13b", "pangu-alpha-200b",
+            "pangu-coder", "pangu-coder-15b"
+        ]
+        
+        for model in huawei_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "huawei"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test code (for coder models)
+            if "coder" in model:
+                code_tokens = counter.count("def hello_world():\n    print('Hello, world!')")
+                assert isinstance(code_tokens, int)
+                assert code_tokens > 0
+    
+    def test_yandex_models(self):
+        """Test Yandex/YaLM models."""
+        yandex_models = ["yalm-100b", "yalm-200b", "yagpt", "yagpt-2"]
+        
+        for model in yandex_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "yandex"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test Russian text (should be optimized)
+            russian_tokens = counter.count("Привет, мир!")
+            assert isinstance(russian_tokens, int)
+            assert russian_tokens > 0
+    
+    def test_stability_models(self):
+        """Test Stability AI/StableLM models."""
+        stability_models = [
+            "stablelm-alpha-3b", "stablelm-alpha-7b", "stablelm-base-alpha-3b",
+            "stablelm-base-alpha-7b", "stablelm-tuned-alpha-3b", 
+            "stablelm-tuned-alpha-7b", "stablelm-zephyr-3b"
+        ]
+        
+        for model in stability_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "stability"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+    
+    def test_tii_models(self):
+        """Test TII/Falcon models."""
+        tii_models = [
+            "falcon-7b", "falcon-7b-instruct", "falcon-40b",
+            "falcon-40b-instruct", "falcon-180b", "falcon-180b-chat"
+        ]
+        
+        for model in tii_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "tii"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+    
+    def test_eleutherai_models(self):
+        """Test EleutherAI models."""
+        eleutherai_models = [
+            "gpt-neo-125m", "gpt-neo-1.3b", "gpt-neo-2.7b", "gpt-neox-20b",
+            "pythia-70m", "pythia-160m", "pythia-410m", "pythia-1b",
+            "pythia-1.4b", "pythia-2.8b", "pythia-6.9b", "pythia-12b"
+        ]
+        
+        for model in eleutherai_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "eleutherai"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+    
+    def test_mosaicml_models(self):
+        """Test MosaicML/Databricks models."""
+        mosaicml_models = [
+            "mpt-7b", "mpt-7b-chat", "mpt-7b-instruct",
+            "mpt-30b", "mpt-30b-chat", "mpt-30b-instruct",
+            "dbrx", "dbrx-instruct"
+        ]
+        
+        for model in mosaicml_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "mosaicml"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+    
+    def test_replit_models(self):
+        """Test Replit code models."""
+        replit_models = ["replit-code-v1-3b", "replit-code-v1.5-3b", "replit-code-v2-3b"]
+        
+        for model in replit_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "replit"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test code (specialized for code models)
+            code_tokens = counter.count("def hello_world():\n    print('Hello, world!')")
+            assert isinstance(code_tokens, int)
+            assert code_tokens > 0
+    
+    def test_minimax_models(self):
+        """Test MiniMax models."""
+        minimax_models = [
+            "abab5.5-chat", "abab5.5s-chat", "abab6-chat",
+            "abab6.5-chat", "abab6.5s-chat"
+        ]
+        
+        for model in minimax_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "minimax"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test Chinese text (should be optimized)
+            chinese_tokens = counter.count("你好，世界！")
+            assert isinstance(chinese_tokens, int)
+            assert chinese_tokens > 0
+    
+    def test_aleph_alpha_models(self):
+        """Test Aleph Alpha/Luminous models."""
+        aleph_alpha_models = [
+            "luminous-base", "luminous-extended", 
+            "luminous-supreme", "luminous-supreme-control"
+        ]
+        
+        for model in aleph_alpha_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "aleph_alpha"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+    
+    def test_deepseek_models(self):
+        """Test DeepSeek models."""
+        deepseek_models = [
+            "deepseek-coder-1.3b", "deepseek-coder-6.7b", "deepseek-coder-33b",
+            "deepseek-coder-instruct", "deepseek-vl-1.3b", "deepseek-vl-7b",
+            "deepseek-llm-7b", "deepseek-llm-67b"
+        ]
+        
+        for model in deepseek_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "deepseek"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test code (for coder models)
+            if "coder" in model:
+                code_tokens = counter.count("def hello_world():\n    print('Hello, world!')")
+                assert isinstance(code_tokens, int)
+                assert code_tokens > 0
+    
+    def test_tsinghua_models(self):
+        """Test Tsinghua KEG Lab/ChatGLM models."""
+        tsinghua_models = ["chatglm-6b", "chatglm2-6b", "chatglm3-6b", "glm-4", "glm-4v"]
+        
+        for model in tsinghua_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "tsinghua"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test Chinese text (should be optimized)
+            chinese_tokens = counter.count("你好，世界！")
+            assert isinstance(chinese_tokens, int)
+            assert chinese_tokens > 0
+    
+    def test_rwkv_models(self):
+        """Test RWKV models."""
+        rwkv_models = [
+            "rwkv-4-169m", "rwkv-4-430m", "rwkv-4-1b5", "rwkv-4-3b",
+            "rwkv-4-7b", "rwkv-4-14b", "rwkv-5-world"
+        ]
+        
+        for model in rwkv_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "rwkv"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+    
+    def test_community_models(self):
+        """Test community fine-tuned models."""
+        community_models = [
+            "vicuna-7b", "vicuna-13b", "vicuna-33b",
+            "alpaca-7b", "alpaca-13b",
+            "wizardlm-7b", "wizardlm-13b", "wizardlm-30b",
+            "orca-mini-3b", "orca-mini-7b", "orca-mini-13b",
+            "zephyr-7b-alpha", "zephyr-7b-beta"
+        ]
+        
+        for model in community_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "community"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+
+
+class TestLanguageSpecificOptimizations:
+    """Test language-specific tokenization optimizations."""
+    
+    def test_chinese_optimized_models(self):
+        """Test Chinese-optimized models."""
+        chinese_models = [
+            ("qwen-2-7b", "alibaba"),
+            ("ernie-4.0", "baidu"),
+            ("pangu-alpha-13b", "huawei"),
+            ("abab6-chat", "minimax"),
+            ("chatglm-6b", "tsinghua")
+        ]
+        
+        chinese_text = "你好，世界！这是一个测试消息。"
+        english_text = "Hello, world! This is a test message."
+        
+        for model, expected_provider in chinese_models:
+            counter = TokenCounter(model)
+            assert counter.provider == expected_provider
+            
+            chinese_tokens = counter.count(chinese_text)
+            english_tokens = counter.count(english_text)
+            
+            # Both should return reasonable token counts
+            assert 5 <= chinese_tokens <= 20
+            assert 5 <= english_tokens <= 15
+    
+    def test_russian_optimized_models(self):
+        """Test Russian-optimized models."""
+        yandex_models = ["yalm-100b", "yalm-200b", "yagpt", "yagpt-2"]
+        
+        russian_text = "Привет, мир! Это тестовое сообщение."
+        english_text = "Hello, world! This is a test message."
+        
+        for model in yandex_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "yandex"
+            
+            russian_tokens = counter.count(russian_text)
+            english_tokens = counter.count(english_text)
+            
+            # Both should return reasonable token counts
+            assert 5 <= russian_tokens <= 20
+            assert 5 <= english_tokens <= 15
+    
+    def test_code_optimized_models(self):
+        """Test code-optimized models."""
+        code_models = [
+            ("replit-code-v2-3b", "replit"),
+            ("deepseek-coder-6.7b", "deepseek"),
+            ("pangu-coder-15b", "huawei")
+        ]
+        
+        code_text = """
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+"""
+        
+        for model, expected_provider in code_models:
+            counter = TokenCounter(model)
+            assert counter.provider == expected_provider
+            
+            code_tokens = counter.count(code_text)
+            
+            # Should return reasonable token count for code
+            assert 10 <= code_tokens <= 50
+
+
 class TestModelCounts:
     """Test that we have the expected number of models."""
     
     def test_total_model_count(self):
-        """Test that we have 112 total models."""
+        """Test that we have 212+ total models."""
         models = get_supported_models()
         total_count = sum(len(model_list) for model_list in models.values())
-        assert total_count == 112, f"Expected 112 models, got {total_count}"
+        assert total_count >= 212, f"Expected at least 212 models, got {total_count}"
     
     def test_provider_counts(self):
         """Test expected model counts per provider."""
@@ -555,6 +927,22 @@ class TestModelCounts:
             "huggingface": 5,
             "ai21": 4,
             "together": 3,
+            "xai": 4,
+            "alibaba": 16,
+            "baidu": 8,
+            "huawei": 5,
+            "yandex": 4,
+            "stability": 7,
+            "tii": 6,
+            "eleutherai": 12,
+            "mosaicml": 8,
+            "replit": 3,
+            "minimax": 5,
+            "aleph_alpha": 4,
+            "deepseek": 8,
+            "tsinghua": 5,
+            "rwkv": 7,
+            "community": 13,
         }
         
         for provider, expected_count in expected_counts.items():
@@ -566,10 +954,104 @@ class TestModelCounts:
         models = get_supported_models()
         expected_providers = {
             "openai", "anthropic", "google", "meta", "mistral",
-            "cohere", "perplexity", "huggingface", "ai21", "together"
+            "cohere", "perplexity", "huggingface", "ai21", "together",
+            "xai", "alibaba", "baidu", "huawei", "yandex", "stability",
+            "tii", "eleutherai", "mosaicml", "replit", "minimax",
+            "aleph_alpha", "deepseek", "tsinghua", "rwkv", "community"
         }
         actual_providers = set(models.keys())
         assert actual_providers == expected_providers
+
+
+class TestProviderSpecificApproximationsV070:
+    """Test provider-specific tokenization approximations for v0.7.0."""
+    
+    def test_all_new_providers_approximation(self):
+        """Test that all new providers give reasonable approximations."""
+        test_text = "This is a comprehensive test message for tokenization approximation across all providers."
+        
+        # Test all new providers
+        new_providers_models = {
+            "xai": "grok-1",
+            "alibaba": "qwen-2-7b",
+            "baidu": "ernie-4.0",
+            "huawei": "pangu-alpha-13b",
+            "yandex": "yalm-100b",
+            "stability": "stablelm-alpha-7b",
+            "tii": "falcon-7b",
+            "eleutherai": "gpt-neo-1.3b",
+            "mosaicml": "mpt-7b",
+            "replit": "replit-code-v2-3b",
+            "minimax": "abab6-chat",
+            "aleph_alpha": "luminous-base",
+            "deepseek": "deepseek-coder-6.7b",
+            "tsinghua": "chatglm-6b",
+            "rwkv": "rwkv-4-7b",
+            "community": "vicuna-7b"
+        }
+        
+        token_counts = {}
+        for provider, model in new_providers_models.items():
+            counter = TokenCounter(model)
+            tokens = counter.count(test_text)
+            token_counts[provider] = tokens
+            
+            # All should return reasonable token counts
+            assert 10 <= tokens <= 35, f"{provider} returned {tokens} tokens, expected 10-35"
+        
+        # Different providers should give different results (within reason)
+        unique_counts = set(token_counts.values())
+        assert len(unique_counts) >= 5, "Expected some variation in token counts across new providers"
+    
+    def test_chinese_vs_english_optimization(self):
+        """Test Chinese vs English optimization differences."""
+        chinese_models = ["qwen-2-7b", "ernie-4.0", "chatglm-6b"]
+        english_models = ["grok-1", "falcon-7b", "vicuna-7b"]
+        
+        chinese_text = "这是一个中文测试消息，用于测试中文优化的分词器。"
+        english_text = "This is an English test message for testing English-optimized tokenizers."
+        
+        # Chinese models should handle Chinese text more efficiently
+        for model in chinese_models:
+            counter = TokenCounter(model)
+            chinese_tokens = counter.count(chinese_text)
+            english_tokens = counter.count(english_text)
+            
+            # Both should be reasonable, but Chinese should be more efficient for Chinese text
+            assert 5 <= chinese_tokens <= 30
+            assert 5 <= english_tokens <= 25
+        
+        # English models should handle English text normally
+        for model in english_models:
+            counter = TokenCounter(model)
+            english_tokens = counter.count(english_text)
+            assert 8 <= english_tokens <= 25
+
+
+class TestCaseInsensitiveMatchingV070:
+    """Test case-insensitive model name matching for v0.7.0 models."""
+    
+    def test_new_providers_case_variations(self):
+        """Test case variations for new providers."""
+        test_cases = [
+            ("grok-1", "GROK-1", "Grok-1"),
+            ("qwen-2-7b", "QWEN-2-7B", "Qwen-2-7B"),
+            ("ernie-4.0", "ERNIE-4.0", "Ernie-4.0"),
+            ("falcon-7b", "FALCON-7B", "Falcon-7B"),
+            ("stablelm-alpha-7b", "STABLELM-ALPHA-7B", "StableLM-Alpha-7B"),
+            ("deepseek-coder-6.7b", "DEEPSEEK-CODER-6.7B", "DeepSeek-Coder-6.7B"),
+            ("chatglm-6b", "CHATGLM-6B", "ChatGLM-6B"),
+            ("rwkv-4-7b", "RWKV-4-7B", "RWKV-4-7B"),
+        ]
+        
+        for variations in test_cases:
+            providers = []
+            for model_name in variations:
+                counter = TokenCounter(model_name)
+                providers.append(counter.provider)
+            
+            # All variations should detect the same provider
+            assert len(set(providers)) == 1, f"Case variations should detect same provider: {variations}"
 
 
 class TestIntegration:

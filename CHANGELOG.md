@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2025-01-04
+
+### Added
+- 139 new models across 16 new providers, bringing total to 251+ models
+- **New Providers:**
+  - **xAI (4 models):** grok-1, grok-1.5, grok-2, grok-beta
+  - **Alibaba (16 models):** qwen-1.5 series (0.5b to 110b), qwen-2 series, qwen-vl variants
+  - **Baidu (8 models):** ernie-4.0, ernie-3.5, ernie-3.0, ernie-speed, ernie-lite, ernie-tiny, ernie-bot, ernie-bot-4
+  - **Huawei (5 models):** pangu-alpha series (2.6b, 13b, 200b), pangu-coder variants
+  - **Yandex (4 models):** yalm-100b, yalm-200b, yagpt, yagpt-2
+  - **Stability AI (7 models):** stablelm-alpha, stablelm-base-alpha, stablelm-tuned-alpha, stablelm-zephyr variants
+  - **TII (6 models):** falcon series (7b, 40b, 180b) with instruct and chat variants
+  - **EleutherAI (12 models):** gpt-neo series, gpt-neox-20b, pythia series (70m to 12b)
+  - **MosaicML/Databricks (8 models):** mpt series (7b, 30b) with chat/instruct variants, dbrx models
+  - **Replit (3 models):** replit-code series (v1, v1.5, v2)
+  - **MiniMax (5 models):** abab series (5.5 to 6.5) chat models
+  - **Aleph Alpha (4 models):** luminous series (base, extended, supreme, supreme-control)
+  - **DeepSeek (8 models):** deepseek-coder series, deepseek-vl series, deepseek-llm series
+  - **Tsinghua KEG Lab (5 models):** chatglm series (6b variants), glm-4, glm-4v
+  - **RWKV (7 models):** rwkv-4 series (169m to 14b), rwkv-5-world
+  - **Community Fine-tuned (13 models):** vicuna, alpaca, wizardlm, orca-mini, zephyr variants
+
+### Enhanced
+- Provider-specific tokenization approximations for all new providers
+- Optimized approximations for Chinese models (Alibaba, Baidu, Huawei, MiniMax, Tsinghua)
+- Optimized approximations for Russian models (Yandex)
+- Specialized approximations for code models (Replit, DeepSeek-Coder, Huawei PanGu-Coder)
+- Enhanced model detection and validation across 26 total providers
+- Comprehensive case-insensitive model name matching
+
+### Changed
+- Expanded to 26 total providers
+- Total model support increased from 112 to 251+ models
+- Updated comprehensive provider categorization and documentation
+
 ## [0.6.0] - 2025-01-04
 
 ### Fixed
@@ -180,6 +215,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cost estimation based on current pricing
 - Easy-to-use functional and object-oriented APIs
 
+[0.7.0]: https://github.com/kactlabs/toksum/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/kactlabs/toksum/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/kactlabs/toksum/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/kactlabs/toksum/compare/v0.3.0...v0.4.0

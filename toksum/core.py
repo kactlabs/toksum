@@ -182,6 +182,185 @@ TOGETHER_MODELS = {
     "NousResearch/Nous-Hermes-Llama2-13b": "together",  # ADDED
 }
 
+# xAI Models (using approximation)
+XAI_MODELS = {
+    "grok-1": "xai",  # NEW
+    "grok-1.5": "xai",  # NEW
+    "grok-2": "xai",  # NEW
+    "grok-beta": "xai",  # NEW
+}
+
+# Alibaba Models (using approximation)
+ALIBABA_MODELS = {
+    "qwen-1.5-0.5b": "qwen",  # NEW
+    "qwen-1.5-1.8b": "qwen",  # NEW
+    "qwen-1.5-4b": "qwen",  # NEW
+    "qwen-1.5-7b": "qwen",  # NEW
+    "qwen-1.5-14b": "qwen",  # NEW
+    "qwen-1.5-32b": "qwen",  # NEW
+    "qwen-1.5-72b": "qwen",  # NEW
+    "qwen-1.5-110b": "qwen",  # NEW
+    "qwen-2-0.5b": "qwen-2",  # NEW
+    "qwen-2-1.5b": "qwen-2",  # NEW
+    "qwen-2-7b": "qwen-2",  # NEW
+    "qwen-2-57b": "qwen-2",  # NEW
+    "qwen-2-72b": "qwen-2",  # NEW
+    "qwen-vl": "qwen-vl",  # NEW
+    "qwen-vl-chat": "qwen-vl",  # NEW
+    "qwen-vl-plus": "qwen-vl",  # NEW
+}
+
+# Baidu Models (using approximation)
+BAIDU_MODELS = {
+    "ernie-4.0": "ernie",  # NEW
+    "ernie-3.5": "ernie",  # NEW
+    "ernie-3.0": "ernie",  # NEW
+    "ernie-speed": "ernie",  # NEW
+    "ernie-lite": "ernie",  # NEW
+    "ernie-tiny": "ernie",  # NEW
+    "ernie-bot": "ernie",  # NEW
+    "ernie-bot-4": "ernie",  # NEW
+}
+
+# Huawei Models (using approximation)
+HUAWEI_MODELS = {
+    "pangu-alpha-2.6b": "pangu",  # NEW
+    "pangu-alpha-13b": "pangu",  # NEW
+    "pangu-alpha-200b": "pangu",  # NEW
+    "pangu-coder": "pangu",  # NEW
+    "pangu-coder-15b": "pangu",  # NEW
+}
+
+# Yandex Models (using approximation)
+YANDEX_MODELS = {
+    "yalm-100b": "yalm",  # NEW
+    "yalm-200b": "yalm",  # NEW
+    "yagpt": "yalm",  # NEW
+    "yagpt-2": "yalm",  # NEW
+}
+
+# Stability AI Models (using approximation)
+STABILITY_MODELS = {
+    "stablelm-alpha-3b": "stablelm",  # NEW
+    "stablelm-alpha-7b": "stablelm",  # NEW
+    "stablelm-base-alpha-3b": "stablelm",  # NEW
+    "stablelm-base-alpha-7b": "stablelm",  # NEW
+    "stablelm-tuned-alpha-3b": "stablelm",  # NEW
+    "stablelm-tuned-alpha-7b": "stablelm",  # NEW
+    "stablelm-zephyr-3b": "stablelm",  # NEW
+}
+
+# TII Models (using approximation)
+TII_MODELS = {
+    "falcon-7b": "falcon",  # NEW
+    "falcon-7b-instruct": "falcon",  # NEW
+    "falcon-40b": "falcon",  # NEW
+    "falcon-40b-instruct": "falcon",  # NEW
+    "falcon-180b": "falcon",  # NEW
+    "falcon-180b-chat": "falcon",  # NEW
+}
+
+# EleutherAI Models (using approximation)
+ELEUTHERAI_MODELS = {
+    "gpt-neo-125m": "gpt-neo",  # NEW
+    "gpt-neo-1.3b": "gpt-neo",  # NEW
+    "gpt-neo-2.7b": "gpt-neo",  # NEW
+    "gpt-neox-20b": "gpt-neox",  # NEW
+    "pythia-70m": "pythia",  # NEW
+    "pythia-160m": "pythia",  # NEW
+    "pythia-410m": "pythia",  # NEW
+    "pythia-1b": "pythia",  # NEW
+    "pythia-1.4b": "pythia",  # NEW
+    "pythia-2.8b": "pythia",  # NEW
+    "pythia-6.9b": "pythia",  # NEW
+    "pythia-12b": "pythia",  # NEW
+}
+
+# MosaicML/Databricks Models (using approximation)
+MOSAICML_MODELS = {
+    "mpt-7b": "mpt",  # NEW
+    "mpt-7b-chat": "mpt",  # NEW
+    "mpt-7b-instruct": "mpt",  # NEW
+    "mpt-30b": "mpt",  # NEW
+    "mpt-30b-chat": "mpt",  # NEW
+    "mpt-30b-instruct": "mpt",  # NEW
+    "dbrx": "dbrx",  # NEW
+    "dbrx-instruct": "dbrx",  # NEW
+}
+
+# Replit Models (using approximation)
+REPLIT_MODELS = {
+    "replit-code-v1-3b": "replit",  # NEW
+    "replit-code-v1.5-3b": "replit",  # NEW
+    "replit-code-v2-3b": "replit",  # NEW
+}
+
+# MiniMax Models (using approximation)
+MINIMAX_MODELS = {
+    "abab5.5-chat": "minimax",  # NEW
+    "abab5.5s-chat": "minimax",  # NEW
+    "abab6-chat": "minimax",  # NEW
+    "abab6.5-chat": "minimax",  # NEW
+    "abab6.5s-chat": "minimax",  # NEW
+}
+
+# Aleph Alpha Models (using approximation)
+ALEPH_ALPHA_MODELS = {
+    "luminous-base": "luminous",  # NEW
+    "luminous-extended": "luminous",  # NEW
+    "luminous-supreme": "luminous",  # NEW
+    "luminous-supreme-control": "luminous",  # NEW
+}
+
+# DeepSeek Models (using approximation)
+DEEPSEEK_MODELS = {
+    "deepseek-coder-1.3b": "deepseek",  # NEW
+    "deepseek-coder-6.7b": "deepseek",  # NEW
+    "deepseek-coder-33b": "deepseek",  # NEW
+    "deepseek-coder-instruct": "deepseek",  # NEW
+    "deepseek-vl-1.3b": "deepseek-vl",  # NEW
+    "deepseek-vl-7b": "deepseek-vl",  # NEW
+    "deepseek-llm-7b": "deepseek",  # NEW
+    "deepseek-llm-67b": "deepseek",  # NEW
+}
+
+# Tsinghua KEG Lab Models (using approximation)
+TSINGHUA_MODELS = {
+    "chatglm-6b": "chatglm",  # NEW
+    "chatglm2-6b": "chatglm",  # NEW
+    "chatglm3-6b": "chatglm",  # NEW
+    "glm-4": "chatglm",  # NEW
+    "glm-4v": "chatglm",  # NEW
+}
+
+# RWKV Models (using approximation)
+RWKV_MODELS = {
+    "rwkv-4-169m": "rwkv",  # NEW
+    "rwkv-4-430m": "rwkv",  # NEW
+    "rwkv-4-1b5": "rwkv",  # NEW
+    "rwkv-4-3b": "rwkv",  # NEW
+    "rwkv-4-7b": "rwkv",  # NEW
+    "rwkv-4-14b": "rwkv",  # NEW
+    "rwkv-5-world": "rwkv",  # NEW
+}
+
+# Community Fine-tuned Models (using approximation)
+COMMUNITY_MODELS = {
+    "vicuna-7b": "vicuna",  # NEW
+    "vicuna-13b": "vicuna",  # NEW
+    "vicuna-33b": "vicuna",  # NEW
+    "alpaca-7b": "alpaca",  # NEW
+    "alpaca-13b": "alpaca",  # NEW
+    "wizardlm-7b": "wizardlm",  # NEW
+    "wizardlm-13b": "wizardlm",  # NEW
+    "wizardlm-30b": "wizardlm",  # NEW
+    "orca-mini-3b": "orca",  # NEW
+    "orca-mini-7b": "orca",  # NEW
+    "orca-mini-13b": "orca",  # NEW
+    "zephyr-7b-alpha": "zephyr",  # NEW
+    "zephyr-7b-beta": "zephyr",  # NEW
+}
+
 
 class TokenCounter:
     """
@@ -221,6 +400,22 @@ class TokenCounter:
         huggingface_models_lower = {k.lower(): v for k, v in HUGGINGFACE_MODELS.items()}
         ai21_models_lower = {k.lower(): v for k, v in AI21_MODELS.items()}
         together_models_lower = {k.lower(): v for k, v in TOGETHER_MODELS.items()}
+        xai_models_lower = {k.lower(): v for k, v in XAI_MODELS.items()}
+        alibaba_models_lower = {k.lower(): v for k, v in ALIBABA_MODELS.items()}
+        baidu_models_lower = {k.lower(): v for k, v in BAIDU_MODELS.items()}
+        huawei_models_lower = {k.lower(): v for k, v in HUAWEI_MODELS.items()}
+        yandex_models_lower = {k.lower(): v for k, v in YANDEX_MODELS.items()}
+        stability_models_lower = {k.lower(): v for k, v in STABILITY_MODELS.items()}
+        tii_models_lower = {k.lower(): v for k, v in TII_MODELS.items()}
+        eleutherai_models_lower = {k.lower(): v for k, v in ELEUTHERAI_MODELS.items()}
+        mosaicml_models_lower = {k.lower(): v for k, v in MOSAICML_MODELS.items()}
+        replit_models_lower = {k.lower(): v for k, v in REPLIT_MODELS.items()}
+        minimax_models_lower = {k.lower(): v for k, v in MINIMAX_MODELS.items()}
+        aleph_alpha_models_lower = {k.lower(): v for k, v in ALEPH_ALPHA_MODELS.items()}
+        deepseek_models_lower = {k.lower(): v for k, v in DEEPSEEK_MODELS.items()}
+        tsinghua_models_lower = {k.lower(): v for k, v in TSINGHUA_MODELS.items()}
+        rwkv_models_lower = {k.lower(): v for k, v in RWKV_MODELS.items()}
+        community_models_lower = {k.lower(): v for k, v in COMMUNITY_MODELS.items()}
         
         if self.model in openai_models_lower or self.model in openai_legacy_models_lower:
             return "openai"
@@ -242,13 +437,53 @@ class TokenCounter:
             return "ai21"
         elif self.model in together_models_lower:
             return "together"
+        elif self.model in xai_models_lower:
+            return "xai"
+        elif self.model in alibaba_models_lower:
+            return "alibaba"
+        elif self.model in baidu_models_lower:
+            return "baidu"
+        elif self.model in huawei_models_lower:
+            return "huawei"
+        elif self.model in yandex_models_lower:
+            return "yandex"
+        elif self.model in stability_models_lower:
+            return "stability"
+        elif self.model in tii_models_lower:
+            return "tii"
+        elif self.model in eleutherai_models_lower:
+            return "eleutherai"
+        elif self.model in mosaicml_models_lower:
+            return "mosaicml"
+        elif self.model in replit_models_lower:
+            return "replit"
+        elif self.model in minimax_models_lower:
+            return "minimax"
+        elif self.model in aleph_alpha_models_lower:
+            return "aleph_alpha"
+        elif self.model in deepseek_models_lower:
+            return "deepseek"
+        elif self.model in tsinghua_models_lower:
+            return "tsinghua"
+        elif self.model in rwkv_models_lower:
+            return "rwkv"
+        elif self.model in community_models_lower:
+            return "community"
         else:
             supported = (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) +
                         list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) +
                         list(GOOGLE_MODELS.keys()) + list(META_MODELS.keys()) + 
                         list(MISTRAL_MODELS.keys()) + list(COHERE_MODELS.keys()) +
                         list(PERPLEXITY_MODELS.keys()) + list(HUGGINGFACE_MODELS.keys()) +
-                        list(AI21_MODELS.keys()) + list(TOGETHER_MODELS.keys()))
+                        list(AI21_MODELS.keys()) + list(TOGETHER_MODELS.keys()) +
+                        list(XAI_MODELS.keys()) + list(ALIBABA_MODELS.keys()) +
+                        list(BAIDU_MODELS.keys()) + list(HUAWEI_MODELS.keys()) +
+                        list(YANDEX_MODELS.keys()) + list(STABILITY_MODELS.keys()) +
+                        list(TII_MODELS.keys()) + list(ELEUTHERAI_MODELS.keys()) +
+                        list(MOSAICML_MODELS.keys()) + list(REPLIT_MODELS.keys()) +
+                        list(MINIMAX_MODELS.keys()) + list(ALEPH_ALPHA_MODELS.keys()) +
+                        list(DEEPSEEK_MODELS.keys()) + list(TSINGHUA_MODELS.keys()) +
+                        list(RWKV_MODELS.keys()) + list(COMMUNITY_MODELS.keys()))
             raise UnsupportedModelError(self.model, supported)
     
     def _setup_tokenizer(self) -> None:
@@ -362,6 +597,70 @@ class TokenCounter:
             # Together AI models vary, use conservative estimate
             base_tokens = char_count / 3.9
             adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "xai":
+            # xAI Grok models similar to GPT
+            base_tokens = char_count / 3.8
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "alibaba":
+            # Alibaba Qwen models, Chinese-optimized
+            base_tokens = char_count / 3.2
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "baidu":
+            # Baidu Ernie models, Chinese-optimized
+            base_tokens = char_count / 3.3
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "huawei":
+            # Huawei PanGu models, Chinese-optimized
+            base_tokens = char_count / 3.4
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "yandex":
+            # Yandex YaLM models, Russian-optimized
+            base_tokens = char_count / 3.6
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "stability":
+            # Stability AI StableLM models
+            base_tokens = char_count / 3.8
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "tii":
+            # TII Falcon models
+            base_tokens = char_count / 3.7
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "eleutherai":
+            # EleutherAI models (GPT-Neo, GPT-NeoX, Pythia)
+            base_tokens = char_count / 3.6
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "mosaicml":
+            # MosaicML/Databricks models (MPT, DBRX)
+            base_tokens = char_count / 3.7
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "replit":
+            # Replit code models
+            base_tokens = char_count / 3.5
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "minimax":
+            # MiniMax Chinese models
+            base_tokens = char_count / 3.3
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "aleph_alpha":
+            # Aleph Alpha Luminous models
+            base_tokens = char_count / 3.9
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "deepseek":
+            # DeepSeek models
+            base_tokens = char_count / 3.6
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "tsinghua":
+            # Tsinghua ChatGLM models, Chinese-optimized
+            base_tokens = char_count / 3.2
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "rwkv":
+            # RWKV models
+            base_tokens = char_count / 3.8
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "community":
+            # Community fine-tuned models (Vicuna, Alpaca, etc.)
+            base_tokens = char_count / 3.6
+            adjustment = (whitespace_count + punctuation_count) * 0.2
         else:
             # Default approximation
             base_tokens = char_count / 4
@@ -442,6 +741,22 @@ def get_supported_models() -> Dict[str, List[str]]:
         "huggingface": list(HUGGINGFACE_MODELS.keys()),
         "ai21": list(AI21_MODELS.keys()),
         "together": list(TOGETHER_MODELS.keys()),
+        "xai": list(XAI_MODELS.keys()),
+        "alibaba": list(ALIBABA_MODELS.keys()),
+        "baidu": list(BAIDU_MODELS.keys()),
+        "huawei": list(HUAWEI_MODELS.keys()),
+        "yandex": list(YANDEX_MODELS.keys()),
+        "stability": list(STABILITY_MODELS.keys()),
+        "tii": list(TII_MODELS.keys()),
+        "eleutherai": list(ELEUTHERAI_MODELS.keys()),
+        "mosaicml": list(MOSAICML_MODELS.keys()),
+        "replit": list(REPLIT_MODELS.keys()),
+        "minimax": list(MINIMAX_MODELS.keys()),
+        "aleph_alpha": list(ALEPH_ALPHA_MODELS.keys()),
+        "deepseek": list(DEEPSEEK_MODELS.keys()),
+        "tsinghua": list(TSINGHUA_MODELS.keys()),
+        "rwkv": list(RWKV_MODELS.keys()),
+        "community": list(COMMUNITY_MODELS.keys()),
     }
 
 

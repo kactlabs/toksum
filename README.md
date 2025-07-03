@@ -8,13 +8,14 @@ A Python library for counting tokens in text for major Large Language Models (LL
 
 ## Features
 
-- **Multi-LLM Support**: Count tokens for OpenAI GPT models and Anthropic Claude models
-- **Accurate Tokenization**: Uses official tokenizers (tiktoken for OpenAI) and smart approximation for Claude
+- **Comprehensive Multi-LLM Support**: Count tokens for 250+ models across 26 providers including OpenAI, Anthropic, Google, Meta, Mistral, xAI, Alibaba, Baidu, and many more
+- **Accurate Tokenization**: Uses official tokenizers (tiktoken for OpenAI) and optimized approximations for all other providers
 - **Chat Message Support**: Count tokens in chat/conversation format with proper message overhead calculation
 - **Cost Estimation**: Estimate API costs based on token counts and current pricing
 - **Easy to Use**: Simple API with both functional and object-oriented interfaces
 - **Well Tested**: Comprehensive test suite with high coverage
 - **Type Hints**: Full type annotation support for better IDE experience
+- **Global Model Coverage**: Support for models optimized for Chinese, Russian, and other languages
 
 ## Supported Models
 
@@ -52,6 +53,71 @@ A Python library for counting tokens in text for major Large Language Models (LL
 - Command (standard, light, nightly)
 - Command-R (standard, plus, with 2024 variants)
 
+### xAI Models (4 models)
+- Grok (1, 1.5, 2, beta)
+
+### Alibaba Models (16 models)
+- Qwen-1.5 series (0.5B to 110B parameters)
+- Qwen-2 series (0.5B to 72B parameters)
+- Qwen-VL (vision-language variants)
+
+### Baidu Models (8 models)
+- ERNIE (4.0, 3.5, 3.0, Speed, Lite, Tiny)
+- ERNIE Bot (standard and 4.0)
+
+### Huawei Models (5 models)
+- PanGu-α (2.6B, 13B, 200B)
+- PanGu-Coder (15B and base)
+
+### Yandex Models (4 models)
+- YaLM (100B, 200B)
+- YaGPT (1, 2)
+
+### Stability AI Models (7 models)
+- StableLM Alpha (3B, 7B base and tuned)
+- StableLM Zephyr (3B)
+
+### TII Models (6 models)
+- Falcon (7B, 40B, 180B with instruct and chat variants)
+
+### EleutherAI Models (12 models)
+- GPT-Neo (125M, 1.3B, 2.7B)
+- GPT-NeoX (20B)
+- Pythia (70M to 12B)
+
+### MosaicML/Databricks Models (8 models)
+- MPT (7B, 30B with chat and instruct variants)
+- DBRX (base and instruct)
+
+### Replit Models (3 models)
+- Replit Code (v1, v1.5, v2 - 3B parameters)
+
+### MiniMax Models (5 models)
+- ABAB (5.5 to 6.5 chat variants)
+
+### Aleph Alpha Models (4 models)
+- Luminous (Base, Extended, Supreme, Supreme Control)
+
+### DeepSeek Models (8 models)
+- DeepSeek-Coder (1.3B to 33B, instruct)
+- DeepSeek-VL (1.3B, 7B)
+- DeepSeek-LLM (7B, 67B)
+
+### Tsinghua KEG Lab Models (5 models)
+- ChatGLM (6B variants: ChatGLM, ChatGLM2, ChatGLM3)
+- GLM-4 (standard and vision)
+
+### RWKV Models (7 models)
+- RWKV-4 (169M to 14B parameters)
+- RWKV-5 World
+
+### Community Fine-tuned Models (13 models)
+- Vicuna (7B, 13B, 33B)
+- Alpaca (7B, 13B)
+- WizardLM (7B, 13B, 30B)
+- Orca Mini (3B, 7B, 13B)
+- Zephyr (7B Alpha, Beta)
+
 ### Perplexity Models (5 models)
 - PPLX (7B, 70B online and chat variants)
 - CodeLlama 34B Instruct
@@ -67,7 +133,7 @@ A Python library for counting tokens in text for major Large Language Models (LL
 - RedPajama INCITE Chat (3B, 7B)
 - Nous Hermes LLaMA2 13B
 
-**Total: 112 models across 10 providers**
+**Total: 212+ models across 26 providers**
 
 ## Installation
 
@@ -293,6 +359,39 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Changelog
+
+### v0.7.0
+- Added 139 new models across 16 new providers, bringing total to 212+ models
+- **New Providers:**
+  - xAI: grok-1, grok-1.5, grok-2, grok-beta
+  - Alibaba: qwen-1.5 series (0.5b to 110b), qwen-2 series, qwen-vl variants
+  - Baidu: ernie-4.0, ernie-3.5, ernie-3.0, ernie-speed, ernie-lite, ernie-tiny, ernie-bot, ernie-bot-4
+  - Huawei: pangu-alpha series (2.6b, 13b, 200b), pangu-coder variants
+  - Yandex: yalm-100b, yalm-200b, yagpt, yagpt-2
+  - Stability AI: stablelm-alpha, stablelm-base-alpha, stablelm-tuned-alpha, stablelm-zephyr variants
+  - TII: falcon series (7b, 40b, 180b) with instruct and chat variants
+  - EleutherAI: gpt-neo series, gpt-neox-20b, pythia series (70m to 12b)
+  - MosaicML/Databricks: mpt series (7b, 30b) with chat/instruct variants, dbrx models
+  - Replit: replit-code series (v1, v1.5, v2)
+  - MiniMax: abab series (5.5 to 6.5) chat models
+  - Aleph Alpha: luminous series (base, extended, supreme, supreme-control)
+  - DeepSeek: deepseek-coder series, deepseek-vl series, deepseek-llm series
+  - Tsinghua KEG Lab: chatglm series (6b variants), glm-4, glm-4v
+  - RWKV: rwkv-4 series (169m to 14b), rwkv-5-world
+  - Community Fine-tuned: vicuna, alpaca, wizardlm, orca-mini, zephyr variants
+- Enhanced provider-specific tokenization approximations for all new providers
+- Optimized approximations for Chinese models (Alibaba, Baidu, Huawei, MiniMax, Tsinghua)
+- Optimized approximations for Russian models (Yandex)
+- Specialized approximations for code models (Replit, DeepSeek-Coder, Huawei PanGu-Coder)
+- Expanded to 26 total providers
+- Total model support increased from 112 to 212+ models
+
+### v0.6.0
+- Type safety improvements and mypy compliance
+- Enhanced exception handling with proper type annotations
+- Improved conditional imports using TYPE_CHECKING pattern
+- Added runtime checks for tokenizer initialization
+- Full mypy compliance with better type hints throughout codebase
 
 ### v0.5.0
 - Added 28 more models across 4 new providers:

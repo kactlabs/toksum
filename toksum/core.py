@@ -69,6 +69,32 @@ ANTHROPIC_MODELS = {
     "claude-instant-1.0": "claude-instant",
 }
 
+# Google Models (using approximation similar to Claude)
+GOOGLE_MODELS = {
+    "gemini-pro": "gemini",  # NEW
+    "gemini-pro-vision": "gemini",  # NEW
+    "gemini-1.5-pro": "gemini-1.5",  # NEW
+    "gemini-1.5-flash": "gemini-1.5",  # NEW
+}
+
+# Meta Models (using approximation)
+META_MODELS = {
+    "llama-2-7b": "llama-2",  # NEW
+    "llama-2-13b": "llama-2",  # NEW
+    "llama-2-70b": "llama-2",  # NEW
+}
+
+# Mistral Models (using approximation)
+MISTRAL_MODELS = {
+    "mistral-7b": "mistral",  # NEW
+    "mistral-8x7b": "mistral",  # NEW
+}
+
+# Cohere Models (using approximation)
+COHERE_MODELS = {
+    "command": "cohere",  # NEW
+}
+
 
 class TokenCounter:
     """
@@ -98,8 +124,18 @@ class TokenCounter:
             return "openai"
         elif self.model in ANTHROPIC_MODELS:
             return "anthropic"
+        elif self.model in GOOGLE_MODELS:
+            return "google"
+        elif self.model in META_MODELS:
+            return "meta"
+        elif self.model in MISTRAL_MODELS:
+            return "mistral"
+        elif self.model in COHERE_MODELS:
+            return "cohere"
         else:
-            supported = list(OPENAI_MODELS.keys()) + list(ANTHROPIC_MODELS.keys())
+            supported = (list(OPENAI_MODELS.keys()) + list(ANTHROPIC_MODELS.keys()) + 
+                        list(GOOGLE_MODELS.keys()) + list(META_MODELS.keys()) + 
+                        list(MISTRAL_MODELS.keys()) + list(COHERE_MODELS.keys()))
             raise UnsupportedModelError(self.model, supported)
     
     def _setup_tokenizer(self) -> None:
@@ -117,9 +153,9 @@ class TokenCounter:
             except Exception as e:
                 raise TokenizationError(f"Failed to load tokenizer: {str(e)}", model=self.model)
         
-        elif self.provider == "anthropic":
-            # For Anthropic models, we'll use a simple approximation
-            # since they don't provide a public tokenizer
+        else:
+            # For all other providers (Anthropic, Google, Meta, Mistral, Cohere), 
+            # we'll use approximation since they don't provide public tokenizers
             self.tokenizer = None
     
     def count(self, text: str) -> int:
@@ -141,17 +177,18 @@ class TokenCounter:
         try:
             if self.provider == "openai":
                 return len(self.tokenizer.encode(text))
-            elif self.provider == "anthropic":
-                return self._approximate_claude_tokens(text)
+            else:
+                # Use approximation for all other providers
+                return self._approximate_tokens(text)
         except Exception as e:
             raise TokenizationError(str(e), model=self.model, text_preview=text)
     
-    def _approximate_claude_tokens(self, text: str) -> int:
+    def _approximate_tokens(self, text: str) -> int:
         """
-        Approximate token count for Claude models.
+        Approximate token count for non-OpenAI models.
         
-        This is based on Anthropic's guidance that ~4 characters = 1 token
-        for English text, with adjustments for different text patterns.
+        This uses a general approximation algorithm that works reasonably well
+        for most LLMs, with slight adjustments based on the provider.
         """
         if not text:
             return 0
@@ -165,9 +202,31 @@ class TokenCounter:
         # Adjust for punctuation (often separate tokens)
         punctuation_count = len(re.findall(r'[^\w\s]', text))
         
-        # Rough approximation: 4 chars per token, but add extra for whitespace and punctuation
-        base_tokens = char_count / 4
-        adjustment = (whitespace_count + punctuation_count) * 0.3
+        # Provider-specific adjustments
+        if self.provider == "anthropic":
+            # Anthropic's guidance: ~4 characters = 1 token
+            base_tokens = char_count / 4
+            adjustment = (whitespace_count + punctuation_count) * 0.3
+        elif self.provider == "google":
+            # Gemini models tend to have similar tokenization to GPT
+            base_tokens = char_count / 3.8
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "meta":
+            # LLaMA models have slightly different tokenization
+            base_tokens = char_count / 3.5
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "mistral":
+            # Mistral models similar to GPT
+            base_tokens = char_count / 3.7
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "cohere":
+            # Cohere models
+            base_tokens = char_count / 4.2
+            adjustment = (whitespace_count + punctuation_count) * 0.3
+        else:
+            # Default approximation
+            base_tokens = char_count / 4
+            adjustment = (whitespace_count + punctuation_count) * 0.3
         
         return max(1, int(base_tokens + adjustment))
     
@@ -236,6 +295,10 @@ def get_supported_models() -> Dict[str, List[str]]:
     return {
         "openai": list(OPENAI_MODELS.keys()),
         "anthropic": list(ANTHROPIC_MODELS.keys()),
+        "google": list(GOOGLE_MODELS.keys()),
+        "meta": list(META_MODELS.keys()),
+        "mistral": list(MISTRAL_MODELS.keys()),
+        "cohere": list(COHERE_MODELS.keys()),
     }
 
 

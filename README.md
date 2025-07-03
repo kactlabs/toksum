@@ -18,15 +18,31 @@ A Python library for counting tokens in text for major Large Language Models (LL
 
 ## Supported Models
 
-### OpenAI Models
-- GPT-4 (all variants including gpt-4, gpt-4-32k, gpt-4-turbo-preview, etc.)
+### OpenAI Models (31 models)
+- GPT-4 (all variants including gpt-4, gpt-4-32k, gpt-4-turbo, gpt-4o, gpt-4o-mini, etc.)
 - GPT-3.5 Turbo (all variants)
 - Legacy models (text-davinci-003, text-davinci-002, etc.)
 
-### Anthropic Models
+### Anthropic Models (12 models)
 - Claude-3 (Opus, Sonnet, Haiku)
+- Claude-3.5 (Sonnet, Haiku)
 - Claude-2 (2.1, 2.0)
 - Claude Instant (all variants)
+
+### Google Models (4 models)
+- Gemini Pro, Gemini Pro Vision
+- Gemini 1.5 Pro, Gemini 1.5 Flash
+
+### Meta Models (3 models)
+- LLaMA-2 (7B, 13B, 70B)
+
+### Mistral Models (2 models)
+- Mistral 7B, Mistral 8x7B
+
+### Cohere Models (1 model)
+- Command
+
+**Total: 54 models across 6 providers**
 
 ## Installation
 
@@ -252,6 +268,16 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Changelog
+
+### v0.3.0
+- Added 10 more models from new providers:
+  - Google: gemini-pro, gemini-pro-vision, gemini-1.5-pro, gemini-1.5-flash
+  - Meta: llama-2-7b, llama-2-13b, llama-2-70b
+  - Mistral: mistral-7b, mistral-8x7b
+  - Cohere: command
+- Expanded to 6 total providers (OpenAI, Anthropic, Google, Meta, Mistral, Cohere)
+- Enhanced approximation algorithms with provider-specific adjustments
+- Total model support increased to 54 models
 
 ### v0.2.0
 - Added 10 new models:

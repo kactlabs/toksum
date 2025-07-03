@@ -2,6 +2,8 @@
 Custom exceptions for the toksum library.
 """
 
+from typing import List, Optional
+
 
 class ToksumError(Exception):
     """Base exception class for toksum library."""
@@ -11,7 +13,7 @@ class ToksumError(Exception):
 class UnsupportedModelError(ToksumError):
     """Raised when an unsupported model is specified."""
     
-    def __init__(self, model: str, supported_models: list = None):
+    def __init__(self, model: str, supported_models: Optional[List[str]] = None):
         self.model = model
         self.supported_models = supported_models or []
         
@@ -26,7 +28,7 @@ class UnsupportedModelError(ToksumError):
 class TokenizationError(ToksumError):
     """Raised when tokenization fails."""
     
-    def __init__(self, message: str, model: str = None, text_preview: str = None):
+    def __init__(self, message: str, model: Optional[str] = None, text_preview: Optional[str] = None):
         self.model = model
         self.text_preview = text_preview
         

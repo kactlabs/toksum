@@ -3,17 +3,21 @@ Core functionality for token counting across different LLM providers.
 """
 
 import re
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, TYPE_CHECKING, Any
 
-try:
+if TYPE_CHECKING:
     import tiktoken
-except ImportError:
-    tiktoken = None
-
-try:
     from anthropic import Anthropic
-except ImportError:
-    Anthropic = None
+else:
+    try:
+        import tiktoken
+    except ImportError:
+        tiktoken = None
+
+    try:
+        from anthropic import Anthropic
+    except ImportError:
+        Anthropic = None
 
 from .exceptions import UnsupportedModelError, TokenizationError
 
@@ -197,6 +201,7 @@ class TokenCounter:
             UnsupportedModelError: If the model is not supported
             TokenizationError: If required dependencies are missing
         """
+        self.tokenizer: Optional[Any] = None
         self.model = model.lower()
         self.provider = self._detect_provider()
         self._setup_tokenizer()
@@ -292,6 +297,8 @@ class TokenCounter:
         
         try:
             if self.provider == "openai":
+                if self.tokenizer is None:
+                    raise TokenizationError("Tokenizer not initialized", model=self.model)
                 return len(self.tokenizer.encode(text))
             else:
                 # Use approximation for all other providers

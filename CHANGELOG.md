@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-01-04
+
+### Fixed
+- **Type Safety Improvements:** Fixed all mypy type errors for better code quality and IDE support
+- **Exception Handling:** Added proper Optional type annotations for function parameters with None defaults
+- **Import Handling:** Improved conditional imports using TYPE_CHECKING to avoid mypy issues with optional dependencies
+- **Runtime Safety:** Added runtime checks to ensure tokenizer is properly initialized before use
+
+### Enhanced
+- Full mypy compliance with `--ignore-missing-imports` flag
+- Better type hints throughout the codebase
+- Improved developer experience with proper type checking support
+
+### Technical Changes
+- Updated `toksum/exceptions.py` with proper `Optional[List[str]]` and `Optional[str]` type annotations
+- Restructured imports in `toksum/core.py` using `TYPE_CHECKING` pattern
+- Added explicit tokenizer null checks before method calls
+- Enhanced type safety without breaking existing functionality
+
 ## [0.5.0] - 2025-01-04
 
 ### Added
@@ -161,6 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cost estimation based on current pricing
 - Easy-to-use functional and object-oriented APIs
 
+[0.6.0]: https://github.com/kactlabs/toksum/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/kactlabs/toksum/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/kactlabs/toksum/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/kactlabs/toksum/compare/v0.2.0...v0.3.0

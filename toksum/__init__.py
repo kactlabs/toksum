@@ -19,7 +19,7 @@ Usage:
 from .core import TokenCounter, count_tokens, get_supported_models, estimate_cost
 from .exceptions import UnsupportedModelError, TokenizationError
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 __author__ = "Raja CSP Raman"
 __email__ = "raja.csp@gmail.com"
 

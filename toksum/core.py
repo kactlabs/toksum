@@ -124,6 +124,58 @@ COHERE_MODELS = {
     "command-nightly": "cohere",  # ADDED
     "command-r": "cohere-r",  # ADDED
     "command-r-plus": "cohere-r",  # ADDED
+    "command-r-08-2024": "cohere-r",  # ADDED
+    "command-r-plus-08-2024": "cohere-r",  # ADDED
+}
+
+# Anthropic Legacy Models (using approximation)
+ANTHROPIC_LEGACY_MODELS = {
+    "claude-1": "claude-1",  # ADDED
+    "claude-1.3": "claude-1",  # ADDED
+    "claude-1.3-100k": "claude-1",  # ADDED
+}
+
+# OpenAI Legacy Models (additional variants)
+OPENAI_LEGACY_MODELS = {
+    "gpt-3": "r50k_base",  # ADDED
+    "text-embedding-ada-002": "cl100k_base",  # ADDED
+    "text-embedding-3-small": "cl100k_base",  # ADDED
+    "text-embedding-3-large": "cl100k_base",  # ADDED
+    "gpt-4-base": "cl100k_base",  # ADDED
+    "gpt-3.5-turbo-instruct-0914": "cl100k_base",  # ADDED
+}
+
+# Perplexity Models (using approximation)
+PERPLEXITY_MODELS = {
+    "pplx-7b-online": "perplexity",  # ADDED
+    "pplx-70b-online": "perplexity",  # ADDED
+    "pplx-7b-chat": "perplexity",  # ADDED
+    "pplx-70b-chat": "perplexity",  # ADDED
+    "codellama-34b-instruct": "perplexity",  # ADDED
+}
+
+# Hugging Face Models (using approximation)
+HUGGINGFACE_MODELS = {
+    "microsoft/DialoGPT-medium": "huggingface",  # ADDED
+    "microsoft/DialoGPT-large": "huggingface",  # ADDED
+    "facebook/blenderbot-400M-distill": "huggingface",  # ADDED
+    "facebook/blenderbot-1B-distill": "huggingface",  # ADDED
+    "facebook/blenderbot-3B": "huggingface",  # ADDED
+}
+
+# AI21 Models (using approximation)
+AI21_MODELS = {
+    "j2-light": "ai21",  # ADDED
+    "j2-mid": "ai21",  # ADDED
+    "j2-ultra": "ai21",  # ADDED
+    "j2-jumbo-instruct": "ai21",  # ADDED
+}
+
+# Together AI Models (using approximation)
+TOGETHER_MODELS = {
+    "togethercomputer/RedPajama-INCITE-Chat-3B-v1": "together",  # ADDED
+    "togethercomputer/RedPajama-INCITE-Chat-7B-v1": "together",  # ADDED
+    "NousResearch/Nous-Hermes-Llama2-13b": "together",  # ADDED
 }
 
 
@@ -151,22 +203,47 @@ class TokenCounter:
     
     def _detect_provider(self) -> str:
         """Detect which provider the model belongs to."""
-        if self.model in OPENAI_MODELS:
+        # Create lowercase versions of all model dictionaries for case-insensitive matching
+        openai_models_lower = {k.lower(): v for k, v in OPENAI_MODELS.items()}
+        openai_legacy_models_lower = {k.lower(): v for k, v in OPENAI_LEGACY_MODELS.items()}
+        anthropic_models_lower = {k.lower(): v for k, v in ANTHROPIC_MODELS.items()}
+        anthropic_legacy_models_lower = {k.lower(): v for k, v in ANTHROPIC_LEGACY_MODELS.items()}
+        google_models_lower = {k.lower(): v for k, v in GOOGLE_MODELS.items()}
+        meta_models_lower = {k.lower(): v for k, v in META_MODELS.items()}
+        mistral_models_lower = {k.lower(): v for k, v in MISTRAL_MODELS.items()}
+        cohere_models_lower = {k.lower(): v for k, v in COHERE_MODELS.items()}
+        perplexity_models_lower = {k.lower(): v for k, v in PERPLEXITY_MODELS.items()}
+        huggingface_models_lower = {k.lower(): v for k, v in HUGGINGFACE_MODELS.items()}
+        ai21_models_lower = {k.lower(): v for k, v in AI21_MODELS.items()}
+        together_models_lower = {k.lower(): v for k, v in TOGETHER_MODELS.items()}
+        
+        if self.model in openai_models_lower or self.model in openai_legacy_models_lower:
             return "openai"
-        elif self.model in ANTHROPIC_MODELS:
+        elif self.model in anthropic_models_lower or self.model in anthropic_legacy_models_lower:
             return "anthropic"
-        elif self.model in GOOGLE_MODELS:
+        elif self.model in google_models_lower:
             return "google"
-        elif self.model in META_MODELS:
+        elif self.model in meta_models_lower:
             return "meta"
-        elif self.model in MISTRAL_MODELS:
+        elif self.model in mistral_models_lower:
             return "mistral"
-        elif self.model in COHERE_MODELS:
+        elif self.model in cohere_models_lower:
             return "cohere"
+        elif self.model in perplexity_models_lower:
+            return "perplexity"
+        elif self.model in huggingface_models_lower:
+            return "huggingface"
+        elif self.model in ai21_models_lower:
+            return "ai21"
+        elif self.model in together_models_lower:
+            return "together"
         else:
-            supported = (list(OPENAI_MODELS.keys()) + list(ANTHROPIC_MODELS.keys()) + 
+            supported = (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) +
+                        list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) +
                         list(GOOGLE_MODELS.keys()) + list(META_MODELS.keys()) + 
-                        list(MISTRAL_MODELS.keys()) + list(COHERE_MODELS.keys()))
+                        list(MISTRAL_MODELS.keys()) + list(COHERE_MODELS.keys()) +
+                        list(PERPLEXITY_MODELS.keys()) + list(HUGGINGFACE_MODELS.keys()) +
+                        list(AI21_MODELS.keys()) + list(TOGETHER_MODELS.keys()))
             raise UnsupportedModelError(self.model, supported)
     
     def _setup_tokenizer(self) -> None:
@@ -178,15 +255,23 @@ class TokenCounter:
                     model=self.model
                 )
             
-            encoding_name = OPENAI_MODELS[self.model]
+            # Create lowercase versions for case-insensitive matching
+            openai_models_lower = {k.lower(): v for k, v in OPENAI_MODELS.items()}
+            openai_legacy_models_lower = {k.lower(): v for k, v in OPENAI_LEGACY_MODELS.items()}
+            
+            # Check both main and legacy OpenAI models
+            if self.model in openai_models_lower:
+                encoding_name = openai_models_lower[self.model]
+            else:
+                encoding_name = openai_legacy_models_lower[self.model]
+            
             try:
                 self.tokenizer = tiktoken.get_encoding(encoding_name)
             except Exception as e:
                 raise TokenizationError(f"Failed to load tokenizer: {str(e)}", model=self.model)
         
         else:
-            # For all other providers (Anthropic, Google, Meta, Mistral, Cohere), 
-            # we'll use approximation since they don't provide public tokenizers
+            # For all other providers, we'll use approximation since they don't provide public tokenizers
             self.tokenizer = None
     
     def count(self, text: str) -> int:
@@ -254,6 +339,22 @@ class TokenCounter:
             # Cohere models
             base_tokens = char_count / 4.2
             adjustment = (whitespace_count + punctuation_count) * 0.3
+        elif self.provider == "perplexity":
+            # Perplexity models similar to LLaMA
+            base_tokens = char_count / 3.6
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "huggingface":
+            # HuggingFace models vary, use conservative estimate
+            base_tokens = char_count / 4.0
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "ai21":
+            # AI21 models similar to GPT
+            base_tokens = char_count / 3.8
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "together":
+            # Together AI models vary, use conservative estimate
+            base_tokens = char_count / 3.9
+            adjustment = (whitespace_count + punctuation_count) * 0.25
         else:
             # Default approximation
             base_tokens = char_count / 4
@@ -324,12 +425,16 @@ def get_supported_models() -> Dict[str, List[str]]:
         Dictionary with provider names as keys and lists of model names as values
     """
     return {
-        "openai": list(OPENAI_MODELS.keys()),
-        "anthropic": list(ANTHROPIC_MODELS.keys()),
+        "openai": list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()),
+        "anthropic": list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()),
         "google": list(GOOGLE_MODELS.keys()),
         "meta": list(META_MODELS.keys()),
         "mistral": list(MISTRAL_MODELS.keys()),
         "cohere": list(COHERE_MODELS.keys()),
+        "perplexity": list(PERPLEXITY_MODELS.keys()),
+        "huggingface": list(HUGGINGFACE_MODELS.keys()),
+        "ai21": list(AI21_MODELS.keys()),
+        "together": list(TOGETHER_MODELS.keys()),
     }
 
 

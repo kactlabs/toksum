@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-01-04
+
+### Added
+- 28 additional models across 4 new providers, bringing total to 112 models
+- **New Providers:**
+  - **Perplexity (5 models):** pplx-7b-online, pplx-70b-online, pplx-7b-chat, pplx-70b-chat, codellama-34b-instruct
+  - **Hugging Face (5 models):** microsoft/DialoGPT-medium, microsoft/DialoGPT-large, facebook/blenderbot-400M-distill, facebook/blenderbot-1B-distill, facebook/blenderbot-3B
+  - **AI21 (4 models):** j2-light, j2-mid, j2-ultra, j2-jumbo-instruct
+  - **Together AI (3 models):** togethercomputer/RedPajama-INCITE-Chat-3B-v1, togethercomputer/RedPajama-INCITE-Chat-7B-v1, NousResearch/Nous-Hermes-Llama2-13b
+- **Additional OpenAI Models (6 new):**
+  - `gpt-3` - Legacy GPT-3 model
+  - `text-embedding-ada-002` - Ada embedding model
+  - `text-embedding-3-small` - Small embedding model
+  - `text-embedding-3-large` - Large embedding model
+  - `gpt-4-base` - Base GPT-4 model
+  - `gpt-3.5-turbo-instruct-0914` - Specific instruct variant
+- **Additional Anthropic Models (3 new):**
+  - `claude-1` - Legacy Claude model
+  - `claude-1.3` - Claude 1.3 model
+  - `claude-1.3-100k` - Claude 1.3 with 100k context
+- **Additional Cohere Models (2 new):**
+  - `command-r-08-2024` - August 2024 Command-R variant
+  - `command-r-plus-08-2024` - August 2024 Command-R Plus variant
+
+### Enhanced
+- Case-insensitive model name matching for better compatibility
+- Provider-specific tokenization approximations for new providers
+- Improved model detection and validation across all providers
+- Enhanced error handling for complex model names with special characters
+
+### Changed
+- Expanded to 10 total providers
+- Total model support increased from 84 to 112 models
+- Updated documentation with comprehensive provider listings
+
 ## [0.4.0] - 2025-01-04
 
 ### Added
@@ -126,6 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cost estimation based on current pricing
 - Easy-to-use functional and object-oriented APIs
 
+[0.5.0]: https://github.com/kactlabs/toksum/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/kactlabs/toksum/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/kactlabs/toksum/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/kactlabs/toksum/compare/v0.1.0...v0.2.0

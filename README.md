@@ -18,15 +18,17 @@ A Python library for counting tokens in text for major Large Language Models (LL
 
 ## Supported Models
 
-### OpenAI Models (36 models)
+### OpenAI Models (42 models)
 - GPT-4 (all variants including gpt-4, gpt-4-32k, gpt-4-turbo, gpt-4o, gpt-4o-mini, etc.)
 - GPT-3.5 Turbo (all variants including instruct)
-- Legacy models (text-davinci-003, text-davinci-002, etc.)
+- Legacy models (text-davinci-003, text-davinci-002, gpt-3, etc.)
+- Embedding models (text-embedding-ada-002, text-embedding-3-small, text-embedding-3-large)
 
-### Anthropic Models (16 models)
+### Anthropic Models (19 models)
 - Claude-3 (Opus, Sonnet, Haiku with full and short names)
 - Claude-3.5 (Sonnet, Haiku)
 - Claude-2 (2.1, 2.0)
+- Claude-1 (legacy models including 1.3, 1.3-100k)
 - Claude Instant (all variants including short name)
 
 ### Google Models (9 models)
@@ -46,11 +48,26 @@ A Python library for counting tokens in text for major Large Language Models (LL
 - Mixtral (8x7B, 8x22B)
 - Legacy Mistral 8x7B
 
-### Cohere Models (5 models)
+### Cohere Models (7 models)
 - Command (standard, light, nightly)
-- Command-R (standard, plus)
+- Command-R (standard, plus, with 2024 variants)
 
-**Total: 84 models across 6 providers**
+### Perplexity Models (5 models)
+- PPLX (7B, 70B online and chat variants)
+- CodeLlama 34B Instruct
+
+### Hugging Face Models (5 models)
+- Microsoft DialoGPT (medium, large)
+- Facebook BlenderBot (400M, 1B, 3B variants)
+
+### AI21 Models (4 models)
+- Jurassic-2 (Light, Mid, Ultra, Jumbo Instruct)
+
+### Together AI Models (3 models)
+- RedPajama INCITE Chat (3B, 7B)
+- Nous Hermes LLaMA2 13B
+
+**Total: 112 models across 10 providers**
 
 ## Installation
 
@@ -276,6 +293,19 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Changelog
+
+### v0.5.0
+- Added 28 more models across 4 new providers:
+  - Perplexity: pplx-7b-online, pplx-70b-online, pplx-7b-chat, pplx-70b-chat, codellama-34b-instruct
+  - Hugging Face: microsoft/DialoGPT-medium, microsoft/DialoGPT-large, facebook/blenderbot variants
+  - AI21: j2-light, j2-mid, j2-ultra, j2-jumbo-instruct
+  - Together AI: RedPajama INCITE Chat models, Nous Hermes LLaMA2
+  - Additional OpenAI legacy and embedding models
+  - Additional Anthropic legacy models (Claude-1 series)
+  - Additional Cohere model variants
+- Enhanced case-insensitive model matching
+- Expanded to 10 total providers
+- Total model support increased to 112 models
 
 ### v0.4.0
 - Added 30 more models across all providers:

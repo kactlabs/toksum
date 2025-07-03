@@ -18,31 +18,39 @@ A Python library for counting tokens in text for major Large Language Models (LL
 
 ## Supported Models
 
-### OpenAI Models (31 models)
+### OpenAI Models (36 models)
 - GPT-4 (all variants including gpt-4, gpt-4-32k, gpt-4-turbo, gpt-4o, gpt-4o-mini, etc.)
-- GPT-3.5 Turbo (all variants)
+- GPT-3.5 Turbo (all variants including instruct)
 - Legacy models (text-davinci-003, text-davinci-002, etc.)
 
-### Anthropic Models (12 models)
-- Claude-3 (Opus, Sonnet, Haiku)
+### Anthropic Models (16 models)
+- Claude-3 (Opus, Sonnet, Haiku with full and short names)
 - Claude-3.5 (Sonnet, Haiku)
 - Claude-2 (2.1, 2.0)
-- Claude Instant (all variants)
+- Claude Instant (all variants including short name)
 
-### Google Models (4 models)
+### Google Models (9 models)
 - Gemini Pro, Gemini Pro Vision
-- Gemini 1.5 Pro, Gemini 1.5 Flash
+- Gemini 1.5 Pro, Gemini 1.5 Flash (including latest variants)
+- Gemini 1.0 Pro, Gemini 1.0 Pro Vision
+- Gemini Ultra
 
-### Meta Models (3 models)
+### Meta Models (10 models)
 - LLaMA-2 (7B, 13B, 70B)
+- LLaMA-3 (8B, 70B)
+- LLaMA-3.1 (8B, 70B, 405B)
+- LLaMA-3.2 (1B, 3B)
 
-### Mistral Models (2 models)
-- Mistral 7B, Mistral 8x7B
+### Mistral Models (8 models)
+- Mistral (7B, Large, Medium, Small, Tiny)
+- Mixtral (8x7B, 8x22B)
+- Legacy Mistral 8x7B
 
-### Cohere Models (1 model)
-- Command
+### Cohere Models (5 models)
+- Command (standard, light, nightly)
+- Command-R (standard, plus)
 
-**Total: 54 models across 6 providers**
+**Total: 84 models across 6 providers**
 
 ## Installation
 
@@ -268,6 +276,17 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Changelog
+
+### v0.4.0
+- Added 30 more models across all providers:
+  - OpenAI: gpt-4o-2024-08-06, gpt-4o-2024-11-20, gpt-4-1106-vision-preview, gpt-3.5-turbo-instruct
+  - Anthropic: claude-3-opus, claude-3-sonnet, claude-3-haiku, claude-instant (short names)
+  - Google: gemini-1.5-pro-latest, gemini-1.5-flash-latest, gemini-1.0-pro, gemini-1.0-pro-vision, gemini-ultra
+  - Meta: llama-3-8b, llama-3-70b, llama-3.1-8b, llama-3.1-70b, llama-3.1-405b, llama-3.2-1b, llama-3.2-3b
+  - Mistral: mistral-large, mistral-medium, mistral-small, mistral-tiny, mixtral-8x7b, mixtral-8x22b
+  - Cohere: command-light, command-nightly, command-r, command-r-plus
+- Enhanced provider-specific tokenization approximations
+- Total model support increased to 84 models
 
 ### v0.3.0
 - Added 10 more models from new providers:

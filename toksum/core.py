@@ -36,6 +36,10 @@ OPENAI_MODELS = {
     "gpt-4o-2024-05-13": "cl100k_base",  # NEW
     "gpt-4o-mini": "cl100k_base",  # NEW
     "gpt-4o-mini-2024-07-18": "cl100k_base",  # NEW
+    "gpt-4o-2024-08-06": "cl100k_base",  # ADDED
+    "gpt-4o-2024-11-20": "cl100k_base",  # ADDED
+    "gpt-4-1106-vision-preview": "cl100k_base",  # ADDED
+    "gpt-4-turbo-2024-04-09": "cl100k_base",  # ADDED
     "gpt-3.5-turbo": "cl100k_base",
     "gpt-3.5-turbo-0301": "cl100k_base",
     "gpt-3.5-turbo-0613": "cl100k_base",
@@ -43,6 +47,7 @@ OPENAI_MODELS = {
     "gpt-3.5-turbo-0125": "cl100k_base",
     "gpt-3.5-turbo-16k": "cl100k_base",
     "gpt-3.5-turbo-16k-0613": "cl100k_base",
+    "gpt-3.5-turbo-instruct": "cl100k_base",  # ADDED
     "text-davinci-003": "p50k_base",
     "text-davinci-002": "p50k_base",
     "text-curie-001": "r50k_base",
@@ -62,11 +67,15 @@ ANTHROPIC_MODELS = {
     "claude-3.5-sonnet-20241022": "claude-3.5",  # NEW
     "claude-3.5-haiku-20241022": "claude-3.5",  # NEW
     "claude-3-5-sonnet-20240620": "claude-3.5",  # NEW (alternative naming)
+    "claude-3-opus": "claude-3",  # ADDED (short name)
+    "claude-3-sonnet": "claude-3",  # ADDED (short name)
+    "claude-3-haiku": "claude-3",  # ADDED (short name)
     "claude-2.1": "claude-2",
     "claude-2.0": "claude-2",
     "claude-instant-1.2": "claude-instant",
     "claude-instant-1.1": "claude-instant",
     "claude-instant-1.0": "claude-instant",
+    "claude-instant": "claude-instant",  # ADDED (short name)
 }
 
 # Google Models (using approximation similar to Claude)
@@ -75,6 +84,11 @@ GOOGLE_MODELS = {
     "gemini-pro-vision": "gemini",  # NEW
     "gemini-1.5-pro": "gemini-1.5",  # NEW
     "gemini-1.5-flash": "gemini-1.5",  # NEW
+    "gemini-1.5-pro-latest": "gemini-1.5",  # ADDED
+    "gemini-1.5-flash-latest": "gemini-1.5",  # ADDED
+    "gemini-1.0-pro": "gemini",  # ADDED
+    "gemini-1.0-pro-vision": "gemini",  # ADDED
+    "gemini-ultra": "gemini-ultra",  # ADDED
 }
 
 # Meta Models (using approximation)
@@ -82,17 +96,34 @@ META_MODELS = {
     "llama-2-7b": "llama-2",  # NEW
     "llama-2-13b": "llama-2",  # NEW
     "llama-2-70b": "llama-2",  # NEW
+    "llama-3-8b": "llama-3",  # ADDED
+    "llama-3-70b": "llama-3",  # ADDED
+    "llama-3.1-8b": "llama-3.1",  # ADDED
+    "llama-3.1-70b": "llama-3.1",  # ADDED
+    "llama-3.1-405b": "llama-3.1",  # ADDED
+    "llama-3.2-1b": "llama-3.2",  # ADDED
+    "llama-3.2-3b": "llama-3.2",  # ADDED
 }
 
 # Mistral Models (using approximation)
 MISTRAL_MODELS = {
     "mistral-7b": "mistral",  # NEW
     "mistral-8x7b": "mistral",  # NEW
+    "mistral-large": "mistral-large",  # ADDED
+    "mistral-medium": "mistral-medium",  # ADDED
+    "mistral-small": "mistral-small",  # ADDED
+    "mistral-tiny": "mistral-tiny",  # ADDED
+    "mixtral-8x7b": "mixtral",  # ADDED
+    "mixtral-8x22b": "mixtral",  # ADDED
 }
 
 # Cohere Models (using approximation)
 COHERE_MODELS = {
     "command": "cohere",  # NEW
+    "command-light": "cohere",  # ADDED
+    "command-nightly": "cohere",  # ADDED
+    "command-r": "cohere-r",  # ADDED
+    "command-r-plus": "cohere-r",  # ADDED
 }
 
 

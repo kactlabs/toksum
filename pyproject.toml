@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "toksum"
-version = "0.7.0"
+version = "0.8.0"
 description = "A Python library for counting tokens in text for major LLMs (OpenAI GPT and Anthropic Claude)"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["tokens", "llm", "openai", "anthropic", "gpt", "claude", "tokenizer"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",

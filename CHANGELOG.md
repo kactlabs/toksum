@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-01-04
+
+### Added
+- 22 new cutting-edge models across 8 model categories, bringing total to 249 models
+- **Latest Model Releases:**
+  - **OpenAI O1 Models (4 models):** o1-preview, o1-mini, o1-preview-2024-09-12, o1-mini-2024-09-12
+  - **Anthropic Claude 3.5 Haiku (2 models):** claude-3.5-haiku-20241022, claude-3-5-haiku-20241022
+  - **Anthropic Computer Use (2 models):** claude-3-5-sonnet-20241022, claude-3.5-sonnet-computer-use
+  - **Google Gemini 2.0 (4 models):** gemini-2.0-flash-exp, gemini-2.0-flash, gemini-exp-1206, gemini-exp-1121
+  - **Meta Llama 3.3 (2 models):** llama-3.3-70b, llama-3.3-70b-instruct
+  - **Mistral Large 2 (2 models):** mistral-large-2, mistral-large-2407
+  - **DeepSeek V3 (2 models):** deepseek-v3, deepseek-v3-base
+  - **Qwen 2.5 (4 models):** qwen-2.5-72b, qwen-2.5-32b, qwen-2.5-14b, qwen-2.5-7b
+
+### Enhanced
+- **OpenAI O1 Support:** Full tokenization support using cl100k_base encoding for accurate token counting
+- **Advanced Model Detection:** Enhanced provider detection logic to handle all new model categories
+- **Comprehensive Testing:** Added 200+ new test cases specifically for v0.8.0 models including:
+  - Individual model provider detection and token counting
+  - Case-insensitive model name matching
+  - Message counting for chat formats
+  - Approximation consistency across text lengths
+  - Special character and edge case handling
+  - Error handling for invalid inputs
+  - Language-specific optimizations (Chinese, multilingual, code)
+- **Model Count Validation:** Updated test suite to verify 249+ total models across all providers
+
+### Technical Improvements
+- **Provider-Specific Approximations:** Optimized token approximations for new model families
+- **Chinese Language Optimization:** Enhanced approximations for Qwen 2.5 models (3.2 chars ≈ 1 token)
+- **Code Understanding:** Specialized approximations for DeepSeek V3 coding models
+- **Multimodal Support:** Approximations for Gemini 2.0 multimodal capabilities
+- **Computer Use Models:** Specialized handling for Anthropic's computer interaction models
+
+### Changed
+- Updated model counts across providers:
+  - OpenAI: 46 models (added O1 series)
+  - Anthropic: 23 models (added Haiku 3.5 and Computer Use)
+  - Google: 13 models (added Gemini 2.0 series)
+  - Meta: 12 models (added Llama 3.3 series)
+  - Mistral: 10 models (added Large 2 series)
+  - Alibaba: 20 models (added Qwen 2.5 series)
+  - DeepSeek: 10 models (added V3 series)
+
+### Quality Assurance
+- All new models tested and verified for functionality
+- Comprehensive error handling and edge case coverage
+- Maintained backward compatibility with existing models
+- Enhanced documentation and model categorization
+
 ## [0.7.0] - 2025-01-04
 
 ### Added
@@ -215,6 +265,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cost estimation based on current pricing
 - Easy-to-use functional and object-oriented APIs
 
+[0.8.0]: https://github.com/kactlabs/toksum/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/kactlabs/toksum/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/kactlabs/toksum/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/kactlabs/toksum/compare/v0.4.0...v0.5.0

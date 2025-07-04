@@ -361,6 +361,60 @@ COMMUNITY_MODELS = {
     "zephyr-7b-beta": "zephyr",  # NEW
 }
 
+# Anthropic Claude 3.5 Haiku Models (using approximation)
+ANTHROPIC_HAIKU_MODELS = {
+    "claude-3.5-haiku-20241022": "claude-3.5-haiku",  # NEW
+    "claude-3-5-haiku-20241022": "claude-3.5-haiku",  # NEW (alternative naming)
+}
+
+# OpenAI O1 Models (using approximation)
+OPENAI_O1_MODELS = {
+    "o1-preview": "o1",  # NEW
+    "o1-mini": "o1",  # NEW
+    "o1-preview-2024-09-12": "o1",  # NEW
+    "o1-mini-2024-09-12": "o1",  # NEW
+}
+
+# Anthropic Computer Use Models (using approximation)
+ANTHROPIC_COMPUTER_USE_MODELS = {
+    "claude-3-5-sonnet-20241022": "claude-3.5-computer",  # NEW
+    "claude-3.5-sonnet-computer-use": "claude-3.5-computer",  # NEW
+}
+
+# Google Gemini 2.0 Models (using approximation)
+GOOGLE_GEMINI_2_MODELS = {
+    "gemini-2.0-flash-exp": "gemini-2.0",  # NEW
+    "gemini-2.0-flash": "gemini-2.0",  # NEW
+    "gemini-exp-1206": "gemini-exp",  # NEW
+    "gemini-exp-1121": "gemini-exp",  # NEW
+}
+
+# Meta Llama 3.3 Models (using approximation)
+META_LLAMA_33_MODELS = {
+    "llama-3.3-70b": "llama-3.3",  # NEW
+    "llama-3.3-70b-instruct": "llama-3.3",  # NEW
+}
+
+# Mistral Large 2 Models (using approximation)
+MISTRAL_LARGE_2_MODELS = {
+    "mistral-large-2": "mistral-large-2",  # NEW
+    "mistral-large-2407": "mistral-large-2",  # NEW
+}
+
+# DeepSeek V3 Models (using approximation)
+DEEPSEEK_V3_MODELS = {
+    "deepseek-v3": "deepseek-v3",  # NEW
+    "deepseek-v3-base": "deepseek-v3",  # NEW
+}
+
+# Qwen 2.5 Models (using approximation)
+QWEN_25_MODELS = {
+    "qwen-2.5-72b": "qwen-2.5",  # NEW
+    "qwen-2.5-32b": "qwen-2.5",  # NEW
+    "qwen-2.5-14b": "qwen-2.5",  # NEW
+    "qwen-2.5-7b": "qwen-2.5",  # NEW
+}
+
 
 class TokenCounter:
     """
@@ -390,11 +444,17 @@ class TokenCounter:
         # Create lowercase versions of all model dictionaries for case-insensitive matching
         openai_models_lower = {k.lower(): v for k, v in OPENAI_MODELS.items()}
         openai_legacy_models_lower = {k.lower(): v for k, v in OPENAI_LEGACY_MODELS.items()}
+        openai_o1_models_lower = {k.lower(): v for k, v in OPENAI_O1_MODELS.items()}
         anthropic_models_lower = {k.lower(): v for k, v in ANTHROPIC_MODELS.items()}
         anthropic_legacy_models_lower = {k.lower(): v for k, v in ANTHROPIC_LEGACY_MODELS.items()}
+        anthropic_haiku_models_lower = {k.lower(): v for k, v in ANTHROPIC_HAIKU_MODELS.items()}
+        anthropic_computer_use_models_lower = {k.lower(): v for k, v in ANTHROPIC_COMPUTER_USE_MODELS.items()}
         google_models_lower = {k.lower(): v for k, v in GOOGLE_MODELS.items()}
+        google_gemini_2_models_lower = {k.lower(): v for k, v in GOOGLE_GEMINI_2_MODELS.items()}
         meta_models_lower = {k.lower(): v for k, v in META_MODELS.items()}
+        meta_llama_33_models_lower = {k.lower(): v for k, v in META_LLAMA_33_MODELS.items()}
         mistral_models_lower = {k.lower(): v for k, v in MISTRAL_MODELS.items()}
+        mistral_large_2_models_lower = {k.lower(): v for k, v in MISTRAL_LARGE_2_MODELS.items()}
         cohere_models_lower = {k.lower(): v for k, v in COHERE_MODELS.items()}
         perplexity_models_lower = {k.lower(): v for k, v in PERPLEXITY_MODELS.items()}
         huggingface_models_lower = {k.lower(): v for k, v in HUGGINGFACE_MODELS.items()}
@@ -402,6 +462,7 @@ class TokenCounter:
         together_models_lower = {k.lower(): v for k, v in TOGETHER_MODELS.items()}
         xai_models_lower = {k.lower(): v for k, v in XAI_MODELS.items()}
         alibaba_models_lower = {k.lower(): v for k, v in ALIBABA_MODELS.items()}
+        qwen_25_models_lower = {k.lower(): v for k, v in QWEN_25_MODELS.items()}
         baidu_models_lower = {k.lower(): v for k, v in BAIDU_MODELS.items()}
         huawei_models_lower = {k.lower(): v for k, v in HUAWEI_MODELS.items()}
         yandex_models_lower = {k.lower(): v for k, v in YANDEX_MODELS.items()}
@@ -413,19 +474,22 @@ class TokenCounter:
         minimax_models_lower = {k.lower(): v for k, v in MINIMAX_MODELS.items()}
         aleph_alpha_models_lower = {k.lower(): v for k, v in ALEPH_ALPHA_MODELS.items()}
         deepseek_models_lower = {k.lower(): v for k, v in DEEPSEEK_MODELS.items()}
+        deepseek_v3_models_lower = {k.lower(): v for k, v in DEEPSEEK_V3_MODELS.items()}
         tsinghua_models_lower = {k.lower(): v for k, v in TSINGHUA_MODELS.items()}
         rwkv_models_lower = {k.lower(): v for k, v in RWKV_MODELS.items()}
         community_models_lower = {k.lower(): v for k, v in COMMUNITY_MODELS.items()}
         
-        if self.model in openai_models_lower or self.model in openai_legacy_models_lower:
+        if (self.model in openai_models_lower or self.model in openai_legacy_models_lower or 
+            self.model in openai_o1_models_lower):
             return "openai"
-        elif self.model in anthropic_models_lower or self.model in anthropic_legacy_models_lower:
+        elif (self.model in anthropic_models_lower or self.model in anthropic_legacy_models_lower or 
+              self.model in anthropic_haiku_models_lower or self.model in anthropic_computer_use_models_lower):
             return "anthropic"
-        elif self.model in google_models_lower:
+        elif self.model in google_models_lower or self.model in google_gemini_2_models_lower:
             return "google"
-        elif self.model in meta_models_lower:
+        elif self.model in meta_models_lower or self.model in meta_llama_33_models_lower:
             return "meta"
-        elif self.model in mistral_models_lower:
+        elif self.model in mistral_models_lower or self.model in mistral_large_2_models_lower:
             return "mistral"
         elif self.model in cohere_models_lower:
             return "cohere"
@@ -439,7 +503,7 @@ class TokenCounter:
             return "together"
         elif self.model in xai_models_lower:
             return "xai"
-        elif self.model in alibaba_models_lower:
+        elif self.model in alibaba_models_lower or self.model in qwen_25_models_lower:
             return "alibaba"
         elif self.model in baidu_models_lower:
             return "baidu"
@@ -461,7 +525,7 @@ class TokenCounter:
             return "minimax"
         elif self.model in aleph_alpha_models_lower:
             return "aleph_alpha"
-        elif self.model in deepseek_models_lower:
+        elif self.model in deepseek_models_lower or self.model in deepseek_v3_models_lower:
             return "deepseek"
         elif self.model in tsinghua_models_lower:
             return "tsinghua"
@@ -470,20 +534,24 @@ class TokenCounter:
         elif self.model in community_models_lower:
             return "community"
         else:
-            supported = (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) +
-                        list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) +
-                        list(GOOGLE_MODELS.keys()) + list(META_MODELS.keys()) + 
-                        list(MISTRAL_MODELS.keys()) + list(COHERE_MODELS.keys()) +
-                        list(PERPLEXITY_MODELS.keys()) + list(HUGGINGFACE_MODELS.keys()) +
-                        list(AI21_MODELS.keys()) + list(TOGETHER_MODELS.keys()) +
-                        list(XAI_MODELS.keys()) + list(ALIBABA_MODELS.keys()) +
+            supported = (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + list(OPENAI_O1_MODELS.keys()) +
+                        list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
+                        list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
+                        list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + 
+                        list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()) + 
+                        list(MISTRAL_MODELS.keys()) + list(MISTRAL_LARGE_2_MODELS.keys()) + 
+                        list(COHERE_MODELS.keys()) + list(PERPLEXITY_MODELS.keys()) + 
+                        list(HUGGINGFACE_MODELS.keys()) + list(AI21_MODELS.keys()) + 
+                        list(TOGETHER_MODELS.keys()) + list(XAI_MODELS.keys()) + 
+                        list(ALIBABA_MODELS.keys()) + list(QWEN_25_MODELS.keys()) +
                         list(BAIDU_MODELS.keys()) + list(HUAWEI_MODELS.keys()) +
                         list(YANDEX_MODELS.keys()) + list(STABILITY_MODELS.keys()) +
                         list(TII_MODELS.keys()) + list(ELEUTHERAI_MODELS.keys()) +
                         list(MOSAICML_MODELS.keys()) + list(REPLIT_MODELS.keys()) +
                         list(MINIMAX_MODELS.keys()) + list(ALEPH_ALPHA_MODELS.keys()) +
-                        list(DEEPSEEK_MODELS.keys()) + list(TSINGHUA_MODELS.keys()) +
-                        list(RWKV_MODELS.keys()) + list(COMMUNITY_MODELS.keys()))
+                        list(DEEPSEEK_MODELS.keys()) + list(DEEPSEEK_V3_MODELS.keys()) + 
+                        list(TSINGHUA_MODELS.keys()) + list(RWKV_MODELS.keys()) + 
+                        list(COMMUNITY_MODELS.keys()))
             raise UnsupportedModelError(self.model, supported)
     
     def _setup_tokenizer(self) -> None:
@@ -498,12 +566,16 @@ class TokenCounter:
             # Create lowercase versions for case-insensitive matching
             openai_models_lower = {k.lower(): v for k, v in OPENAI_MODELS.items()}
             openai_legacy_models_lower = {k.lower(): v for k, v in OPENAI_LEGACY_MODELS.items()}
+            openai_o1_models_lower = {k.lower(): v for k, v in OPENAI_O1_MODELS.items()}
             
-            # Check both main and legacy OpenAI models
+            # Check main, legacy, and O1 OpenAI models
             if self.model in openai_models_lower:
                 encoding_name = openai_models_lower[self.model]
-            else:
+            elif self.model in openai_legacy_models_lower:
                 encoding_name = openai_legacy_models_lower[self.model]
+            else:
+                # O1 models use cl100k_base encoding, but we'll map them to "o1" for approximation
+                encoding_name = "cl100k_base"
             
             try:
                 self.tokenizer = tiktoken.get_encoding(encoding_name)
@@ -731,18 +803,20 @@ def get_supported_models() -> Dict[str, List[str]]:
         Dictionary with provider names as keys and lists of model names as values
     """
     return {
-        "openai": list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()),
-        "anthropic": list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()),
-        "google": list(GOOGLE_MODELS.keys()),
-        "meta": list(META_MODELS.keys()),
-        "mistral": list(MISTRAL_MODELS.keys()),
+        "openai": (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + 
+                  list(OPENAI_O1_MODELS.keys())),
+        "anthropic": (list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
+                     list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys())),
+        "google": list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()),
+        "meta": list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()),
+        "mistral": list(MISTRAL_MODELS.keys()) + list(MISTRAL_LARGE_2_MODELS.keys()),
         "cohere": list(COHERE_MODELS.keys()),
         "perplexity": list(PERPLEXITY_MODELS.keys()),
         "huggingface": list(HUGGINGFACE_MODELS.keys()),
         "ai21": list(AI21_MODELS.keys()),
         "together": list(TOGETHER_MODELS.keys()),
         "xai": list(XAI_MODELS.keys()),
-        "alibaba": list(ALIBABA_MODELS.keys()),
+        "alibaba": list(ALIBABA_MODELS.keys()) + list(QWEN_25_MODELS.keys()),
         "baidu": list(BAIDU_MODELS.keys()),
         "huawei": list(HUAWEI_MODELS.keys()),
         "yandex": list(YANDEX_MODELS.keys()),
@@ -753,7 +827,7 @@ def get_supported_models() -> Dict[str, List[str]]:
         "replit": list(REPLIT_MODELS.keys()),
         "minimax": list(MINIMAX_MODELS.keys()),
         "aleph_alpha": list(ALEPH_ALPHA_MODELS.keys()),
-        "deepseek": list(DEEPSEEK_MODELS.keys()),
+        "deepseek": list(DEEPSEEK_MODELS.keys()) + list(DEEPSEEK_V3_MODELS.keys()),
         "tsinghua": list(TSINGHUA_MODELS.keys()),
         "rwkv": list(RWKV_MODELS.keys()),
         "community": list(COMMUNITY_MODELS.keys()),

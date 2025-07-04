@@ -8,7 +8,7 @@ A Python library for counting tokens in text for major Large Language Models (LL
 
 ## Features
 
-- **Comprehensive Multi-LLM Support**: Count tokens for 250+ models across 26 providers including OpenAI, Anthropic, Google, Meta, Mistral, xAI, Alibaba, Baidu, and many more
+- **Comprehensive Multi-LLM Support**: Count tokens for 249 models across 26 providers including OpenAI, Anthropic, Google, Meta, Mistral, xAI, Alibaba, Baidu, and many more
 - **Accurate Tokenization**: Uses official tokenizers (tiktoken for OpenAI) and optimized approximations for all other providers
 - **Chat Message Support**: Count tokens in chat/conversation format with proper message overhead calculation
 - **Cost Estimation**: Estimate API costs based on token counts and current pricing
@@ -19,33 +19,37 @@ A Python library for counting tokens in text for major Large Language Models (LL
 
 ## Supported Models
 
-### OpenAI Models (42 models)
+### OpenAI Models (46 models)
 - GPT-4 (all variants including gpt-4, gpt-4-32k, gpt-4-turbo, gpt-4o, gpt-4o-mini, etc.)
+- **NEW: O1 Models** (o1-preview, o1-mini, o1-preview-2024-09-12, o1-mini-2024-09-12)
 - GPT-3.5 Turbo (all variants including instruct)
 - Legacy models (text-davinci-003, text-davinci-002, gpt-3, etc.)
 - Embedding models (text-embedding-ada-002, text-embedding-3-small, text-embedding-3-large)
 
-### Anthropic Models (19 models)
+### Anthropic Models (23 models)
 - Claude-3 (Opus, Sonnet, Haiku with full and short names)
-- Claude-3.5 (Sonnet, Haiku)
+- Claude-3.5 (Sonnet, **NEW: Haiku 3.5**, **NEW: Computer Use models**)
 - Claude-2 (2.1, 2.0)
 - Claude-1 (legacy models including 1.3, 1.3-100k)
 - Claude Instant (all variants including short name)
 
-### Google Models (9 models)
+### Google Models (13 models)
 - Gemini Pro, Gemini Pro Vision
 - Gemini 1.5 Pro, Gemini 1.5 Flash (including latest variants)
+- **NEW: Gemini 2.0** (gemini-2.0-flash-exp, gemini-2.0-flash, gemini-exp-1206, gemini-exp-1121)
 - Gemini 1.0 Pro, Gemini 1.0 Pro Vision
 - Gemini Ultra
 
-### Meta Models (10 models)
+### Meta Models (12 models)
 - LLaMA-2 (7B, 13B, 70B)
 - LLaMA-3 (8B, 70B)
 - LLaMA-3.1 (8B, 70B, 405B)
 - LLaMA-3.2 (1B, 3B)
+- **NEW: LLaMA-3.3** (70B, 70B-instruct)
 
-### Mistral Models (8 models)
+### Mistral Models (10 models)
 - Mistral (7B, Large, Medium, Small, Tiny)
+- **NEW: Mistral Large 2** (mistral-large-2, mistral-large-2407)
 - Mixtral (8x7B, 8x22B)
 - Legacy Mistral 8x7B
 
@@ -56,9 +60,10 @@ A Python library for counting tokens in text for major Large Language Models (LL
 ### xAI Models (4 models)
 - Grok (1, 1.5, 2, beta)
 
-### Alibaba Models (16 models)
+### Alibaba Models (20 models)
 - Qwen-1.5 series (0.5B to 110B parameters)
 - Qwen-2 series (0.5B to 72B parameters)
+- **NEW: Qwen-2.5** (qwen-2.5-72b, qwen-2.5-32b, qwen-2.5-14b, qwen-2.5-7b)
 - Qwen-VL (vision-language variants)
 
 ### Baidu Models (8 models)
@@ -98,10 +103,11 @@ A Python library for counting tokens in text for major Large Language Models (LL
 ### Aleph Alpha Models (4 models)
 - Luminous (Base, Extended, Supreme, Supreme Control)
 
-### DeepSeek Models (8 models)
+### DeepSeek Models (10 models)
 - DeepSeek-Coder (1.3B to 33B, instruct)
 - DeepSeek-VL (1.3B, 7B)
 - DeepSeek-LLM (7B, 67B)
+- **NEW: DeepSeek V3** (deepseek-v3, deepseek-v3-base)
 
 ### Tsinghua KEG Lab Models (5 models)
 - ChatGLM (6B variants: ChatGLM, ChatGLM2, ChatGLM3)
@@ -133,7 +139,7 @@ A Python library for counting tokens in text for major Large Language Models (LL
 - RedPajama INCITE Chat (3B, 7B)
 - Nous Hermes LLaMA2 13B
 
-**Total: 212+ models across 26 providers**
+**Total: 249 models across 26 providers**
 
 ## Installation
 
@@ -359,6 +365,28 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Changelog
+
+### v0.8.0
+- Added 22 new cutting-edge models across 8 model categories, bringing total to 249 models
+- **Latest Model Releases:**
+  - **OpenAI O1 Models (4 models):** o1-preview, o1-mini, o1-preview-2024-09-12, o1-mini-2024-09-12
+  - **Anthropic Claude 3.5 Haiku (2 models):** claude-3.5-haiku-20241022, claude-3-5-haiku-20241022
+  - **Anthropic Computer Use (2 models):** claude-3-5-sonnet-20241022, claude-3.5-sonnet-computer-use
+  - **Google Gemini 2.0 (4 models):** gemini-2.0-flash-exp, gemini-2.0-flash, gemini-exp-1206, gemini-exp-1121
+  - **Meta Llama 3.3 (2 models):** llama-3.3-70b, llama-3.3-70b-instruct
+  - **Mistral Large 2 (2 models):** mistral-large-2, mistral-large-2407
+  - **DeepSeek V3 (2 models):** deepseek-v3, deepseek-v3-base
+  - **Qwen 2.5 (4 models):** qwen-2.5-72b, qwen-2.5-32b, qwen-2.5-14b, qwen-2.5-7b
+- **OpenAI O1 Support:** Full tokenization support using cl100k_base encoding for accurate token counting
+- **Advanced Model Detection:** Enhanced provider detection logic to handle all new model categories
+- **Comprehensive Testing:** Added 200+ new test cases specifically for v0.8.0 models
+- **Technical Improvements:**
+  - Provider-specific approximations for new model families
+  - Chinese language optimization for Qwen 2.5 models
+  - Code understanding for DeepSeek V3 models
+  - Multimodal support for Gemini 2.0 models
+  - Computer use model handling for Anthropic models
+- Updated model counts: OpenAI (46), Anthropic (23), Google (13), Meta (12), Mistral (10), Alibaba (20), DeepSeek (10)
 
 ### v0.7.0
 - Added 139 new models across 16 new providers, bringing total to 212+ models

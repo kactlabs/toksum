@@ -917,18 +917,18 @@ class TestModelCounts:
         """Test expected model counts per provider."""
         models = get_supported_models()
         expected_counts = {
-            "openai": 42,
-            "anthropic": 19,
-            "google": 9,
-            "meta": 10,
-            "mistral": 8,
+            "openai": 46,  # Updated: Added O1 models
+            "anthropic": 23,  # Updated: Added Haiku and Computer Use models
+            "google": 13,  # Updated: Added Gemini 2.0 models
+            "meta": 12,  # Updated: Added Llama 3.3 models
+            "mistral": 10,  # Updated: Added Large 2 models
             "cohere": 7,
             "perplexity": 5,
             "huggingface": 5,
             "ai21": 4,
             "together": 3,
             "xai": 4,
-            "alibaba": 16,
+            "alibaba": 20,  # Updated: Added Qwen 2.5 models
             "baidu": 8,
             "huawei": 5,
             "yandex": 4,
@@ -939,7 +939,7 @@ class TestModelCounts:
             "replit": 3,
             "minimax": 5,
             "aleph_alpha": 4,
-            "deepseek": 8,
+            "deepseek": 10,  # Updated: Added V3 models
             "tsinghua": 5,
             "rwkv": 7,
             "community": 13,
@@ -1052,6 +1052,409 @@ class TestCaseInsensitiveMatchingV070:
             
             # All variations should detect the same provider
             assert len(set(providers)) == 1, f"Case variations should detect same provider: {variations}"
+
+
+class TestNewModelsV080:
+    """Test cases for the 20 new models added in v0.8.0."""
+    
+    @patch('toksum.core.tiktoken')
+    def test_openai_o1_models(self, mock_tiktoken):
+        """Test OpenAI O1 models."""
+        mock_encoder = Mock()
+        mock_encoder.encode.return_value = [1, 2, 3, 4, 5]
+        mock_tiktoken.get_encoding.return_value = mock_encoder
+        
+        o1_models = [
+            "o1-preview", "o1-mini", 
+            "o1-preview-2024-09-12", "o1-mini-2024-09-12"
+        ]
+        
+        for model in o1_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "openai"
+            
+            tokens = counter.count("Hello, world!")
+            assert tokens == 5
+            mock_encoder.encode.assert_called_with("Hello, world!")
+    
+    def test_anthropic_haiku_models(self):
+        """Test Anthropic Claude 3.5 Haiku models."""
+        haiku_models = [
+            "claude-3.5-haiku-20241022",
+            "claude-3-5-haiku-20241022"  # Alternative naming
+        ]
+        
+        for model in haiku_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "anthropic"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test longer text
+            long_text = "This is a longer text to test the Haiku model's token counting capabilities."
+            long_tokens = counter.count(long_text)
+            assert long_tokens > tokens
+    
+    def test_anthropic_computer_use_models(self):
+        """Test Anthropic Computer Use models."""
+        computer_use_models = [
+            "claude-3-5-sonnet-20241022",
+            "claude-3.5-sonnet-computer-use"
+        ]
+        
+        for model in computer_use_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "anthropic"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test computer-related text
+            computer_text = "Click on the button at coordinates (100, 200) and then type 'hello' in the text field."
+            computer_tokens = counter.count(computer_text)
+            assert isinstance(computer_tokens, int)
+            assert computer_tokens > tokens
+    
+    def test_google_gemini_2_models(self):
+        """Test Google Gemini 2.0 models."""
+        gemini_2_models = [
+            "gemini-2.0-flash-exp", "gemini-2.0-flash",
+            "gemini-exp-1206", "gemini-exp-1121"
+        ]
+        
+        for model in gemini_2_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "google"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test multimodal-like text
+            multimodal_text = "Analyze this image and describe what you see in detail."
+            multimodal_tokens = counter.count(multimodal_text)
+            assert isinstance(multimodal_tokens, int)
+            assert multimodal_tokens > tokens
+    
+    def test_meta_llama_33_models(self):
+        """Test Meta Llama 3.3 models."""
+        llama_33_models = [
+            "llama-3.3-70b",
+            "llama-3.3-70b-instruct"
+        ]
+        
+        for model in llama_33_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "meta"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test instruction-following text (for instruct model)
+            if "instruct" in model:
+                instruction_text = "Please explain the concept of machine learning in simple terms."
+                instruction_tokens = counter.count(instruction_text)
+                assert isinstance(instruction_tokens, int)
+                assert instruction_tokens > tokens
+    
+    def test_mistral_large_2_models(self):
+        """Test Mistral Large 2 models."""
+        mistral_large_2_models = [
+            "mistral-large-2",
+            "mistral-large-2407"
+        ]
+        
+        for model in mistral_large_2_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "mistral"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test multilingual text (Mistral supports multiple languages)
+            multilingual_text = "Bonjour le monde! Hola mundo! Hallo Welt!"
+            multilingual_tokens = counter.count(multilingual_text)
+            assert isinstance(multilingual_tokens, int)
+            assert multilingual_tokens > tokens
+    
+    def test_deepseek_v3_models(self):
+        """Test DeepSeek V3 models."""
+        deepseek_v3_models = [
+            "deepseek-v3",
+            "deepseek-v3-base"
+        ]
+        
+        for model in deepseek_v3_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "deepseek"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test code (DeepSeek is good at coding)
+            code_text = """
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# Test the function
+print(fibonacci(10))
+"""
+            code_tokens = counter.count(code_text)
+            assert isinstance(code_tokens, int)
+            assert code_tokens > tokens
+            
+            # Test Chinese text (DeepSeek supports Chinese)
+            chinese_text = "你好，世界！这是一个测试消息。"
+            chinese_tokens = counter.count(chinese_text)
+            assert isinstance(chinese_tokens, int)
+            assert chinese_tokens > 0
+    
+    def test_qwen_25_models(self):
+        """Test Qwen 2.5 models."""
+        qwen_25_models = [
+            "qwen-2.5-72b", "qwen-2.5-32b",
+            "qwen-2.5-14b", "qwen-2.5-7b"
+        ]
+        
+        for model in qwen_25_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "alibaba"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test Chinese text (Qwen is optimized for Chinese)
+            chinese_text = "你好，世界！这是阿里巴巴的通义千问模型测试。"
+            chinese_tokens = counter.count(chinese_text)
+            assert isinstance(chinese_tokens, int)
+            assert chinese_tokens > 0
+            
+            # Test mixed Chinese-English text
+            mixed_text = "Hello 你好, this is a mixed language test 这是混合语言测试."
+            mixed_tokens = counter.count(mixed_text)
+            assert isinstance(mixed_tokens, int)
+            assert mixed_tokens > tokens
+    
+    def test_new_models_case_insensitive(self):
+        """Test case insensitive matching for new models."""
+        test_cases = [
+            ("o1-preview", "O1-PREVIEW", "O1-Preview"),
+            ("claude-3.5-haiku-20241022", "CLAUDE-3.5-HAIKU-20241022", "Claude-3.5-Haiku-20241022"),
+            ("gemini-2.0-flash", "GEMINI-2.0-FLASH", "Gemini-2.0-Flash"),
+            ("llama-3.3-70b", "LLAMA-3.3-70B", "Llama-3.3-70B"),
+            ("mistral-large-2", "MISTRAL-LARGE-2", "Mistral-Large-2"),
+            ("deepseek-v3", "DEEPSEEK-V3", "DeepSeek-V3"),
+            ("qwen-2.5-72b", "QWEN-2.5-72B", "Qwen-2.5-72B"),
+        ]
+        
+        for variations in test_cases:
+            providers = []
+            for model_name in variations:
+                counter = TokenCounter(model_name)
+                providers.append(counter.provider)
+            
+            # All variations should detect the same provider
+            assert len(set(providers)) == 1, f"Case variations should detect same provider: {variations}"
+    
+    def test_new_models_message_counting(self):
+        """Test message counting for new models."""
+        test_models = [
+            "claude-3.5-haiku-20241022",
+            "gemini-2.0-flash",
+            "llama-3.3-70b-instruct",
+            "mistral-large-2",
+            "deepseek-v3",
+            "qwen-2.5-32b"
+        ]
+        
+        messages = [
+            {"role": "user", "content": "Hello, how are you?"},
+            {"role": "assistant", "content": "I'm doing well, thank you! How can I help you today?"},
+            {"role": "user", "content": "Can you explain quantum computing?"}
+        ]
+        
+        for model in test_models:
+            counter = TokenCounter(model)
+            tokens = counter.count_messages(messages)
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Should be more than individual message tokens
+            individual_tokens = sum(counter.count(msg["content"]) for msg in messages)
+            assert tokens >= individual_tokens  # Should include formatting overhead
+    
+    def test_new_models_approximation_consistency(self):
+        """Test that new models provide consistent approximations."""
+        test_texts = [
+            "Hello",
+            "Hello, world!",
+            "This is a test message.",
+            "This is a longer test message with more words and punctuation!",
+            "A very long message that contains multiple sentences. Each sentence should contribute to the token count. The approximation should be reasonable and consistent across different model providers."
+        ]
+        
+        test_models = [
+            "claude-3.5-haiku-20241022",
+            "gemini-2.0-flash",
+            "llama-3.3-70b",
+            "mistral-large-2",
+            "deepseek-v3",
+            "qwen-2.5-32b"
+        ]
+        
+        for model in test_models:
+            counter = TokenCounter(model)
+            previous_tokens = 0
+            
+            for text in test_texts:
+                tokens = counter.count(text)
+                assert isinstance(tokens, int)
+                assert tokens > 0
+                
+                # Longer texts should generally have more tokens
+                assert tokens >= previous_tokens
+                previous_tokens = tokens
+    
+    def test_new_models_special_characters(self):
+        """Test new models with special characters and edge cases."""
+        special_texts = [
+            "",  # Empty string
+            " ",  # Single space
+            "\n",  # Single newline
+            "🚀🌟💫",  # Emojis
+            "Hello\n\nWorld",  # Multiple newlines
+            "Hello    World",  # Multiple spaces
+            "Hello... World???",  # Multiple punctuation
+            "café naïve résumé",  # Accented characters
+            "αβγδε",  # Greek letters
+            "12345",  # Numbers only
+            "!@#$%^&*()",  # Special symbols only
+        ]
+        
+        test_models = [
+            "claude-3.5-haiku-20241022",
+            "gemini-2.0-flash",
+            "llama-3.3-70b",
+            "mistral-large-2",
+            "deepseek-v3",
+            "qwen-2.5-32b"
+        ]
+        
+        for model in test_models:
+            counter = TokenCounter(model)
+            
+            for text in special_texts:
+                tokens = counter.count(text)
+                assert isinstance(tokens, int)
+                assert tokens >= 0  # Should never be negative
+                
+                if text == "":
+                    assert tokens == 0  # Empty string should always be 0 tokens
+                elif text.strip():  # Non-empty, non-whitespace text
+                    assert tokens > 0  # Should have at least 1 token
+    
+    def test_new_models_error_handling(self):
+        """Test error handling for new models."""
+        test_models = [
+            "claude-3.5-haiku-20241022",
+            "gemini-2.0-flash",
+            "llama-3.3-70b",
+            "mistral-large-2",
+            "deepseek-v3",
+            "qwen-2.5-32b"
+        ]
+        
+        for model in test_models:
+            counter = TokenCounter(model)
+            
+            # Test invalid input types
+            with pytest.raises(TokenizationError):
+                counter.count(123)
+            
+            with pytest.raises(TokenizationError):
+                counter.count(None)
+            
+            with pytest.raises(TokenizationError):
+                counter.count(["list", "of", "strings"])
+            
+            # Test invalid message formats
+            with pytest.raises(TokenizationError):
+                counter.count_messages("not a list")
+            
+            with pytest.raises(TokenizationError):
+                counter.count_messages([{"role": "user"}])  # Missing content
+            
+            with pytest.raises(TokenizationError):
+                counter.count_messages(["not a dict"])
+
+
+class TestModelCountsV080:
+    """Test model counts after adding v0.8.0 models."""
+    
+    def test_updated_total_model_count(self):
+        """Test that we now have 249+ total models."""
+        models = get_supported_models()
+        total_count = sum(len(model_list) for model_list in models.values())
+        assert total_count >= 249, f"Expected at least 249 models, got {total_count}"
+    
+    def test_updated_provider_counts(self):
+        """Test updated model counts per provider."""
+        models = get_supported_models()
+        
+        # Updated expected counts after adding new models
+        expected_minimums = {
+            "openai": 46,  # Added O1 models
+            "anthropic": 23,  # Added Haiku and Computer Use models
+            "google": 13,  # Added Gemini 2.0 models
+            "meta": 12,  # Added Llama 3.3 models
+            "mistral": 10,  # Added Large 2 models
+            "alibaba": 20,  # Added Qwen 2.5 models
+            "deepseek": 10,  # Added V3 models
+        }
+        
+        for provider, expected_min in expected_minimums.items():
+            actual_count = len(models[provider])
+            assert actual_count >= expected_min, f"Expected at least {expected_min} {provider} models, got {actual_count}"
+    
+    def test_new_models_in_supported_list(self):
+        """Test that all new models appear in the supported models list."""
+        models = get_supported_models()
+        
+        # Check that specific new models are present
+        new_models_to_check = [
+            ("openai", "o1-preview"),
+            ("openai", "o1-mini"),
+            ("anthropic", "claude-3.5-haiku-20241022"),
+            ("anthropic", "claude-3.5-sonnet-computer-use"),
+            ("google", "gemini-2.0-flash"),
+            ("google", "gemini-exp-1206"),
+            ("meta", "llama-3.3-70b"),
+            ("meta", "llama-3.3-70b-instruct"),
+            ("mistral", "mistral-large-2"),
+            ("mistral", "mistral-large-2407"),
+            ("deepseek", "deepseek-v3"),
+            ("deepseek", "deepseek-v3-base"),
+            ("alibaba", "qwen-2.5-72b"),
+            ("alibaba", "qwen-2.5-7b"),
+        ]
+        
+        for provider, model in new_models_to_check:
+            assert model in models[provider], f"Model {model} not found in {provider} models list"
 
 
 class TestIntegration:

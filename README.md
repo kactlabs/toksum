@@ -8,7 +8,7 @@ A Python library for counting tokens in text for major Large Language Models (LL
 
 ## Features
 
-- **Comprehensive Multi-LLM Support**: Count tokens for 249 models across 26 providers including OpenAI, Anthropic, Google, Meta, Mistral, xAI, Alibaba, Baidu, and many more
+- **Comprehensive Multi-LLM Support**: Count tokens for 279 models across 32 providers including OpenAI, Anthropic, Google, Meta, Mistral, Microsoft, Amazon, Nvidia, IBM, Salesforce, BigCode, and many more
 - **Accurate Tokenization**: Uses official tokenizers (tiktoken for OpenAI) and optimized approximations for all other providers
 - **Chat Message Support**: Count tokens in chat/conversation format with proper message overhead calculation
 - **Cost Estimation**: Estimate API costs based on token counts and current pricing
@@ -16,46 +16,49 @@ A Python library for counting tokens in text for major Large Language Models (LL
 - **Well Tested**: Comprehensive test suite with high coverage
 - **Type Hints**: Full type annotation support for better IDE experience
 - **Global Model Coverage**: Support for models optimized for Chinese, Russian, and other languages
+- **Enterprise & Code Models**: Specialized support for enterprise AI models and code generation models
 
 ## Supported Models
 
-### OpenAI Models (46 models)
+### OpenAI Models (49 models)
 - GPT-4 (all variants including gpt-4, gpt-4-32k, gpt-4-turbo, gpt-4o, gpt-4o-mini, etc.)
-- **NEW: O1 Models** (o1-preview, o1-mini, o1-preview-2024-09-12, o1-mini-2024-09-12)
+- **O1 Models** (o1-preview, o1-mini, o1-preview-2024-09-12, o1-mini-2024-09-12)
+- **NEW: Vision Models** (gpt-4-vision, gpt-4-vision-preview-0409, gpt-4-vision-preview-1106)
 - GPT-3.5 Turbo (all variants including instruct)
 - Legacy models (text-davinci-003, text-davinci-002, gpt-3, etc.)
 - Embedding models (text-embedding-ada-002, text-embedding-3-small, text-embedding-3-large)
 
-### Anthropic Models (23 models)
+### Anthropic Models (27 models)
 - Claude-3 (Opus, Sonnet, Haiku with full and short names)
-- Claude-3.5 (Sonnet, **NEW: Haiku 3.5**, **NEW: Computer Use models**)
-- Claude-2 (2.1, 2.0)
+- Claude-3.5 (Sonnet, Haiku 3.5, Computer Use models)
+- Claude-2 (2.1, 2.0, **NEW: 2.1-200k, 2.1-100k**)
 - Claude-1 (legacy models including 1.3, 1.3-100k)
-- Claude Instant (all variants including short name)
+- Claude Instant (all variants including **NEW: instant-2, instant-2.0**)
 
-### Google Models (13 models)
+### Google Models (16 models)
 - Gemini Pro, Gemini Pro Vision
 - Gemini 1.5 Pro, Gemini 1.5 Flash (including latest variants)
-- **NEW: Gemini 2.0** (gemini-2.0-flash-exp, gemini-2.0-flash, gemini-exp-1206, gemini-exp-1121)
+- Gemini 2.0 (gemini-2.0-flash-exp, gemini-2.0-flash, gemini-exp-1206, gemini-exp-1121)
 - Gemini 1.0 Pro, Gemini 1.0 Pro Vision
 - Gemini Ultra
+- **NEW: PaLM Models** (palm-2, palm-2-chat, palm-2-codechat)
 
 ### Meta Models (12 models)
 - LLaMA-2 (7B, 13B, 70B)
 - LLaMA-3 (8B, 70B)
 - LLaMA-3.1 (8B, 70B, 405B)
 - LLaMA-3.2 (1B, 3B)
-- **NEW: LLaMA-3.3** (70B, 70B-instruct)
+- LLaMA-3.3 (70B, 70B-instruct)
 
 ### Mistral Models (10 models)
 - Mistral (7B, Large, Medium, Small, Tiny)
-- **NEW: Mistral Large 2** (mistral-large-2, mistral-large-2407)
+- Mistral Large 2 (mistral-large-2, mistral-large-2407)
 - Mixtral (8x7B, 8x22B)
 - Legacy Mistral 8x7B
 
-### Cohere Models (7 models)
+### Cohere Models (9 models)
 - Command (standard, light, nightly)
-- Command-R (standard, plus, with 2024 variants)
+- Command-R (standard, plus, **NEW: with 2024 variants**)
 
 ### xAI Models (4 models)
 - Grok (1, 1.5, 2, beta)
@@ -139,7 +142,37 @@ A Python library for counting tokens in text for major Large Language Models (LL
 - RedPajama INCITE Chat (3B, 7B)
 - Nous Hermes LLaMA2 13B
 
-**Total: 249 models across 26 providers**
+### Microsoft Models (4 models)
+- **NEW: Phi Models** (phi-3-mini, phi-3-small, phi-3-medium, phi-3.5-mini)
+- Optimized for coding and reasoning tasks
+- Enterprise-ready AI models
+
+### Amazon Models (3 models)
+- **NEW: Titan Models** (titan-text-express, titan-text-lite, titan-embed-text)
+- Enterprise-focused text generation and embedding
+- AWS Bedrock integration
+
+### Nvidia Models (2 models)
+- **NEW: Nemotron Models** (nemotron-4-340b, nemotron-3-8b)
+- Technical and scientific content optimization
+- GPU-accelerated training
+
+### IBM Models (3 models)
+- **NEW: Granite Models** (granite-13b-chat, granite-13b-instruct, granite-20b-code)
+- Enterprise AI with security and compliance focus
+- Code generation and business applications
+
+### Salesforce Models (3 models)
+- **NEW: CodeGen Models** (codegen-16b, codegen-6b, codegen-2b)
+- Specialized for code generation across multiple programming languages
+- Open-source code understanding
+
+### BigCode Models (3 models)
+- **NEW: StarCoder Models** (starcoder, starcoder2-15b, starcoderbase)
+- Multi-language code generation and understanding
+- Trained on diverse programming languages
+
+**Total: 279 models across 32 providers**
 
 ## Installation
 
@@ -365,6 +398,26 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Changelog
+
+### v0.9.0
+- Added 30 new unique models across 6 new providers, bringing total to 279 models
+- **New Providers (6 providers, 18 models):**
+  - **Microsoft (4 models):** phi-3-mini, phi-3-small, phi-3-medium, phi-3.5-mini
+  - **Amazon (3 models):** titan-text-express, titan-text-lite, titan-embed-text
+  - **Nvidia (2 models):** nemotron-4-340b, nemotron-3-8b
+  - **IBM (3 models):** granite-13b-chat, granite-13b-instruct, granite-20b-code
+  - **Salesforce (3 models):** codegen-16b, codegen-6b, codegen-2b
+  - **BigCode (3 models):** starcoder, starcoder2-15b, starcoderbase
+- **Extended Existing Providers (12 models):**
+  - **Anthropic (4 models):** claude-2.1-200k, claude-2.1-100k, claude-instant-2, claude-instant-2.0
+  - **OpenAI (3 models):** gpt-4-vision, gpt-4-vision-preview-0409, gpt-4-vision-preview-1106
+  - **Cohere (2 models):** command-r-plus-04-2024, command-r-plus-08-2024
+  - **Google (3 models):** palm-2, palm-2-chat, palm-2-codechat
+- **Comprehensive Testing:** Added 500+ new test cases for all new models
+- **Provider-Specific Approximations:** Optimized tokenization for enterprise and code models
+- **Enhanced Model Detection:** Improved provider detection logic for all new model categories
+- **Enterprise & Code Model Support:** Specialized support for business AI and code generation models
+- Updated model counts: OpenAI (49), Anthropic (27), Google (16), Cohere (9), Microsoft (4), Amazon (3), Nvidia (2), IBM (3), Salesforce (3), BigCode (3)
 
 ### v0.8.0
 - Added 22 new cutting-edge models across 8 model categories, bringing total to 249 models

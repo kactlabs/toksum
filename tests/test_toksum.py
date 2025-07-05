@@ -917,12 +917,12 @@ class TestModelCounts:
         """Test expected model counts per provider."""
         models = get_supported_models()
         expected_counts = {
-            "openai": 46,  # Updated: Added O1 models
-            "anthropic": 23,  # Updated: Added Haiku and Computer Use models
-            "google": 13,  # Updated: Added Gemini 2.0 models
+            "openai": 49,  # Updated: Added O1 models and vision models
+            "anthropic": 27,  # Updated: Added Haiku, Computer Use, Claude 2.1, and Instant 2 models
+            "google": 16,  # Updated: Added Gemini 2.0 and PaLM models
             "meta": 12,  # Updated: Added Llama 3.3 models
             "mistral": 10,  # Updated: Added Large 2 models
-            "cohere": 7,
+            "cohere": 9,   # Updated: Added Command R+ variants
             "perplexity": 5,
             "huggingface": 5,
             "ai21": 4,
@@ -943,6 +943,12 @@ class TestModelCounts:
             "tsinghua": 5,
             "rwkv": 7,
             "community": 13,
+            "microsoft": 4,  # New provider: Added Phi models
+            "amazon": 3,     # New provider: Added Titan models
+            "nvidia": 2,     # New provider: Added Nemotron models
+            "ibm": 3,        # New provider: Added Granite models
+            "salesforce": 3, # New provider: Added CodeGen models
+            "bigcode": 3,    # New provider: Added StarCoder models
         }
         
         for provider, expected_count in expected_counts.items():
@@ -957,7 +963,8 @@ class TestModelCounts:
             "cohere", "perplexity", "huggingface", "ai21", "together",
             "xai", "alibaba", "baidu", "huawei", "yandex", "stability",
             "tii", "eleutherai", "mosaicml", "replit", "minimax",
-            "aleph_alpha", "deepseek", "tsinghua", "rwkv", "community"
+            "aleph_alpha", "deepseek", "tsinghua", "rwkv", "community",
+            "microsoft", "amazon", "nvidia", "ibm", "salesforce", "bigcode"
         }
         actual_providers = set(models.keys())
         assert actual_providers == expected_providers
@@ -1535,6 +1542,793 @@ class TestIntegration:
             tokens = counter.count_messages(messages)
             assert isinstance(tokens, int)
             assert tokens > 0
+
+
+class TestNewModelsV090:
+    """Test cases for the 30 new models added in v0.9.0."""
+    
+    def test_microsoft_models(self):
+        """Test Microsoft Phi models."""
+        microsoft_models = [
+            "phi-3-mini", "phi-3-small", "phi-3-medium", "phi-3.5-mini"
+        ]
+        
+        for model in microsoft_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "microsoft"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test longer text
+            long_text = "This is a longer text to test the Microsoft Phi model's token counting capabilities."
+            long_tokens = counter.count(long_text)
+            assert long_tokens > tokens
+            
+            # Test code (Phi models are good at coding)
+            code_text = "def hello_world():\n    print('Hello, world!')"
+            code_tokens = counter.count(code_text)
+            assert isinstance(code_tokens, int)
+            assert code_tokens > 0
+    
+    def test_amazon_models(self):
+        """Test Amazon Titan models."""
+        amazon_models = [
+            "titan-text-express", "titan-text-lite", "titan-embed-text"
+        ]
+        
+        for model in amazon_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "amazon"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test business text (Titan is enterprise-focused)
+            business_text = "Our quarterly revenue increased by 15% compared to last year."
+            business_tokens = counter.count(business_text)
+            assert isinstance(business_tokens, int)
+            assert business_tokens > tokens
+            
+            # Test embedding-like text (for embed model)
+            if "embed" in model:
+                embed_text = "Document similarity and semantic search capabilities."
+                embed_tokens = counter.count(embed_text)
+                assert isinstance(embed_tokens, int)
+                assert embed_tokens > 0
+    
+    def test_nvidia_models(self):
+        """Test Nvidia Nemotron models."""
+        nvidia_models = [
+            "nemotron-4-340b", "nemotron-3-8b"
+        ]
+        
+        for model in nvidia_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "nvidia"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test technical text (Nemotron is good at technical content)
+            technical_text = "GPU acceleration enables parallel processing for machine learning workloads."
+            technical_tokens = counter.count(technical_text)
+            assert isinstance(technical_tokens, int)
+            assert technical_tokens > tokens
+            
+            # Test scientific text
+            scientific_text = "The neural network architecture consists of transformer layers with attention mechanisms."
+            scientific_tokens = counter.count(scientific_text)
+            assert isinstance(scientific_tokens, int)
+            assert scientific_tokens > 0
+    
+    def test_ibm_models(self):
+        """Test IBM Granite models."""
+        ibm_models = [
+            "granite-13b-chat", "granite-13b-instruct", "granite-20b-code"
+        ]
+        
+        for model in ibm_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "ibm"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test enterprise text (Granite is enterprise-focused)
+            enterprise_text = "Enterprise AI solutions require robust security and compliance frameworks."
+            enterprise_tokens = counter.count(enterprise_text)
+            assert isinstance(enterprise_tokens, int)
+            assert enterprise_tokens > tokens
+            
+            # Test code (for code model)
+            if "code" in model:
+                code_text = """
+class DataProcessor:
+    def __init__(self, data):
+        self.data = data
+    
+    def process(self):
+        return [x * 2 for x in self.data]
+"""
+                code_tokens = counter.count(code_text)
+                assert isinstance(code_tokens, int)
+                assert code_tokens > tokens
+            
+            # Test instruction-following text (for instruct/chat models)
+            if "instruct" in model or "chat" in model:
+                instruction_text = "Please analyze the following data and provide insights."
+                instruction_tokens = counter.count(instruction_text)
+                assert isinstance(instruction_tokens, int)
+                assert instruction_tokens > 0
+    
+    def test_salesforce_models(self):
+        """Test Salesforce CodeGen models."""
+        salesforce_models = [
+            "codegen-16b", "codegen-6b", "codegen-2b"
+        ]
+        
+        for model in salesforce_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "salesforce"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test code generation (CodeGen's specialty)
+            code_text = """
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n-1)
+"""
+            code_tokens = counter.count(code_text)
+            assert isinstance(code_tokens, int)
+            assert code_tokens > tokens
+            
+            # Test different programming languages
+            python_code = "import numpy as np\narray = np.zeros((10, 10))"
+            python_tokens = counter.count(python_code)
+            assert isinstance(python_tokens, int)
+            assert python_tokens > 0
+            
+            javascript_code = "const array = new Array(10).fill(0);"
+            javascript_tokens = counter.count(javascript_code)
+            assert isinstance(javascript_tokens, int)
+            assert javascript_tokens > 0
+    
+    def test_bigcode_models(self):
+        """Test BigCode StarCoder models."""
+        bigcode_models = [
+            "starcoder", "starcoder2-15b", "starcoderbase"
+        ]
+        
+        for model in bigcode_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "bigcode"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test code (StarCoder's specialty)
+            code_text = """
+class BinaryTree:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+    
+    def insert(self, value):
+        if value < self.value:
+            if self.left is None:
+                self.left = BinaryTree(value)
+            else:
+                self.left.insert(value)
+        else:
+            if self.right is None:
+                self.right = BinaryTree(value)
+            else:
+                self.right.insert(value)
+"""
+            code_tokens = counter.count(code_text)
+            assert isinstance(code_tokens, int)
+            assert code_tokens > tokens
+            
+            # Test various programming languages
+            languages_code = {
+                "python": "def hello(): print('Hello, world!')",
+                "javascript": "function hello() { console.log('Hello, world!'); }",
+                "java": "public class Hello { public static void main(String[] args) { System.out.println(\"Hello, world!\"); } }",
+                "cpp": "#include <iostream>\nint main() { std::cout << \"Hello, world!\" << std::endl; return 0; }",
+                "rust": "fn main() { println!(\"Hello, world!\"); }",
+            }
+            
+            for language, code in languages_code.items():
+                lang_tokens = counter.count(code)
+                assert isinstance(lang_tokens, int)
+                assert lang_tokens > 0
+    
+    def test_extended_anthropic_models(self):
+        """Test extended Anthropic models."""
+        extended_anthropic_models = [
+            "claude-2.1-200k", "claude-2.1-100k",
+            "claude-instant-2", "claude-instant-2.0"
+        ]
+        
+        for model in extended_anthropic_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "anthropic"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test long context (for 200k/100k models)
+            if "200k" in model or "100k" in model:
+                long_text = "This is a test for long context models. " * 100
+                long_tokens = counter.count(long_text)
+                assert isinstance(long_tokens, int)
+                assert long_tokens > tokens * 50  # Should be much larger
+            
+            # Test instant response scenarios (for instant models)
+            if "instant" in model:
+                quick_text = "Quick response needed."
+                quick_tokens = counter.count(quick_text)
+                assert isinstance(quick_tokens, int)
+                assert quick_tokens > 0
+    
+    def test_extended_openai_models(self):
+        """Test extended OpenAI vision models."""
+        extended_openai_models = [
+            "gpt-4-vision", "gpt-4-vision-preview-0409", "gpt-4-vision-preview-1106"
+        ]
+        
+        # Mock tiktoken for these tests
+        with patch('toksum.core.tiktoken') as mock_tiktoken:
+            mock_encoder = Mock()
+            mock_encoder.encode.return_value = [1, 2, 3, 4, 5]
+            mock_tiktoken.get_encoding.return_value = mock_encoder
+            
+            for model in extended_openai_models:
+                counter = TokenCounter(model)
+                assert counter.provider == "openai"
+                
+                # Test basic token counting
+                tokens = counter.count("Hello, world!")
+                assert tokens == 5
+                
+                # Test vision-related text
+                vision_text = "Describe what you see in this image: a cat sitting on a windowsill."
+                vision_tokens = counter.count(vision_text)
+                assert vision_tokens == 5  # Mocked to return 5 tokens
+                
+                # Test multimodal instructions
+                multimodal_text = "Analyze the image and extract all text visible in the picture."
+                multimodal_tokens = counter.count(multimodal_text)
+                assert multimodal_tokens == 5  # Mocked to return 5 tokens
+    
+    def test_extended_cohere_models(self):
+        """Test extended Cohere Command R+ models."""
+        extended_cohere_models = [
+            "command-r-plus-04-2024", "command-r-plus-08-2024"
+        ]
+        
+        for model in extended_cohere_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "cohere"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test retrieval-augmented generation text (Command R+ specialty)
+            rag_text = "Based on the provided context, please answer the following question with citations."
+            rag_tokens = counter.count(rag_text)
+            assert isinstance(rag_tokens, int)
+            assert rag_tokens > tokens
+            
+            # Test multilingual text (Command R+ supports multiple languages)
+            multilingual_text = "Hello, Bonjour, Hola, Guten Tag, Ciao, こんにちは"
+            multilingual_tokens = counter.count(multilingual_text)
+            assert isinstance(multilingual_tokens, int)
+            assert multilingual_tokens > 0
+    
+    def test_extended_google_models(self):
+        """Test extended Google PaLM models."""
+        extended_google_models = [
+            "palm-2", "palm-2-chat", "palm-2-codechat"
+        ]
+        
+        for model in extended_google_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "google"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test empty string
+            assert counter.count("") == 0
+            
+            # Test chat scenarios (for chat models)
+            if "chat" in model:
+                chat_text = "Let's have a conversation about artificial intelligence and its applications."
+                chat_tokens = counter.count(chat_text)
+                assert isinstance(chat_tokens, int)
+                assert chat_tokens > tokens
+            
+            # Test code scenarios (for codechat model)
+            if "codechat" in model:
+                code_chat_text = "Can you help me debug this Python function and explain what's wrong?"
+                code_chat_tokens = counter.count(code_chat_text)
+                assert isinstance(code_chat_tokens, int)
+                assert code_chat_tokens > tokens
+    
+    def test_new_models_case_insensitive(self):
+        """Test case insensitive matching for all new models."""
+        test_cases = [
+            ("phi-3-mini", "PHI-3-MINI", "Phi-3-Mini"),
+            ("titan-text-express", "TITAN-TEXT-EXPRESS", "Titan-Text-Express"),
+            ("nemotron-4-340b", "NEMOTRON-4-340B", "Nemotron-4-340B"),
+            ("granite-13b-chat", "GRANITE-13B-CHAT", "Granite-13B-Chat"),
+            ("codegen-16b", "CODEGEN-16B", "CodeGen-16B"),
+            ("starcoder", "STARCODER", "StarCoder"),
+            ("claude-2.1-200k", "CLAUDE-2.1-200K", "Claude-2.1-200K"),
+            ("gpt-4-vision", "GPT-4-VISION", "GPT-4-Vision"),
+            ("command-r-plus-04-2024", "COMMAND-R-PLUS-04-2024", "Command-R-Plus-04-2024"),
+            ("palm-2-chat", "PALM-2-CHAT", "PaLM-2-Chat"),
+        ]
+        
+        for variations in test_cases:
+            providers = []
+            for model_name in variations:
+                counter = TokenCounter(model_name)
+                providers.append(counter.provider)
+            
+            # All variations should detect the same provider
+            assert len(set(providers)) == 1, f"Case variations should detect same provider: {variations}"
+    
+    def test_new_models_message_counting(self):
+        """Test message counting for new models."""
+        test_models = [
+            "phi-3-mini",
+            "titan-text-express",
+            "nemotron-4-340b",
+            "granite-13b-chat",
+            "codegen-16b",
+            "starcoder",
+            "claude-2.1-200k",
+            "command-r-plus-04-2024",
+            "palm-2-chat"
+        ]
+        
+        messages = [
+            {"role": "user", "content": "Hello, how are you?"},
+            {"role": "assistant", "content": "I'm doing well, thank you! How can I help you today?"},
+            {"role": "user", "content": "Can you help me with a coding problem?"}
+        ]
+        
+        for model in test_models:
+            counter = TokenCounter(model)
+            tokens = counter.count_messages(messages)
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Should be more than individual message tokens
+            individual_tokens = sum(counter.count(msg["content"]) for msg in messages)
+            assert tokens >= individual_tokens  # Should include formatting overhead
+    
+    def test_new_models_approximation_consistency(self):
+        """Test that new models provide consistent approximations."""
+        test_texts = [
+            "Hello",
+            "Hello, world!",
+            "This is a test message.",
+            "This is a longer test message with more words and punctuation!",
+            "A very long message that contains multiple sentences. Each sentence should contribute to the token count. The approximation should be reasonable and consistent across different model providers."
+        ]
+        
+        test_models = [
+            "phi-3-mini",
+            "titan-text-express",
+            "nemotron-4-340b",
+            "granite-13b-chat",
+            "codegen-16b",
+            "starcoder",
+            "claude-2.1-200k",
+            "command-r-plus-04-2024",
+            "palm-2-chat"
+        ]
+        
+        for model in test_models:
+            counter = TokenCounter(model)
+            previous_tokens = 0
+            
+            for text in test_texts:
+                tokens = counter.count(text)
+                assert isinstance(tokens, int)
+                assert tokens > 0
+                
+                # Longer texts should generally have more tokens
+                assert tokens >= previous_tokens
+                previous_tokens = tokens
+    
+    def test_new_models_special_characters(self):
+        """Test new models with special characters and edge cases."""
+        special_texts = [
+            "",  # Empty string
+            " ",  # Single space
+            "\n",  # Single newline
+            "🚀🌟💫",  # Emojis
+            "Hello\n\nWorld",  # Multiple newlines
+            "Hello    World",  # Multiple spaces
+            "Hello... World???",  # Multiple punctuation
+            "café naïve résumé",  # Accented characters
+            "αβγδε",  # Greek letters
+            "12345",  # Numbers only
+            "!@#$%^&*()",  # Special symbols only
+            "def func():\n    pass",  # Code with indentation
+            "SELECT * FROM users WHERE id = 1;",  # SQL
+            "console.log('Hello, world!');",  # JavaScript
+        ]
+        
+        test_models = [
+            "phi-3-mini",
+            "titan-text-express",
+            "nemotron-4-340b",
+            "granite-13b-chat",
+            "codegen-16b",
+            "starcoder",
+            "claude-2.1-200k",
+            "command-r-plus-04-2024",
+            "palm-2-chat"
+        ]
+        
+        for model in test_models:
+            counter = TokenCounter(model)
+            
+            for text in special_texts:
+                tokens = counter.count(text)
+                assert isinstance(tokens, int)
+                assert tokens >= 0  # Should never be negative
+                
+                if text == "":
+                    assert tokens == 0  # Empty string should always be 0 tokens
+                elif text.strip():  # Non-empty, non-whitespace text
+                    assert tokens > 0  # Should have at least 1 token
+    
+    def test_new_models_error_handling(self):
+        """Test error handling for new models."""
+        test_models = [
+            "phi-3-mini",
+            "titan-text-express",
+            "nemotron-4-340b",
+            "granite-13b-chat",
+            "codegen-16b",
+            "starcoder",
+            "claude-2.1-200k",
+            "command-r-plus-04-2024",
+            "palm-2-chat"
+        ]
+        
+        for model in test_models:
+            counter = TokenCounter(model)
+            
+            # Test invalid input types
+            with pytest.raises(TokenizationError):
+                counter.count(123)
+            
+            with pytest.raises(TokenizationError):
+                counter.count(None)
+            
+            with pytest.raises(TokenizationError):
+                counter.count(["list", "of", "strings"])
+            
+            # Test invalid message formats
+            with pytest.raises(TokenizationError):
+                counter.count_messages("not a list")
+            
+            with pytest.raises(TokenizationError):
+                counter.count_messages([{"role": "user"}])  # Missing content
+            
+            with pytest.raises(TokenizationError):
+                counter.count_messages(["not a dict"])
+    
+    def test_new_provider_approximations(self):
+        """Test provider-specific approximations for new providers."""
+        test_text = "This is a comprehensive test message for tokenization approximation across all new providers."
+        
+        # Test all new providers
+        new_providers_models = {
+            "microsoft": "phi-3-mini",
+            "amazon": "titan-text-express",
+            "nvidia": "nemotron-4-340b",
+            "ibm": "granite-13b-chat",
+            "salesforce": "codegen-16b",
+            "bigcode": "starcoder",
+        }
+        
+        token_counts = {}
+        for provider, model in new_providers_models.items():
+            counter = TokenCounter(model)
+            tokens = counter.count(test_text)
+            token_counts[provider] = tokens
+            
+            # All should return reasonable token counts
+            assert 10 <= tokens <= 35, f"{provider} returned {tokens} tokens, expected 10-35"
+        
+        # Different providers should give different results (within reason)
+        unique_counts = set(token_counts.values())
+        assert len(unique_counts) >= 3, "Expected some variation in token counts across new providers"
+    
+    def test_code_specialized_models(self):
+        """Test code-specialized models with various programming languages."""
+        code_models = [
+            "codegen-16b",  # Salesforce
+            "starcoder",    # BigCode
+            "granite-20b-code",  # IBM
+            "phi-3-mini",   # Microsoft (good at code)
+        ]
+        
+        code_samples = {
+            "python": """
+def quicksort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+""",
+            "javascript": """
+function fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+const memoizedFib = (function() {
+    const cache = {};
+    return function(n) {
+        if (n in cache) return cache[n];
+        return cache[n] = n <= 1 ? n : memoizedFib(n - 1) + memoizedFib(n - 2);
+    };
+})();
+""",
+            "java": """
+public class BinarySearchTree {
+    private Node root;
+    
+    private class Node {
+        int data;
+        Node left, right;
+        
+        Node(int data) {
+            this.data = data;
+            left = right = null;
+        }
+    }
+    
+    public void insert(int data) {
+        root = insertRec(root, data);
+    }
+    
+    private Node insertRec(Node root, int data) {
+        if (root == null) {
+            root = new Node(data);
+            return root;
+        }
+        
+        if (data < root.data)
+            root.left = insertRec(root.left, data);
+        else if (data > root.data)
+            root.right = insertRec(root.right, data);
+        
+        return root;
+    }
+}
+""",
+        }
+        
+        for model in code_models:
+            counter = TokenCounter(model)
+            
+            for language, code in code_samples.items():
+                tokens = counter.count(code)
+                assert isinstance(tokens, int)
+                assert tokens > 20, f"{model} should return substantial tokens for {language} code"
+                # Adjust upper limit based on code complexity - Java code is longer
+                max_tokens = 300 if language == "java" else 200
+                assert tokens < max_tokens, f"{model} token count for {language} code should be reasonable (got {tokens}, expected < {max_tokens})"
+    
+    def test_enterprise_models_business_text(self):
+        """Test enterprise-focused models with business text."""
+        enterprise_models = [
+            "titan-text-express",  # Amazon
+            "granite-13b-chat",   # IBM
+            "phi-3-mini",         # Microsoft
+        ]
+        
+        business_texts = [
+            "Our quarterly earnings report shows a 15% increase in revenue year-over-year.",
+            "The strategic partnership will enable us to expand into new market segments.",
+            "Risk assessment indicates potential compliance issues with the new regulations.",
+            "Customer satisfaction metrics have improved by 23% following the implementation.",
+            "The digital transformation initiative requires significant investment in cloud infrastructure.",
+        ]
+        
+        for model in enterprise_models:
+            counter = TokenCounter(model)
+            
+            for text in business_texts:
+                tokens = counter.count(text)
+                assert isinstance(tokens, int)
+                assert 10 <= tokens <= 30, f"{model} should handle business text appropriately"
+    
+    def test_vision_models_multimodal_text(self):
+        """Test vision models with multimodal-related text."""
+        # Mock tiktoken for OpenAI vision models
+        with patch('toksum.core.tiktoken') as mock_tiktoken:
+            mock_encoder = Mock()
+            mock_encoder.encode.return_value = [1, 2, 3, 4, 5, 6, 7, 8]
+            mock_tiktoken.get_encoding.return_value = mock_encoder
+            
+            vision_models = [
+                "gpt-4-vision",
+                "gpt-4-vision-preview-0409",
+                "gpt-4-vision-preview-1106"
+            ]
+            
+            vision_texts = [
+                "Describe what you see in this image.",
+                "Extract all text visible in the picture.",
+                "Analyze the chart and provide insights about the data trends.",
+                "Identify all objects in the image and their locations.",
+                "Compare these two images and highlight the differences.",
+            ]
+            
+            for model in vision_models:
+                counter = TokenCounter(model)
+                
+                for text in vision_texts:
+                    tokens = counter.count(text)
+                    assert tokens == 8  # Mocked to return 8 tokens
+                    assert isinstance(tokens, int)
+                    assert tokens > 0
+
+
+class TestModelCountsV090:
+    """Test model counts after adding v0.9.0 models."""
+    
+    def test_updated_total_model_count_v090(self):
+        """Test that we now have 279+ total models."""
+        models = get_supported_models()
+        total_count = sum(len(model_list) for model_list in models.values())
+        assert total_count >= 279, f"Expected at least 279 models, got {total_count}"
+    
+    def test_new_providers_in_supported_list(self):
+        """Test that all new providers appear in the supported models list."""
+        models = get_supported_models()
+        
+        # Check that new providers are present
+        new_providers = ["microsoft", "amazon", "nvidia", "ibm", "salesforce", "bigcode"]
+        for provider in new_providers:
+            assert provider in models, f"New provider {provider} not found in supported models"
+            assert len(models[provider]) > 0, f"Provider {provider} has no models"
+    
+    def test_new_provider_model_counts(self):
+        """Test expected model counts for new providers."""
+        models = get_supported_models()
+        
+        expected_counts = {
+            "microsoft": 4,   # phi-3-mini, phi-3-small, phi-3-medium, phi-3.5-mini
+            "amazon": 3,      # titan-text-express, titan-text-lite, titan-embed-text
+            "nvidia": 2,      # nemotron-4-340b, nemotron-3-8b
+            "ibm": 3,         # granite-13b-chat, granite-13b-instruct, granite-20b-code
+            "salesforce": 3,  # codegen-16b, codegen-6b, codegen-2b
+            "bigcode": 3,     # starcoder, starcoder2-15b, starcoderbase
+        }
+        
+        for provider, expected_count in expected_counts.items():
+            actual_count = len(models[provider])
+            assert actual_count == expected_count, f"Expected {expected_count} {provider} models, got {actual_count}"
+    
+    def test_extended_provider_model_counts(self):
+        """Test updated model counts for extended providers."""
+        models = get_supported_models()
+        
+        # These providers should have additional models
+        extended_providers_minimums = {
+            "openai": 49,     # Added vision models
+            "anthropic": 27,  # Added claude-2.1 and instant-2 models
+            "cohere": 9,      # Added command-r-plus variants
+            "google": 16,     # Added PaLM models
+        }
+        
+        for provider, expected_min in extended_providers_minimums.items():
+            actual_count = len(models[provider])
+            assert actual_count >= expected_min, f"Expected at least {expected_min} {provider} models, got {actual_count}"
+    
+    def test_specific_new_models_present(self):
+        """Test that specific new models are present in the supported models list."""
+        models = get_supported_models()
+        
+        # Check that specific new models are present
+        new_models_to_check = [
+            ("microsoft", "phi-3-mini"),
+            ("microsoft", "phi-3.5-mini"),
+            ("amazon", "titan-text-express"),
+            ("amazon", "titan-embed-text"),
+            ("nvidia", "nemotron-4-340b"),
+            ("nvidia", "nemotron-3-8b"),
+            ("ibm", "granite-13b-chat"),
+            ("ibm", "granite-20b-code"),
+            ("salesforce", "codegen-16b"),
+            ("salesforce", "codegen-2b"),
+            ("bigcode", "starcoder"),
+            ("bigcode", "starcoder2-15b"),
+            ("anthropic", "claude-2.1-200k"),
+            ("anthropic", "claude-instant-2"),
+            ("openai", "gpt-4-vision"),
+            ("openai", "gpt-4-vision-preview-0409"),
+            ("cohere", "command-r-plus-04-2024"),
+            ("cohere", "command-r-plus-08-2024"),
+            ("google", "palm-2"),
+            ("google", "palm-2-codechat"),
+        ]
+        
+        for provider, model in new_models_to_check:
+            assert model in models[provider], f"Model {model} not found in {provider} models list"
+    
+    def test_total_provider_count(self):
+        """Test that we now have 32 total providers."""
+        models = get_supported_models()
+        total_providers = len(models)
+        assert total_providers >= 32, f"Expected at least 32 providers, got {total_providers}"
 
 
 if __name__ == "__main__":

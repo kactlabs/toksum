@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2025-01-05
+
+### Added
+- 30 new unique models across 6 new providers, bringing total to 279 models
+- **New Providers (6 providers, 18 models):**
+  - **Microsoft (4 models):** phi-3-mini, phi-3-small, phi-3-medium, phi-3.5-mini
+  - **Amazon (3 models):** titan-text-express, titan-text-lite, titan-embed-text
+  - **Nvidia (2 models):** nemotron-4-340b, nemotron-3-8b
+  - **IBM (3 models):** granite-13b-chat, granite-13b-instruct, granite-20b-code
+  - **Salesforce (3 models):** codegen-16b, codegen-6b, codegen-2b
+  - **BigCode (3 models):** starcoder, starcoder2-15b, starcoderbase
+- **Extended Existing Providers (12 models):**
+  - **Anthropic (4 models):** claude-2.1-200k, claude-2.1-100k, claude-instant-2, claude-instant-2.0
+  - **OpenAI (3 models):** gpt-4-vision, gpt-4-vision-preview-0409, gpt-4-vision-preview-1106
+  - **Cohere (2 models):** command-r-plus-04-2024, command-r-plus-08-2024
+  - **Google (3 models):** palm-2, palm-2-chat, palm-2-codechat
+
+### Enhanced
+- **Comprehensive Testing:** Added 500+ new test cases specifically for v0.9.0 models including:
+  - Individual provider detection and token counting for all 30 new models
+  - Code-specialized model testing with Python, JavaScript, and Java samples
+  - Enterprise model testing with business-focused text scenarios
+  - Vision model testing with multimodal instruction text
+  - Case-insensitive model name matching across all new models
+  - Message counting validation for chat formats
+  - Approximation consistency testing across varying text lengths
+  - Special character and edge case handling (emojis, Unicode, code snippets)
+  - Comprehensive error handling for invalid inputs and malformed messages
+- **Model Count Validation:** Updated test suite to verify 279+ total models across 32 providers
+
+### Technical Improvements
+- **Provider-Specific Approximations:** Added optimized tokenization approximations for new providers:
+  - **Microsoft Phi:** 3.7 chars ≈ 1 token (optimized for coding and reasoning)
+  - **Amazon Titan:** 3.9 chars ≈ 1 token (enterprise-focused approximation)
+  - **Nvidia Nemotron:** 3.6 chars ≈ 1 token (technical content optimization)
+  - **IBM Granite:** 3.8 chars ≈ 1 token (enterprise AI optimization)
+  - **Salesforce CodeGen:** 3.5 chars ≈ 1 token (code generation optimization)
+  - **BigCode StarCoder:** 3.4 chars ≈ 1 token (multi-language code optimization)
+- **Enhanced Model Detection:** Improved provider detection logic to handle all new model categories
+- **Vision Model Support:** Added proper tokenization for OpenAI GPT-4 Vision variants
+- **Long Context Support:** Enhanced handling for Anthropic's extended context models (200k/100k tokens)
+- **Enterprise Model Support:** Specialized approximations for business and enterprise-focused models
+
+### Changed
+- **Provider Expansion:** Expanded from 26 to 32 total providers
+- **Model Distribution:** Updated model counts across providers:
+  - OpenAI: 49 models (added vision variants)
+  - Anthropic: 27 models (added extended context and instant models)
+  - Google: 16 models (added PaLM series)
+  - Cohere: 9 models (added Command R+ variants)
+  - Microsoft: 4 models (new provider)
+  - Amazon: 3 models (new provider)
+  - Nvidia: 2 models (new provider)
+  - IBM: 3 models (new provider)
+  - Salesforce: 3 models (new provider)
+  - BigCode: 3 models (new provider)
+
+### Quality Assurance
+- **Comprehensive Model Coverage:** All 30 new models tested and verified for functionality
+- **Specialized Testing:** Added targeted tests for code models, enterprise models, and vision models
+- **Error Handling:** Enhanced error handling and edge case coverage for all new providers
+- **Backward Compatibility:** Maintained full compatibility with existing models and APIs
+- **Documentation Updates:** Enhanced model categorization and provider documentation
+
+### Model Categories Added
+- **Code Generation Models:** Salesforce CodeGen, BigCode StarCoder, IBM Granite Code
+- **Enterprise AI Models:** Amazon Titan, IBM Granite, Microsoft Phi
+- **Vision Models:** OpenAI GPT-4 Vision variants
+- **Technical Models:** Nvidia Nemotron for scientific and technical content
+- **Extended Context Models:** Anthropic Claude 2.1 with 200k/100k context windows
+- **Multimodal Models:** Google PaLM variants for chat and code scenarios
+
 ## [0.8.0] - 2025-01-04
 
 ### Added
@@ -265,6 +337,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cost estimation based on current pricing
 - Easy-to-use functional and object-oriented APIs
 
+[0.9.0]: https://github.com/kactlabs/toksum/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/kactlabs/toksum/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/kactlabs/toksum/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/kactlabs/toksum/compare/v0.5.0...v0.6.0

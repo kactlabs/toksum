@@ -415,6 +415,80 @@ QWEN_25_MODELS = {
     "qwen-2.5-7b": "qwen-2.5",  # NEW
 }
 
+# Anthropic Claude 2.1 Models (using approximation)
+ANTHROPIC_CLAUDE_21_MODELS = {
+    "claude-2.1-200k": "claude-2.1",  # NEW
+    "claude-2.1-100k": "claude-2.1",  # NEW
+}
+
+# OpenAI GPT-4 Vision Models (using approximation)
+OPENAI_VISION_MODELS = {
+    "gpt-4-vision": "cl100k_base",  # NEW
+    "gpt-4-vision-preview-0409": "cl100k_base",  # NEW
+    "gpt-4-vision-preview-1106": "cl100k_base",  # NEW
+}
+
+# Cohere Command R+ Models (using approximation)
+COHERE_COMMAND_R_PLUS_MODELS = {
+    "command-r-plus-04-2024": "cohere-r-plus",  # NEW
+    "command-r-plus-08-2024": "cohere-r-plus",  # NEW
+}
+
+# Anthropic Claude Instant 2 Models (using approximation)
+ANTHROPIC_INSTANT_2_MODELS = {
+    "claude-instant-2": "claude-instant-2",  # NEW
+    "claude-instant-2.0": "claude-instant-2",  # NEW
+}
+
+# Google PaLM Models (using approximation)
+GOOGLE_PALM_MODELS = {
+    "palm-2": "palm",  # NEW
+    "palm-2-chat": "palm",  # NEW
+    "palm-2-codechat": "palm",  # NEW
+}
+
+# Microsoft Models (using approximation)
+MICROSOFT_MODELS = {
+    "phi-3-mini": "phi",  # NEW
+    "phi-3-small": "phi",  # NEW
+    "phi-3-medium": "phi",  # NEW
+    "phi-3.5-mini": "phi",  # NEW
+}
+
+# Amazon Bedrock Models (using approximation)
+AMAZON_MODELS = {
+    "titan-text-express": "titan",  # NEW
+    "titan-text-lite": "titan",  # NEW
+    "titan-embed-text": "titan",  # NEW
+}
+
+# Nvidia Models (using approximation)
+NVIDIA_MODELS = {
+    "nemotron-4-340b": "nemotron",  # NEW
+    "nemotron-3-8b": "nemotron",  # NEW
+}
+
+# IBM Models (using approximation)
+IBM_MODELS = {
+    "granite-13b-chat": "granite",  # NEW
+    "granite-13b-instruct": "granite",  # NEW
+    "granite-20b-code": "granite",  # NEW
+}
+
+# Salesforce Models (using approximation)
+SALESFORCE_MODELS = {
+    "codegen-16b": "codegen",  # NEW
+    "codegen-6b": "codegen",  # NEW
+    "codegen-2b": "codegen",  # NEW
+}
+
+# BigCode Models (using approximation)
+BIGCODE_MODELS = {
+    "starcoder": "starcoder",  # NEW
+    "starcoder2-15b": "starcoder",  # NEW
+    "starcoderbase": "starcoder",  # NEW
+}
+
 
 class TokenCounter:
     """
@@ -445,17 +519,22 @@ class TokenCounter:
         openai_models_lower = {k.lower(): v for k, v in OPENAI_MODELS.items()}
         openai_legacy_models_lower = {k.lower(): v for k, v in OPENAI_LEGACY_MODELS.items()}
         openai_o1_models_lower = {k.lower(): v for k, v in OPENAI_O1_MODELS.items()}
+        openai_vision_models_lower = {k.lower(): v for k, v in OPENAI_VISION_MODELS.items()}
         anthropic_models_lower = {k.lower(): v for k, v in ANTHROPIC_MODELS.items()}
         anthropic_legacy_models_lower = {k.lower(): v for k, v in ANTHROPIC_LEGACY_MODELS.items()}
         anthropic_haiku_models_lower = {k.lower(): v for k, v in ANTHROPIC_HAIKU_MODELS.items()}
         anthropic_computer_use_models_lower = {k.lower(): v for k, v in ANTHROPIC_COMPUTER_USE_MODELS.items()}
+        anthropic_claude_21_models_lower = {k.lower(): v for k, v in ANTHROPIC_CLAUDE_21_MODELS.items()}
+        anthropic_instant_2_models_lower = {k.lower(): v for k, v in ANTHROPIC_INSTANT_2_MODELS.items()}
         google_models_lower = {k.lower(): v for k, v in GOOGLE_MODELS.items()}
         google_gemini_2_models_lower = {k.lower(): v for k, v in GOOGLE_GEMINI_2_MODELS.items()}
+        google_palm_models_lower = {k.lower(): v for k, v in GOOGLE_PALM_MODELS.items()}
         meta_models_lower = {k.lower(): v for k, v in META_MODELS.items()}
         meta_llama_33_models_lower = {k.lower(): v for k, v in META_LLAMA_33_MODELS.items()}
         mistral_models_lower = {k.lower(): v for k, v in MISTRAL_MODELS.items()}
         mistral_large_2_models_lower = {k.lower(): v for k, v in MISTRAL_LARGE_2_MODELS.items()}
         cohere_models_lower = {k.lower(): v for k, v in COHERE_MODELS.items()}
+        cohere_command_r_plus_models_lower = {k.lower(): v for k, v in COHERE_COMMAND_R_PLUS_MODELS.items()}
         perplexity_models_lower = {k.lower(): v for k, v in PERPLEXITY_MODELS.items()}
         huggingface_models_lower = {k.lower(): v for k, v in HUGGINGFACE_MODELS.items()}
         ai21_models_lower = {k.lower(): v for k, v in AI21_MODELS.items()}
@@ -478,20 +557,28 @@ class TokenCounter:
         tsinghua_models_lower = {k.lower(): v for k, v in TSINGHUA_MODELS.items()}
         rwkv_models_lower = {k.lower(): v for k, v in RWKV_MODELS.items()}
         community_models_lower = {k.lower(): v for k, v in COMMUNITY_MODELS.items()}
+        microsoft_models_lower = {k.lower(): v for k, v in MICROSOFT_MODELS.items()}
+        amazon_models_lower = {k.lower(): v for k, v in AMAZON_MODELS.items()}
+        nvidia_models_lower = {k.lower(): v for k, v in NVIDIA_MODELS.items()}
+        ibm_models_lower = {k.lower(): v for k, v in IBM_MODELS.items()}
+        salesforce_models_lower = {k.lower(): v for k, v in SALESFORCE_MODELS.items()}
+        bigcode_models_lower = {k.lower(): v for k, v in BIGCODE_MODELS.items()}
         
         if (self.model in openai_models_lower or self.model in openai_legacy_models_lower or 
-            self.model in openai_o1_models_lower):
+            self.model in openai_o1_models_lower or self.model in openai_vision_models_lower):
             return "openai"
         elif (self.model in anthropic_models_lower or self.model in anthropic_legacy_models_lower or 
-              self.model in anthropic_haiku_models_lower or self.model in anthropic_computer_use_models_lower):
+              self.model in anthropic_haiku_models_lower or self.model in anthropic_computer_use_models_lower or
+              self.model in anthropic_claude_21_models_lower or self.model in anthropic_instant_2_models_lower):
             return "anthropic"
-        elif self.model in google_models_lower or self.model in google_gemini_2_models_lower:
+        elif (self.model in google_models_lower or self.model in google_gemini_2_models_lower or 
+              self.model in google_palm_models_lower):
             return "google"
         elif self.model in meta_models_lower or self.model in meta_llama_33_models_lower:
             return "meta"
         elif self.model in mistral_models_lower or self.model in mistral_large_2_models_lower:
             return "mistral"
-        elif self.model in cohere_models_lower:
+        elif self.model in cohere_models_lower or self.model in cohere_command_r_plus_models_lower:
             return "cohere"
         elif self.model in perplexity_models_lower:
             return "perplexity"
@@ -533,14 +620,27 @@ class TokenCounter:
             return "rwkv"
         elif self.model in community_models_lower:
             return "community"
+        elif self.model in microsoft_models_lower:
+            return "microsoft"
+        elif self.model in amazon_models_lower:
+            return "amazon"
+        elif self.model in nvidia_models_lower:
+            return "nvidia"
+        elif self.model in ibm_models_lower:
+            return "ibm"
+        elif self.model in salesforce_models_lower:
+            return "salesforce"
+        elif self.model in bigcode_models_lower:
+            return "bigcode"
         else:
             supported = (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + list(OPENAI_O1_MODELS.keys()) +
-                        list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
+                        list(OPENAI_VISION_MODELS.keys()) + list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
                         list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
-                        list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + 
+                        list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys()) +
+                        list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + list(GOOGLE_PALM_MODELS.keys()) +
                         list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()) + 
                         list(MISTRAL_MODELS.keys()) + list(MISTRAL_LARGE_2_MODELS.keys()) + 
-                        list(COHERE_MODELS.keys()) + list(PERPLEXITY_MODELS.keys()) + 
+                        list(COHERE_MODELS.keys()) + list(COHERE_COMMAND_R_PLUS_MODELS.keys()) + list(PERPLEXITY_MODELS.keys()) + 
                         list(HUGGINGFACE_MODELS.keys()) + list(AI21_MODELS.keys()) + 
                         list(TOGETHER_MODELS.keys()) + list(XAI_MODELS.keys()) + 
                         list(ALIBABA_MODELS.keys()) + list(QWEN_25_MODELS.keys()) +
@@ -551,7 +651,10 @@ class TokenCounter:
                         list(MINIMAX_MODELS.keys()) + list(ALEPH_ALPHA_MODELS.keys()) +
                         list(DEEPSEEK_MODELS.keys()) + list(DEEPSEEK_V3_MODELS.keys()) + 
                         list(TSINGHUA_MODELS.keys()) + list(RWKV_MODELS.keys()) + 
-                        list(COMMUNITY_MODELS.keys()))
+                        list(COMMUNITY_MODELS.keys()) + list(MICROSOFT_MODELS.keys()) +
+                        list(AMAZON_MODELS.keys()) + list(NVIDIA_MODELS.keys()) +
+                        list(IBM_MODELS.keys()) + list(SALESFORCE_MODELS.keys()) +
+                        list(BIGCODE_MODELS.keys()))
             raise UnsupportedModelError(self.model, supported)
     
     def _setup_tokenizer(self) -> None:
@@ -733,6 +836,30 @@ class TokenCounter:
             # Community fine-tuned models (Vicuna, Alpaca, etc.)
             base_tokens = char_count / 3.6
             adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "microsoft":
+            # Microsoft Phi models
+            base_tokens = char_count / 3.7
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "amazon":
+            # Amazon Titan models
+            base_tokens = char_count / 3.9
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "nvidia":
+            # Nvidia Nemotron models
+            base_tokens = char_count / 3.6
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "ibm":
+            # IBM Granite models
+            base_tokens = char_count / 3.8
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "salesforce":
+            # Salesforce CodeGen models
+            base_tokens = char_count / 3.5
+            adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "bigcode":
+            # BigCode StarCoder models
+            base_tokens = char_count / 3.4
+            adjustment = (whitespace_count + punctuation_count) * 0.2
         else:
             # Default approximation
             base_tokens = char_count / 4
@@ -804,13 +931,15 @@ def get_supported_models() -> Dict[str, List[str]]:
     """
     return {
         "openai": (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + 
-                  list(OPENAI_O1_MODELS.keys())),
+                  list(OPENAI_O1_MODELS.keys()) + list(OPENAI_VISION_MODELS.keys())),
         "anthropic": (list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
-                     list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys())),
-        "google": list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()),
+                     list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
+                     list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys())),
+        "google": (list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + 
+                  list(GOOGLE_PALM_MODELS.keys())),
         "meta": list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()),
         "mistral": list(MISTRAL_MODELS.keys()) + list(MISTRAL_LARGE_2_MODELS.keys()),
-        "cohere": list(COHERE_MODELS.keys()),
+        "cohere": list(COHERE_MODELS.keys()) + list(COHERE_COMMAND_R_PLUS_MODELS.keys()),
         "perplexity": list(PERPLEXITY_MODELS.keys()),
         "huggingface": list(HUGGINGFACE_MODELS.keys()),
         "ai21": list(AI21_MODELS.keys()),
@@ -831,6 +960,12 @@ def get_supported_models() -> Dict[str, List[str]]:
         "tsinghua": list(TSINGHUA_MODELS.keys()),
         "rwkv": list(RWKV_MODELS.keys()),
         "community": list(COMMUNITY_MODELS.keys()),
+        "microsoft": list(MICROSOFT_MODELS.keys()),
+        "amazon": list(AMAZON_MODELS.keys()),
+        "nvidia": list(NVIDIA_MODELS.keys()),
+        "ibm": list(IBM_MODELS.keys()),
+        "salesforce": list(SALESFORCE_MODELS.keys()),
+        "bigcode": list(BIGCODE_MODELS.keys()),
     }
 
 

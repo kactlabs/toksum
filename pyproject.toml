@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "toksum"
-version = "1.0.0"
+version = "1.0.1"
 description = "A comprehensive Python library for counting tokens across 300+ LLM models from 32+ providers including OpenAI, Anthropic, Google, Meta, Mistral, and more"
 readme = "README.md"
 requires-python = ">=3.8"

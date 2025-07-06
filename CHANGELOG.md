@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.0.1] - 2025-01-07
+
+### Added
+- **New Providers:**
+  - **Databricks (5 models):** dbrx-instruct, dbrx-base, dolly-v2-12b, dolly-v2-7b, dolly-v2-3b
+  - **Voyage AI (6 models):** voyage-2, voyage-large-2, voyage-code-2, voyage-finance-2, voyage-law-2, voyage-multilingual-2
+- **30+ new models added across existing providers**
+
+### Enhanced
+- **Provider-Specific Approximations:** Added optimized tokenization approximations for Databricks and Voyage AI models.
+- **Model Detection:** Enhanced provider detection to support Databricks and Voyage AI models.
+- **Cost Estimation:** Added pricing information for all new models.
+
 ## [1.0.0] - 2025-01-06
 
 ### Added

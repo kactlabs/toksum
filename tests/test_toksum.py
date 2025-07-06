@@ -686,16 +686,31 @@ class TestNewProvidersV070:
             assert tokens > 0
     
     def test_mosaicml_models(self):
-        """Test MosaicML/Databricks models."""
+        """Test MosaicML models."""
         mosaicml_models = [
             "mpt-7b", "mpt-7b-chat", "mpt-7b-instruct",
             "mpt-30b", "mpt-30b-chat", "mpt-30b-instruct",
-            "dbrx", "dbrx-instruct"
         ]
         
         for model in mosaicml_models:
             counter = TokenCounter(model)
             assert counter.provider == "mosaicml"
+            
+            # Test basic token counting
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+    
+    def test_databricks_models(self):
+        """Test Databricks models."""
+        databricks_models = [
+            "dbrx", "dbrx-instruct", "dbrx-base",
+            "dolly-v2-12b", "dolly-v2-7b", "dolly-v2-3b",
+        ]
+        
+        for model in databricks_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "databricks"
             
             # Test basic token counting
             tokens = counter.count("Hello, world!")
@@ -935,7 +950,8 @@ class TestModelCounts:
             "stability": 7,
             "tii": 6,
             "eleutherai": 12,
-            "mosaicml": 8,
+            "mosaicml": 6,  # Updated: Removed dbrx and dbrx-instruct
+            "databricks": 6, # Updated: Added dbrx
             "replit": 3,
             "minimax": 5,
             "aleph_alpha": 4,
@@ -962,9 +978,9 @@ class TestModelCounts:
             "openai", "anthropic", "google", "meta", "mistral",
             "cohere", "perplexity", "huggingface", "ai21", "together",
             "xai", "alibaba", "baidu", "huawei", "yandex", "stability",
-            "tii", "eleutherai", "mosaicml", "replit", "minimax",
+            "tii", "eleutherai", "mosaicml", "databricks", "replit", "minimax",
             "aleph_alpha", "deepseek", "tsinghua", "rwkv", "community",
-            "microsoft", "amazon", "nvidia", "ibm", "salesforce", "bigcode"
+            "microsoft", "amazon", "nvidia", "ibm", "salesforce", "bigcode", "voyage" # Added voyage
         }
         actual_providers = set(models.keys())
         assert actual_providers == expected_providers

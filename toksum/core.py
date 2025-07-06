@@ -276,7 +276,7 @@ ELEUTHERAI_MODELS = {
     "pythia-12b": "pythia",  # NEW
 }
 
-# MosaicML/Databricks Models (using approximation)
+# MosaicML Models (using approximation)
 MOSAICML_MODELS = {
     "mpt-7b": "mpt",  # NEW
     "mpt-7b-chat": "mpt",  # NEW
@@ -284,8 +284,6 @@ MOSAICML_MODELS = {
     "mpt-30b": "mpt",  # NEW
     "mpt-30b-chat": "mpt",  # NEW
     "mpt-30b-instruct": "mpt",  # NEW
-    "dbrx": "dbrx",  # NEW
-    "dbrx-instruct": "dbrx",  # NEW
 }
 
 # Replit Models (using approximation)
@@ -569,6 +567,26 @@ OPENAI_EMBEDDING_MODELS = {
     "text-similarity-davinci-001": "r50k_base",  # ADDED
 }
 
+# Databricks Models
+DATABRICKS_MODELS = {
+    "dbrx": "databricks", # ADDED
+    "dbrx-instruct": "databricks",
+    "dbrx-base": "databricks",
+    "dolly-v2-12b": "databricks",
+    "dolly-v2-7b": "databricks",
+    "dolly-v2-3b": "databricks",
+}
+
+# Voyage AI Models
+VOYAGE_MODELS = {
+    "voyage-2": "voyage",
+    "voyage-large-2": "voyage",
+    "voyage-code-2": "voyage",
+    "voyage-finance-2": "voyage",
+    "voyage-law-2": "voyage",
+    "voyage-multilingual-2": "voyage",
+}
+
 
 class TokenCounter:
     """
@@ -600,6 +618,8 @@ class TokenCounter:
         openai_legacy_models_lower = {k.lower(): v for k, v in OPENAI_LEGACY_MODELS.items()}
         openai_o1_models_lower = {k.lower(): v for k, v in OPENAI_O1_MODELS.items()}
         openai_vision_models_lower = {k.lower(): v for k, v in OPENAI_VISION_MODELS.items()}
+        databricks_models_lower = {k.lower(): v for k, v in DATABRICKS_MODELS.items()}
+        voyage_models_lower = {k.lower(): v for k, v in VOYAGE_MODELS.items()}
         anthropic_models_lower = {k.lower(): v for k, v in ANTHROPIC_MODELS.items()}
         anthropic_legacy_models_lower = {k.lower(): v for k, v in ANTHROPIC_LEGACY_MODELS.items()}
         anthropic_haiku_models_lower = {k.lower(): v for k, v in ANTHROPIC_HAIKU_MODELS.items()}
@@ -652,7 +672,12 @@ class TokenCounter:
         mistral_instruct_models_lower = {k.lower(): v for k, v in MISTRAL_INSTRUCT_MODELS.items()}
         openai_embedding_models_lower = {k.lower(): v for k, v in OPENAI_EMBEDDING_MODELS.items()}
         
-        if (self.model in openai_models_lower or self.model in openai_legacy_models_lower or 
+        # Prioritize Databricks models as they are more specific
+        if self.model in databricks_models_lower:
+            return "databricks"
+        elif self.model in voyage_models_lower:
+            return "voyage"
+        elif (self.model in openai_models_lower or self.model in openai_legacy_models_lower or 
             self.model in openai_o1_models_lower or self.model in openai_vision_models_lower or
             self.model in openai_gpt4_turbo_models_lower or self.model in openai_embedding_models_lower):
             return "openai"
@@ -725,7 +750,7 @@ class TokenCounter:
         elif self.model in bigcode_models_lower:
             return "bigcode"
         else:
-            supported = (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + list(OPENAI_O1_MODELS.keys()) +
+            supported = (list(DATABRICKS_MODELS.keys()) + list(VOYAGE_MODELS.keys()) + list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + list(OPENAI_O1_MODELS.keys()) +
                         list(OPENAI_VISION_MODELS.keys()) + list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
                         list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
                         list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys()) +
@@ -975,6 +1000,14 @@ class TokenCounter:
             # BigCode StarCoder models
             base_tokens = char_count / 3.4
             adjustment = (whitespace_count + punctuation_count) * 0.2
+        elif self.provider == "databricks":
+            # Databricks models
+            base_tokens = char_count / 4.0
+            adjustment = (whitespace_count + punctuation_count) * 0.25
+        elif self.provider == "voyage":
+            # Voyage AI models
+            base_tokens = char_count / 3.8
+            adjustment = (whitespace_count + punctuation_count) * 0.25
         else:
             # Default approximation
             base_tokens = char_count / 4
@@ -1086,6 +1119,8 @@ def get_supported_models() -> Dict[str, List[str]]:
         "openai": (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + 
                   list(OPENAI_O1_MODELS.keys()) + list(OPENAI_VISION_MODELS.keys()) +
                   list(OPENAI_GPT4_TURBO_MODELS.keys()) + list(OPENAI_EMBEDDING_MODELS.keys())),
+        "databricks": list(DATABRICKS_MODELS.keys()),
+        "voyage": list(VOYAGE_MODELS.keys()),
         "anthropic": (list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
                      list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
                      list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys()) +
@@ -1109,7 +1144,7 @@ def get_supported_models() -> Dict[str, List[str]]:
         "stability": list(STABILITY_MODELS.keys()),
         "tii": list(TII_MODELS.keys()),
         "eleutherai": list(ELEUTHERAI_MODELS.keys()),
-        "mosaicml": list(MOSAICML_MODELS.keys()),
+        "mosaicml": list(MOSAICML_MODELS.keys()), # Only MPT models remain here
         "replit": list(REPLIT_MODELS.keys()),
         "minimax": list(MINIMAX_MODELS.keys()),
         "aleph_alpha": list(ALEPH_ALPHA_MODELS.keys()),
@@ -1145,6 +1180,17 @@ def estimate_cost(token_count: int, model: str, input_tokens: bool = True) -> fl
     pricing = {
         "gpt-4": {"input": 0.03, "output": 0.06},
         "gpt-4-32k": {"input": 0.06, "output": 0.12},
+        "dbrx-instruct": {"input": 0.001, "output": 0.002},
+        "dbrx-base": {"input": 0.001, "output": 0.002},
+        "dolly-v2-12b": {"input": 0.001, "output": 0.002},
+        "dolly-v2-7b": {"input": 0.001, "output": 0.002},
+        "dolly-v2-3b": {"input": 0.001, "output": 0.002},
+        "voyage-2": {"input": 0.0001, "output": 0.0001},
+        "voyage-large-2": {"input": 0.0001, "output": 0.0001},
+        "voyage-code-2": {"input": 0.0001, "output": 0.0001},
+        "voyage-finance-2": {"input": 0.0001, "output": 0.0001},
+        "voyage-law-2": {"input": 0.0001, "output": 0.0001},
+        "voyage-multilingual-2": {"input": 0.0001, "output": 0.0001},
         "gpt-4-turbo": {"input": 0.01, "output": 0.03},
         "gpt-4-turbo-2024-04-09": {"input": 0.01, "output": 0.03},
         "gpt-4o": {"input": 0.005, "output": 0.015},

@@ -276,7 +276,7 @@ ELEUTHERAI_MODELS = {
     "pythia-12b": "pythia",  # NEW
 }
 
-# MosaicML/Databricks Models (using approximation)
+# MosaicML Models (using approximation)
 MOSAICML_MODELS = {
     "mpt-7b": "mpt",  # NEW
     "mpt-7b-chat": "mpt",  # NEW
@@ -284,8 +284,6 @@ MOSAICML_MODELS = {
     "mpt-30b": "mpt",  # NEW
     "mpt-30b-chat": "mpt",  # NEW
     "mpt-30b-instruct": "mpt",  # NEW
-    "dbrx": "dbrx",  # NEW
-    "dbrx-instruct": "dbrx",  # NEW
 }
 
 # Replit Models (using approximation)
@@ -571,6 +569,7 @@ OPENAI_EMBEDDING_MODELS = {
 
 # Databricks Models
 DATABRICKS_MODELS = {
+    "dbrx": "databricks", # ADDED
     "dbrx-instruct": "databricks",
     "dbrx-base": "databricks",
     "dolly-v2-12b": "databricks",
@@ -673,6 +672,7 @@ class TokenCounter:
         mistral_instruct_models_lower = {k.lower(): v for k, v in MISTRAL_INSTRUCT_MODELS.items()}
         openai_embedding_models_lower = {k.lower(): v for k, v in OPENAI_EMBEDDING_MODELS.items()}
         
+        # Prioritize Databricks models as they are more specific
         if self.model in databricks_models_lower:
             return "databricks"
         elif self.model in voyage_models_lower:
@@ -1144,7 +1144,7 @@ def get_supported_models() -> Dict[str, List[str]]:
         "stability": list(STABILITY_MODELS.keys()),
         "tii": list(TII_MODELS.keys()),
         "eleutherai": list(ELEUTHERAI_MODELS.keys()),
-        "mosaicml": list(MOSAICML_MODELS.keys()),
+        "mosaicml": list(MOSAICML_MODELS.keys()), # Only MPT models remain here
         "replit": list(REPLIT_MODELS.keys()),
         "minimax": list(MINIMAX_MODELS.keys()),
         "aleph_alpha": list(ALEPH_ALPHA_MODELS.keys()),

@@ -8,7 +8,9 @@ A comprehensive Python library for counting tokens across 300+ Large Language Mo
 
 ## Features
 
+
 - **🎯 Production Ready v1.0.0**: Comprehensive support for 300+ models across 32+ providers including OpenAI, Anthropic, Google, Meta, Mistral, Microsoft, Amazon, Nvidia, IBM, Salesforce, BigCode, and many more
+- **Comprehensive Multi-LLM Support**: Count tokens for 279 models across 32 providers including OpenAI, Anthropic, Google, Meta, Mistral, Microsoft, Amazon, Nvidia, IBM, Salesforce, BigCode, and many more
 - **Accurate Tokenization**: Uses official tokenizers (tiktoken for OpenAI) and optimized approximations for all other providers
 - **Chat Message Support**: Count tokens in chat/conversation format with proper message overhead calculation
 - **Cost Estimation**: Estimate API costs based on token counts and current pricing
@@ -171,6 +173,7 @@ A comprehensive Python library for counting tokens across 300+ Large Language Mo
 - **NEW: StarCoder Models** (starcoder, starcoder2-15b, starcoderbase)
 - Multi-language code generation and understanding
 - Trained on diverse programming languages
+
 
 **Total: 300+ models across 32+ providers**
 

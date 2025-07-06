@@ -2330,7 +2330,6 @@ class TestModelCountsV090:
         total_providers = len(models)
         assert total_providers >= 32, f"Expected at least 32 providers, got {total_providers}"
 
-
 class TestNewModelsComprehensive:
     """Comprehensive test cases for all newly added models."""
     
@@ -2896,7 +2895,5 @@ class TestNewModelsComprehensive:
                             assert max_tokens <= min_tokens * 3, f"Too much variance in family {family} for text {i}: {text_results}"
 
 
-if __name__ == "__main__":
-    pytest.main([__file__])
 if __name__ == "__main__":
     pytest.main([__file__])

@@ -917,11 +917,11 @@ class TestModelCounts:
         """Test expected model counts per provider."""
         models = get_supported_models()
         expected_counts = {
-            "openai": 49,  # Updated: Added O1 models and vision models
-            "anthropic": 27,  # Updated: Added Haiku, Computer Use, Claude 2.1, and Instant 2 models
-            "google": 16,  # Updated: Added Gemini 2.0 and PaLM models
-            "meta": 12,  # Updated: Added Llama 3.3 models
-            "mistral": 10,  # Updated: Added Large 2 models
+            "openai": 60,  # Updated: Added all new OpenAI models including GPT-4 Turbo and Embedding models
+            "anthropic": 33,  # Updated: Added Opus, Sonnet, Haiku, Computer Use, Claude 2.1, and Instant 2 models
+            "google": 22,  # Updated: Added Gemini Pro, Gemini 2.0 and PaLM models
+            "meta": 25,  # Updated: Added Llama 2 Chat, Llama 3 Instruct, and Llama 3.3 models
+            "mistral": 16,  # Updated: Added Instruct and Large 2 models
             "cohere": 9,   # Updated: Added Command R+ variants
             "perplexity": 5,
             "huggingface": 5,
@@ -948,7 +948,7 @@ class TestModelCounts:
             "nvidia": 2,     # New provider: Added Nemotron models
             "ibm": 3,        # New provider: Added Granite models
             "salesforce": 3, # New provider: Added CodeGen models
-            "bigcode": 3,    # New provider: Added StarCoder models
+            "bigcode": 9,    # New provider: Added StarCoder models (including new ones)
         }
         
         for provider, expected_count in expected_counts.items():
@@ -2270,7 +2270,7 @@ class TestModelCountsV090:
             "nvidia": 2,      # nemotron-4-340b, nemotron-3-8b
             "ibm": 3,         # granite-13b-chat, granite-13b-instruct, granite-20b-code
             "salesforce": 3,  # codegen-16b, codegen-6b, codegen-2b
-            "bigcode": 3,     # starcoder, starcoder2-15b, starcoderbase
+            "bigcode": 9,     # starcoder, starcoder2-15b, starcoderbase + 6 additional models
         }
         
         for provider, expected_count in expected_counts.items():
@@ -2331,5 +2331,572 @@ class TestModelCountsV090:
         assert total_providers >= 32, f"Expected at least 32 providers, got {total_providers}"
 
 
+class TestNewModelsComprehensive:
+    """Comprehensive test cases for all newly added models."""
+    
+    def test_all_new_openai_models(self):
+        """Test all new OpenAI models including GPT-4 Turbo and Embedding models."""
+        with patch('toksum.core.tiktoken') as mock_tiktoken:
+            mock_encoder = Mock()
+            mock_encoder.encode.return_value = [1, 2, 3, 4, 5]
+            mock_tiktoken.get_encoding.return_value = mock_encoder
+            
+            new_openai_models = [
+                "gpt-4-turbo-preview", "gpt-4-0125-preview", "gpt-4-1106-preview",
+                "gpt-4-turbo-2024-04-09", "text-embedding-ada-002", "text-embedding-3-small",
+                "text-embedding-3-large", "text-similarity-ada-001", "text-similarity-babbage-001",
+                "text-similarity-curie-001", "text-similarity-davinci-001"
+            ]
+            
+            for model in new_openai_models:
+                counter = TokenCounter(model)
+                assert counter.provider == "openai"
+                
+                tokens = counter.count("Hello, world!")
+                assert tokens == 5
+                
+                # Test embedding-specific text
+                if "embedding" in model or "similarity" in model:
+                    embedding_text = "Document similarity and semantic search."
+                    embedding_tokens = counter.count(embedding_text)
+                    assert embedding_tokens == 5
+    
+    def test_all_new_anthropic_models(self):
+        """Test all new Anthropic models including Opus and Sonnet variants."""
+        new_anthropic_models = [
+            "claude-3-opus-20240229", "claude-3-opus-latest", "claude-3-opus",
+            "claude-3-sonnet-20240229", "claude-3-sonnet-latest", "claude-3-sonnet"
+        ]
+        
+        for model in new_anthropic_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "anthropic"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test complex reasoning text (Opus specialty)
+            if "opus" in model:
+                reasoning_text = "Analyze the following logical puzzle and provide a step-by-step solution."
+                reasoning_tokens = counter.count(reasoning_text)
+                assert isinstance(reasoning_tokens, int)
+                assert reasoning_tokens > tokens
+            
+            # Test balanced performance text (Sonnet specialty)
+            if "sonnet" in model:
+                balanced_text = "Provide a comprehensive analysis while maintaining efficiency."
+                balanced_tokens = counter.count(balanced_text)
+                assert isinstance(balanced_tokens, int)
+                assert balanced_tokens > 0
+    
+    def test_all_new_google_models(self):
+        """Test all new Google models including Gemini Pro variants."""
+        new_google_models = [
+            "gemini-pro", "gemini-pro-vision", "gemini-1.0-pro", "gemini-1.0-pro-001",
+            "gemini-1.0-pro-latest", "gemini-1.0-pro-vision-latest"
+        ]
+        
+        for model in new_google_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "google"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test vision-related text
+            if "vision" in model:
+                vision_text = "Describe the contents of this image in detail."
+                vision_tokens = counter.count(vision_text)
+                assert isinstance(vision_tokens, int)
+                assert vision_tokens > tokens
+            
+            # Test multimodal capabilities
+            multimodal_text = "Combine text and visual understanding for comprehensive analysis."
+            multimodal_tokens = counter.count(multimodal_text)
+            assert isinstance(multimodal_tokens, int)
+            assert multimodal_tokens > 0
+    
+    def test_all_new_meta_models(self):
+        """Test all new Meta models including Llama 2 Chat and Llama 3 Instruct variants."""
+        new_meta_models = [
+            "llama-2-7b-chat", "llama-2-13b-chat", "llama-2-70b-chat",
+            "llama-2-7b-chat-hf", "llama-2-13b-chat-hf", "llama-2-70b-chat-hf",
+            "llama-3-8b-instruct", "llama-3-70b-instruct", "llama-3.1-8b-instruct",
+            "llama-3.1-70b-instruct", "llama-3.1-405b-instruct", "llama-3.2-1b-instruct",
+            "llama-3.2-3b-instruct"
+        ]
+        
+        for model in new_meta_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "meta"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test chat scenarios
+            if "chat" in model:
+                chat_text = "Let's have a friendly conversation about technology."
+                chat_tokens = counter.count(chat_text)
+                assert isinstance(chat_tokens, int)
+                assert chat_tokens > tokens
+            
+            # Test instruction following
+            if "instruct" in model:
+                instruction_text = "Please follow these instructions carefully and provide a detailed response."
+                instruction_tokens = counter.count(instruction_text)
+                assert isinstance(instruction_tokens, int)
+                assert instruction_tokens > tokens
+            
+            # Test different model sizes appropriately
+            if "405b" in model:
+                complex_text = "Solve this complex multi-step reasoning problem with detailed explanations."
+                complex_tokens = counter.count(complex_text)
+                assert isinstance(complex_tokens, int)
+                assert complex_tokens > 0
+    
+    def test_all_new_mistral_models(self):
+        """Test all new Mistral models including Instruct variants."""
+        new_mistral_models = [
+            "mistral-7b-instruct", "mistral-7b-instruct-v0.1", "mistral-7b-instruct-v0.2",
+            "mistral-7b-instruct-v0.3", "mixtral-8x7b-instruct", "mixtral-8x22b-instruct"
+        ]
+        
+        for model in new_mistral_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "mistral"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test instruction following
+            instruction_text = "Please provide a detailed explanation of the following concept."
+            instruction_tokens = counter.count(instruction_text)
+            assert isinstance(instruction_tokens, int)
+            assert instruction_tokens > tokens
+            
+            # Test multilingual capabilities (Mistral strength)
+            multilingual_text = "Bonjour! Comment allez-vous? Hello! How are you? Hola! ¿Cómo estás?"
+            multilingual_tokens = counter.count(multilingual_text)
+            assert isinstance(multilingual_tokens, int)
+            assert multilingual_tokens > 0
+            
+            # Test mixture of experts scenarios (for Mixtral models)
+            if "mixtral" in model:
+                expert_text = "This requires expertise across multiple domains including science, mathematics, and literature."
+                expert_tokens = counter.count(expert_text)
+                assert isinstance(expert_tokens, int)
+                assert expert_tokens > tokens
+    
+    def test_all_bigcode_models_comprehensive(self):
+        """Test all BigCode models comprehensively."""
+        all_bigcode_models = [
+            "starcoder", "starcoder2-15b", "starcoderbase", "starcoder2-3b",
+            "starcoder2-7b", "starcoder-plus", "starcoderbase-1b", "starcoderbase-3b",
+            "starcoderbase-7b"
+        ]
+        
+        for model in all_bigcode_models:
+            counter = TokenCounter(model)
+            assert counter.provider == "bigcode"
+            
+            tokens = counter.count("Hello, world!")
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test various programming languages
+            programming_languages = {
+                "python": "def fibonacci(n):\n    return n if n <= 1 else fibonacci(n-1) + fibonacci(n-2)",
+                "javascript": "const factorial = n => n <= 1 ? 1 : n * factorial(n - 1);",
+                "java": "public class Hello { public static void main(String[] args) { System.out.println(\"Hello\"); } }",
+                "cpp": "#include <iostream>\nint main() { std::cout << \"Hello\" << std::endl; return 0; }",
+                "rust": "fn main() { println!(\"Hello, world!\"); }",
+                "go": "package main\nimport \"fmt\"\nfunc main() { fmt.Println(\"Hello, world!\") }",
+                "typescript": "interface User { name: string; age: number; }\nconst user: User = { name: 'John', age: 30 };",
+                "sql": "SELECT users.name, COUNT(orders.id) FROM users LEFT JOIN orders ON users.id = orders.user_id GROUP BY users.id;",
+            }
+            
+            for language, code in programming_languages.items():
+                code_tokens = counter.count(code)
+                assert isinstance(code_tokens, int)
+                assert code_tokens > 0
+                
+                # Code should generally have more tokens than simple text
+                if len(code) > 20:  # For longer code samples
+                    assert code_tokens > tokens
+    
+    def test_model_performance_characteristics(self):
+        """Test that models behave according to their expected performance characteristics."""
+        performance_tests = [
+            # (model, expected_provider, test_scenario, expected_behavior)
+            ("claude-3-opus", "anthropic", "complex_reasoning", "high_quality"),
+            ("claude-3-sonnet", "anthropic", "balanced_performance", "efficient"),
+            ("claude-3-haiku", "anthropic", "fast_response", "quick"),
+            ("gpt-4-turbo", "openai", "comprehensive_analysis", "detailed"),
+            ("gpt-4o-mini", "openai", "efficient_processing", "fast"),
+            ("gemini-pro", "google", "multimodal_understanding", "versatile"),
+            ("llama-3.1-405b-instruct", "meta", "large_scale_reasoning", "comprehensive"),
+            ("llama-3.2-1b-instruct", "meta", "lightweight_processing", "efficient"),
+            ("mistral-large-2", "mistral", "multilingual_capability", "diverse"),
+            ("mixtral-8x22b-instruct", "mistral", "expert_knowledge", "specialized"),
+            ("deepseek-v3", "deepseek", "code_generation", "technical"),
+            ("qwen-2.5-72b", "alibaba", "chinese_processing", "localized"),
+            ("starcoder2-15b", "bigcode", "code_completion", "programming"),
+            ("codegen-16b", "salesforce", "code_synthesis", "generative"),
+        ]
+        
+        # Mock tiktoken for OpenAI models
+        with patch('toksum.core.tiktoken') as mock_tiktoken:
+            mock_encoder = Mock()
+            mock_encoder.encode.return_value = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            mock_tiktoken.get_encoding.return_value = mock_encoder
+            
+            for model, expected_provider, scenario, behavior in performance_tests:
+                counter = TokenCounter(model)
+                assert counter.provider == expected_provider
+                
+                # Test scenario-specific text
+                if scenario == "complex_reasoning":
+                    text = "Analyze this multi-layered philosophical argument and identify logical fallacies."
+                elif scenario == "balanced_performance":
+                    text = "Provide a comprehensive yet concise summary of the key points."
+                elif scenario == "fast_response":
+                    text = "Quick answer needed."
+                elif scenario == "comprehensive_analysis":
+                    text = "Conduct a thorough analysis of all aspects of this complex problem."
+                elif scenario == "efficient_processing":
+                    text = "Process this request efficiently."
+                elif scenario == "multimodal_understanding":
+                    text = "Combine visual and textual information for complete understanding."
+                elif scenario == "large_scale_reasoning":
+                    text = "Apply advanced reasoning across multiple domains simultaneously."
+                elif scenario == "lightweight_processing":
+                    text = "Simple task completion."
+                elif scenario == "multilingual_capability":
+                    text = "Translate and understand: Hello, Bonjour, Hola, Guten Tag, Ciao."
+                elif scenario == "expert_knowledge":
+                    text = "Apply specialized knowledge from multiple expert domains."
+                elif scenario == "code_generation":
+                    text = "def complex_algorithm(): # Generate sophisticated code here"
+                elif scenario == "chinese_processing":
+                    text = "中文自然语言处理和理解能力测试。"
+                elif scenario == "code_completion":
+                    text = "class DataStructure:\n    def __init__(self):\n        # Complete this implementation"
+                elif scenario == "code_synthesis":
+                    text = "Generate a complete web application with frontend and backend components."
+                else:
+                    text = "Standard test message."
+                
+                tokens = counter.count(text)
+                assert isinstance(tokens, int)
+                assert tokens > 0
+                
+                # Verify reasonable token counts based on text complexity
+                if len(text) > 100:
+                    assert tokens > 10, f"{model} should return substantial tokens for complex text"
+                elif len(text) > 50:
+                    assert tokens > 5, f"{model} should return moderate tokens for medium text"
+                else:
+                    assert tokens > 0, f"{model} should return some tokens for simple text"
+    
+    def test_edge_cases_comprehensive(self):
+        """Test comprehensive edge cases across all new models."""
+        edge_case_models = [
+            "claude-3-opus", "gpt-4-turbo", "gemini-pro", "llama-3.1-405b-instruct",
+            "mistral-large-2", "deepseek-v3", "qwen-2.5-72b", "starcoder2-15b",
+            "codegen-16b", "phi-3-mini", "titan-text-express", "nemotron-4-340b",
+            "granite-13b-chat"
+        ]
+        
+        edge_cases = [
+            ("", 0),  # Empty string
+            (" ", 1),  # Single space
+            ("\n", 1),  # Single newline
+            ("\t", 1),  # Single tab
+            ("a", 1),  # Single character
+            ("🚀", 1),  # Single emoji
+            ("Hello" * 1000, None),  # Very long repetitive text
+            ("The quick brown fox jumps over the lazy dog. " * 100, None),  # Long meaningful text
+            ("!@#$%^&*()_+-=[]{}|;':\",./<>?", None),  # Special characters
+            ("αβγδεζηθικλμνξοπρστυφχψω", None),  # Greek alphabet
+            ("こんにちは世界", None),  # Japanese
+            ("مرحبا بالعالم", None),  # Arabic
+            ("Здравствуй мир", None),  # Russian
+            ("🌍🌎🌏🚀🛸👽🤖🎯🎪🎨", None),  # Multiple emojis
+            ("1234567890" * 50, None),  # Long numeric string
+        ]
+        
+        # Mock tiktoken for OpenAI models
+        with patch('toksum.core.tiktoken') as mock_tiktoken:
+            mock_encoder = Mock()
+            mock_encoder.encode.side_effect = lambda x: list(range(max(1, len(x) // 4)))
+            mock_tiktoken.get_encoding.return_value = mock_encoder
+            
+            for model in edge_case_models:
+                counter = TokenCounter(model)
+                
+                for text, expected_tokens in edge_cases:
+                    tokens = counter.count(text)
+                    assert isinstance(tokens, int)
+                    assert tokens >= 0
+                    
+                    if expected_tokens is not None:
+                        if expected_tokens == 0:
+                            assert tokens == 0, f"{model} should return 0 tokens for empty string"
+                        else:
+                            assert tokens >= expected_tokens, f"{model} should return at least {expected_tokens} tokens for '{text}'"
+                    else:
+                        # For cases without specific expectations, just ensure reasonable bounds
+                        if len(text) > 1000:
+                            assert tokens > 50, f"{model} should return substantial tokens for very long text"
+                        elif len(text) > 100:
+                            assert tokens > 10, f"{model} should return moderate tokens for long text"
+                        elif len(text) > 0:
+                            assert tokens > 0, f"{model} should return positive tokens for non-empty text"
+    
+    def test_message_counting_comprehensive(self):
+        """Test comprehensive message counting across all model types."""
+        test_models = [
+            "claude-3-opus", "claude-3-sonnet", "claude-3-haiku",
+            "gpt-4-turbo", "gpt-4o-mini", "gemini-pro", "gemini-1.5-flash",
+            "llama-3.1-405b-instruct", "llama-3.2-1b-instruct",
+            "mistral-large-2", "mixtral-8x22b-instruct",
+            "deepseek-v3", "qwen-2.5-72b", "phi-3-mini",
+            "titan-text-express", "nemotron-4-340b", "granite-13b-chat",
+            "starcoder2-15b", "codegen-16b"
+        ]
+        
+        message_scenarios = [
+            # Simple conversation
+            [
+                {"role": "user", "content": "Hello"},
+                {"role": "assistant", "content": "Hi there!"}
+            ],
+            # Complex conversation
+            [
+                {"role": "user", "content": "Can you help me understand quantum computing?"},
+                {"role": "assistant", "content": "Quantum computing is a revolutionary approach to computation that leverages quantum mechanical phenomena."},
+                {"role": "user", "content": "How does it differ from classical computing?"},
+                {"role": "assistant", "content": "Classical computers use bits that are either 0 or 1, while quantum computers use qubits that can be in superposition."}
+            ],
+            # Code-focused conversation
+            [
+                {"role": "user", "content": "Write a Python function to calculate fibonacci numbers."},
+                {"role": "assistant", "content": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"},
+                {"role": "user", "content": "Can you optimize this for better performance?"},
+                {"role": "assistant", "content": "Here's a memoized version:\n\ndef fibonacci_memo(n, memo={}):\n    if n in memo:\n        return memo[n]\n    if n <= 1:\n        return n\n    memo[n] = fibonacci_memo(n-1, memo) + fibonacci_memo(n-2, memo)\n    return memo[n]"}
+            ],
+            # Multilingual conversation
+            [
+                {"role": "user", "content": "Hello, how are you? Bonjour, comment allez-vous?"},
+                {"role": "assistant", "content": "Hello! I'm doing well, thank you. Bonjour! Je vais bien, merci."},
+                {"role": "user", "content": "Can you help me in both English and French?"},
+                {"role": "assistant", "content": "Of course! I can assist you in both languages. Bien sûr! Je peux vous aider dans les deux langues."}
+            ]
+        ]
+        
+        # Mock tiktoken for OpenAI models
+        with patch('toksum.core.tiktoken') as mock_tiktoken:
+            mock_encoder = Mock()
+            mock_encoder.encode.side_effect = lambda x: list(range(len(x.split())))
+            mock_tiktoken.get_encoding.return_value = mock_encoder
+            
+            for model in test_models:
+                counter = TokenCounter(model)
+                
+                for messages in message_scenarios:
+                    tokens = counter.count_messages(messages)
+                    assert isinstance(tokens, int)
+                    assert tokens > 0
+                    
+                    # Calculate individual content tokens for comparison
+                    individual_tokens = sum(counter.count(msg["content"]) for msg in messages)
+                    
+                    # Message counting should include formatting overhead
+                    assert tokens >= individual_tokens, f"{model} message tokens should be >= individual content tokens"
+                    
+                    # But not excessively more (reasonable overhead)
+                    assert tokens <= individual_tokens * 2, f"{model} message tokens should not be excessively higher than content tokens"
+    
+    def test_provider_specific_optimizations(self):
+        """Test provider-specific optimizations and characteristics."""
+        optimization_tests = [
+            # Chinese-optimized models
+            ("qwen-2.5-72b", "alibaba", "你好世界！这是一个中文测试。", "chinese"),
+            ("ernie-4.0", "baidu", "百度人工智能技术测试。", "chinese"),
+            ("chatglm-6b", "tsinghua", "清华大学自然语言处理。", "chinese"),
+            ("abab6-chat", "minimax", "中文对话系统测试。", "chinese"),
+            
+            # Code-optimized models
+            ("starcoder2-15b", "bigcode", "def quicksort(arr): return arr if len(arr) <= 1 else quicksort([x for x in arr[1:] if x <= arr[0]]) + [arr[0]] + quicksort([x for x in arr[1:] if x > arr[0]])", "code"),
+            ("codegen-16b", "salesforce", "class BinaryTree:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right", "code"),
+            ("deepseek-coder-6.7b", "deepseek", "import torch\nimport torch.nn as nn\nclass Transformer(nn.Module):\n    def __init__(self, vocab_size, d_model, nhead, num_layers):\n        super().__init__()", "code"),
+            
+            # Multilingual models
+            ("mistral-large-2", "mistral", "Hello, Bonjour, Hola, Guten Tag, Ciao, こんにちは", "multilingual"),
+            ("command-r-plus-04-2024", "cohere", "Translate: Hello world. Français: Bonjour le monde. Español: Hola mundo.", "multilingual"),
+            
+            # Scientific/Technical models
+            ("nemotron-4-340b", "nvidia", "The transformer architecture utilizes self-attention mechanisms to process sequential data efficiently.", "technical"),
+            ("granite-13b-instruct", "ibm", "Enterprise AI solutions require robust security frameworks and compliance protocols.", "technical"),
+            
+            # Conversational models
+            ("phi-3-mini", "microsoft", "Let's have a friendly conversation about artificial intelligence and its applications.", "conversational"),
+            ("titan-text-express", "amazon", "Customer service excellence requires understanding user needs and providing helpful solutions.", "conversational"),
+        ]
+        
+        for model, expected_provider, test_text, optimization_type in optimization_tests:
+            counter = TokenCounter(model)
+            assert counter.provider == expected_provider
+            
+            tokens = counter.count(test_text)
+            assert isinstance(tokens, int)
+            assert tokens > 0
+            
+            # Test that optimized models handle their specialty text appropriately
+            if optimization_type == "chinese":
+                # Chinese models should handle Chinese text efficiently
+                english_equivalent = "Hello world! This is an English test."
+                english_tokens = counter.count(english_equivalent)
+                # Both should be reasonable, but we can't assume Chinese is always more efficient
+                assert tokens > 0 and english_tokens > 0
+                
+            elif optimization_type == "code":
+                # Code models should handle code well
+                natural_language = "This is a natural language description of the same length as the code above."
+                nl_tokens = counter.count(natural_language)
+                # Both should be reasonable
+                assert tokens > 0 and nl_tokens > 0
+                
+            elif optimization_type == "multilingual":
+                # Multilingual models should handle mixed languages
+                english_only = "Hello world, how are you today?"
+                english_tokens = counter.count(english_only)
+                # Mixed language might have different tokenization
+                assert tokens > 0 and english_tokens > 0
+                
+            elif optimization_type in ["technical", "conversational"]:
+                # These should handle their respective text types well
+                simple_text = "Hello world."
+                simple_tokens = counter.count(simple_text)
+                assert tokens > simple_tokens  # Specialized text should have more tokens
+    
+    def test_error_handling_comprehensive(self):
+        """Test comprehensive error handling across all model types."""
+        test_models = [
+            "claude-3-opus", "gpt-4-turbo", "gemini-pro", "llama-3.1-405b-instruct",
+            "mistral-large-2", "deepseek-v3", "qwen-2.5-72b", "starcoder2-15b",
+            "phi-3-mini", "titan-text-express", "nemotron-4-340b", "granite-13b-chat"
+        ]
+        
+        # Mock tiktoken for OpenAI models
+        with patch('toksum.core.tiktoken') as mock_tiktoken:
+            mock_encoder = Mock()
+            mock_encoder.encode.return_value = [1, 2, 3]
+            mock_tiktoken.get_encoding.return_value = mock_encoder
+            
+            for model in test_models:
+                counter = TokenCounter(model)
+                
+                # Test invalid input types for count()
+                invalid_inputs = [
+                    123, 456.789, True, False, None,
+                    ["list", "of", "strings"], {"dict": "object"},
+                    set(["set", "object"]), (1, 2, 3)
+                ]
+                
+                for invalid_input in invalid_inputs:
+                    with pytest.raises(TokenizationError):
+                        counter.count(invalid_input)
+                
+                # Test invalid message formats for count_messages()
+                invalid_message_formats = [
+                    "not a list",
+                    123,
+                    None,
+                    [{"role": "user"}],  # Missing content
+                    [{"content": "hello"}],  # Missing role
+                    ["not a dict"],
+                    [{"role": "user", "content": 123}],  # Non-string content
+                    [{"role": 123, "content": "hello"}],  # Non-string role
+                ]
+                
+                for invalid_format in invalid_message_formats:
+                    with pytest.raises(TokenizationError):
+                        counter.count_messages(invalid_format)
+    
+    def test_consistency_across_model_variants(self):
+        """Test consistency across different variants of the same model family."""
+        model_families = [
+            # OpenAI GPT-4 family
+            ["gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4o-mini"],
+            # Anthropic Claude 3 family
+            ["claude-3-opus", "claude-3-sonnet", "claude-3-haiku"],
+            # Google Gemini family
+            ["gemini-pro", "gemini-1.5-pro", "gemini-1.5-flash"],
+            # Meta Llama 3 family
+            ["llama-3-8b", "llama-3-70b", "llama-3.1-8b", "llama-3.1-70b"],
+            # Mistral family
+            ["mistral-7b", "mistral-large", "mistral-large-2"],
+            # BigCode StarCoder family
+            ["starcoder", "starcoder2-3b", "starcoder2-7b", "starcoder2-15b"],
+        ]
+        
+        test_texts = [
+            "Hello, world!",
+            "This is a test message for consistency checking.",
+            "def hello_world():\n    print('Hello, world!')",
+            "The quick brown fox jumps over the lazy dog.",
+        ]
+        
+        # Mock tiktoken for OpenAI models
+        with patch('toksum.core.tiktoken') as mock_tiktoken:
+            mock_encoder = Mock()
+            mock_encoder.encode.side_effect = lambda x: list(range(len(x.split())))
+            mock_tiktoken.get_encoding.return_value = mock_encoder
+            
+            for family in model_families:
+                family_results = {}
+                
+                for model in family:
+                    try:
+                        counter = TokenCounter(model)
+                        model_results = []
+                        
+                        for text in test_texts:
+                            tokens = counter.count(text)
+                            model_results.append(tokens)
+                        
+                        family_results[model] = model_results
+                        
+                    except UnsupportedModelError:
+                        # Skip if model not supported (some variants might not exist)
+                        continue
+                
+                # Check that all models in the family produce reasonable results
+                if len(family_results) > 1:
+                    all_results = list(family_results.values())
+                    
+                    # All models should produce positive token counts
+                    for results in all_results:
+                        for token_count in results:
+                            assert token_count > 0
+                    
+                    # Results should be in the same ballpark (within reasonable variance)
+                    for i in range(len(test_texts)):
+                        text_results = [results[i] for results in all_results]
+                        min_tokens = min(text_results)
+                        max_tokens = max(text_results)
+                        
+                        # Allow for reasonable variance (max should not be more than 3x min)
+                        if min_tokens > 0:
+                            assert max_tokens <= min_tokens * 3, f"Too much variance in family {family} for text {i}: {text_results}"
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])
 if __name__ == "__main__":
     pytest.main([__file__])

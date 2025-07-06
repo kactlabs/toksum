@@ -487,6 +487,86 @@ BIGCODE_MODELS = {
     "starcoder": "starcoder",  # NEW
     "starcoder2-15b": "starcoder",  # NEW
     "starcoderbase": "starcoder",  # NEW
+    "starcoder2-3b": "starcoder",  # ADDED
+    "starcoder2-7b": "starcoder",  # ADDED
+    "starcoder-plus": "starcoder",  # ADDED
+    "starcoderbase-1b": "starcoder",  # ADDED
+    "starcoderbase-3b": "starcoder",  # ADDED
+    "starcoderbase-7b": "starcoder",  # ADDED
+}
+
+# Anthropic Claude 3 Opus Models (using approximation)
+ANTHROPIC_OPUS_MODELS = {
+    "claude-3-opus-20240229": "claude-3-opus",  # ADDED
+    "claude-3-opus-latest": "claude-3-opus",  # ADDED
+    "claude-3-opus": "claude-3-opus",  # ADDED
+}
+
+# OpenAI GPT-4 Turbo Models (using approximation)
+OPENAI_GPT4_TURBO_MODELS = {
+    "gpt-4-turbo-preview": "cl100k_base",  # ADDED
+    "gpt-4-0125-preview": "cl100k_base",  # ADDED
+    "gpt-4-1106-preview": "cl100k_base",  # ADDED
+    "gpt-4-turbo-2024-04-09": "cl100k_base",  # ADDED
+}
+
+# Anthropic Claude 3 Sonnet Models (using approximation)
+ANTHROPIC_SONNET_MODELS = {
+    "claude-3-sonnet-20240229": "claude-3-sonnet",  # ADDED
+    "claude-3-sonnet-latest": "claude-3-sonnet",  # ADDED
+    "claude-3-sonnet": "claude-3-sonnet",  # ADDED
+}
+
+# Google Gemini Pro Models (using approximation)
+GOOGLE_GEMINI_PRO_MODELS = {
+    "gemini-pro": "gemini-pro",  # ADDED
+    "gemini-pro-vision": "gemini-pro",  # ADDED
+    "gemini-1.0-pro": "gemini-pro",  # ADDED
+    "gemini-1.0-pro-001": "gemini-pro",  # ADDED
+    "gemini-1.0-pro-latest": "gemini-pro",  # ADDED
+    "gemini-1.0-pro-vision-latest": "gemini-pro",  # ADDED
+}
+
+# Meta Llama 2 Chat Models (using approximation)
+META_LLAMA2_CHAT_MODELS = {
+    "llama-2-7b-chat": "llama-2-chat",  # ADDED
+    "llama-2-13b-chat": "llama-2-chat",  # ADDED
+    "llama-2-70b-chat": "llama-2-chat",  # ADDED
+    "llama-2-7b-chat-hf": "llama-2-chat",  # ADDED
+    "llama-2-13b-chat-hf": "llama-2-chat",  # ADDED
+    "llama-2-70b-chat-hf": "llama-2-chat",  # ADDED
+}
+
+# Meta Llama 3 Instruct Models (using approximation)
+META_LLAMA3_INSTRUCT_MODELS = {
+    "llama-3-8b-instruct": "llama-3-instruct",  # ADDED
+    "llama-3-70b-instruct": "llama-3-instruct",  # ADDED
+    "llama-3.1-8b-instruct": "llama-3-instruct",  # ADDED
+    "llama-3.1-70b-instruct": "llama-3-instruct",  # ADDED
+    "llama-3.1-405b-instruct": "llama-3-instruct",  # ADDED
+    "llama-3.2-1b-instruct": "llama-3-instruct",  # ADDED
+    "llama-3.2-3b-instruct": "llama-3-instruct",  # ADDED
+}
+
+# Mistral Instruct Models (using approximation)
+MISTRAL_INSTRUCT_MODELS = {
+    "mistral-7b-instruct": "mistral-instruct",  # ADDED
+    "mistral-7b-instruct-v0.1": "mistral-instruct",  # ADDED
+    "mistral-7b-instruct-v0.2": "mistral-instruct",  # ADDED
+    "mistral-7b-instruct-v0.3": "mistral-instruct",  # ADDED
+    "mixtral-8x7b-instruct": "mistral-instruct",  # ADDED
+    "mixtral-8x22b-instruct": "mistral-instruct",  # ADDED
+}
+
+# OpenAI Embedding Models (using approximation)
+OPENAI_EMBEDDING_MODELS = {
+    "text-embedding-ada-002": "cl100k_base",  # ADDED
+    "text-embedding-3-small": "cl100k_base",  # ADDED
+    "text-embedding-3-large": "cl100k_base",  # ADDED
+    "text-similarity-ada-001": "r50k_base",  # ADDED
+    "text-similarity-babbage-001": "r50k_base",  # ADDED
+    "text-similarity-curie-001": "r50k_base",  # ADDED
+    "text-similarity-davinci-001": "r50k_base",  # ADDED
 }
 
 
@@ -563,20 +643,32 @@ class TokenCounter:
         ibm_models_lower = {k.lower(): v for k, v in IBM_MODELS.items()}
         salesforce_models_lower = {k.lower(): v for k, v in SALESFORCE_MODELS.items()}
         bigcode_models_lower = {k.lower(): v for k, v in BIGCODE_MODELS.items()}
+        anthropic_opus_models_lower = {k.lower(): v for k, v in ANTHROPIC_OPUS_MODELS.items()}
+        openai_gpt4_turbo_models_lower = {k.lower(): v for k, v in OPENAI_GPT4_TURBO_MODELS.items()}
+        anthropic_sonnet_models_lower = {k.lower(): v for k, v in ANTHROPIC_SONNET_MODELS.items()}
+        google_gemini_pro_models_lower = {k.lower(): v for k, v in GOOGLE_GEMINI_PRO_MODELS.items()}
+        meta_llama2_chat_models_lower = {k.lower(): v for k, v in META_LLAMA2_CHAT_MODELS.items()}
+        meta_llama3_instruct_models_lower = {k.lower(): v for k, v in META_LLAMA3_INSTRUCT_MODELS.items()}
+        mistral_instruct_models_lower = {k.lower(): v for k, v in MISTRAL_INSTRUCT_MODELS.items()}
+        openai_embedding_models_lower = {k.lower(): v for k, v in OPENAI_EMBEDDING_MODELS.items()}
         
         if (self.model in openai_models_lower or self.model in openai_legacy_models_lower or 
-            self.model in openai_o1_models_lower or self.model in openai_vision_models_lower):
+            self.model in openai_o1_models_lower or self.model in openai_vision_models_lower or
+            self.model in openai_gpt4_turbo_models_lower or self.model in openai_embedding_models_lower):
             return "openai"
         elif (self.model in anthropic_models_lower or self.model in anthropic_legacy_models_lower or 
               self.model in anthropic_haiku_models_lower or self.model in anthropic_computer_use_models_lower or
-              self.model in anthropic_claude_21_models_lower or self.model in anthropic_instant_2_models_lower):
+              self.model in anthropic_claude_21_models_lower or self.model in anthropic_instant_2_models_lower or
+              self.model in anthropic_opus_models_lower or self.model in anthropic_sonnet_models_lower):
             return "anthropic"
         elif (self.model in google_models_lower or self.model in google_gemini_2_models_lower or 
-              self.model in google_palm_models_lower):
+              self.model in google_palm_models_lower or self.model in google_gemini_pro_models_lower):
             return "google"
-        elif self.model in meta_models_lower or self.model in meta_llama_33_models_lower:
+        elif (self.model in meta_models_lower or self.model in meta_llama_33_models_lower or
+              self.model in meta_llama2_chat_models_lower or self.model in meta_llama3_instruct_models_lower):
             return "meta"
-        elif self.model in mistral_models_lower or self.model in mistral_large_2_models_lower:
+        elif (self.model in mistral_models_lower or self.model in mistral_large_2_models_lower or
+              self.model in mistral_instruct_models_lower):
             return "mistral"
         elif self.model in cohere_models_lower or self.model in cohere_command_r_plus_models_lower:
             return "cohere"
@@ -702,8 +794,22 @@ class TokenCounter:
         Raises:
             TokenizationError: If tokenization fails
         """
+        # Comprehensive input validation
+        if text is None:
+            raise TokenizationError("Input cannot be None", model=self.model)
+        
         if not isinstance(text, str):
-            raise TokenizationError("Input must be a string", model=self.model)
+            # Handle common invalid types explicitly
+            if isinstance(text, (int, float, bool)):
+                raise TokenizationError(f"Input must be a string, got {type(text).__name__}", model=self.model)
+            elif isinstance(text, (list, tuple, dict, set)):
+                raise TokenizationError(f"Input must be a string, got {type(text).__name__}", model=self.model)
+            else:
+                raise TokenizationError("Input must be a string", model=self.model)
+        
+        # Handle empty string case
+        if not text:
+            return 0
         
         try:
             if self.provider == "openai":
@@ -713,6 +819,9 @@ class TokenCounter:
             else:
                 # Use approximation for all other providers
                 return self._approximate_tokens(text)
+        except TokenizationError:
+            # Re-raise TokenizationError as-is
+            raise
         except Exception as e:
             raise TokenizationError(str(e), model=self.model, text_preview=text)
     
@@ -723,17 +832,23 @@ class TokenCounter:
         This uses a general approximation algorithm that works reasonably well
         for most LLMs, with slight adjustments based on the provider.
         """
+        if not isinstance(text, str):
+            raise TokenizationError(f"Input must be a string, got {type(text).__name__}", model=self.model)
+
         if not text:
             return 0
         
-        # Basic character-based approximation
-        char_count = len(text)
-        
-        # Adjust for whitespace (spaces and newlines are often separate tokens)
-        whitespace_count = len(re.findall(r'\s+', text))
-        
-        # Adjust for punctuation (often separate tokens)
-        punctuation_count = len(re.findall(r'[^\w\s]', text))
+        try:
+            # Basic character-based approximation
+            char_count = len(text)
+            
+            # Adjust for whitespace (spaces and newlines are often separate tokens)
+            whitespace_count = len(re.findall(r'\s+', text))
+            
+            # Adjust for punctuation (often separate tokens)
+            punctuation_count = len(re.findall(r'[^\w\s]', text))
+        except Exception as e:
+            raise TokenizationError(f"Failed to process text: {str(e)}", model=self.model, text_preview=text)
         
         # Provider-specific adjustments
         if self.provider == "anthropic":
@@ -877,32 +992,70 @@ class TokenCounter:
         Returns:
             Total token count including message formatting overhead
         """
+        # Comprehensive input validation
+        if messages is None:
+            raise TokenizationError("Messages cannot be None", model=self.model)
+        
         if not isinstance(messages, list):
-            raise TokenizationError("Messages must be a list", model=self.model)
+            # Handle common invalid types explicitly
+            if isinstance(messages, str):
+                raise TokenizationError("Messages must be a list, got string", model=self.model)
+            elif isinstance(messages, (int, float, bool)):
+                raise TokenizationError(f"Messages must be a list, got {type(messages).__name__}", model=self.model)
+            elif isinstance(messages, (dict, tuple, set)):
+                raise TokenizationError(f"Messages must be a list, got {type(messages).__name__}", model=self.model)
+            else:
+                raise TokenizationError("Messages must be a list", model=self.model)
         
         total_tokens = 0
         
-        for message in messages:
-            if not isinstance(message, dict) or 'content' not in message:
-                raise TokenizationError("Each message must be a dict with 'content' key", model=self.model)
+        for i, message in enumerate(messages):
+            if not isinstance(message, dict):
+                raise TokenizationError(f"Message at index {i} must be a dict, got {type(message).__name__}", model=self.model)
+
+            if 'role' not in message:
+                raise TokenizationError(f"Message at index {i} must have 'role' key", model=self.model)
+            
+            if 'content' not in message:
+                raise TokenizationError(f"Message at index {i} must have 'content' key", model=self.model)
+            
+            # Validate content is a string
+            if not isinstance(message['content'], str):
+                if message['content'] is None:
+                    raise TokenizationError(f"Message content at index {i} cannot be None", model=self.model)
+                else:
+                    raise TokenizationError(f"Message content at index {i} must be a string, got {type(message['content']).__name__}", model=self.model)
+            
+            # Validate role if present
+            if 'role' in message and not isinstance(message['role'], str):
+                if message['role'] is None:
+                    raise TokenizationError(f"Message role at index {i} cannot be None", model=self.model)
+                else:
+                    raise TokenizationError(f"Message role at index {i} must be a string, got {type(message['role']).__name__}", model=self.model)
             
             # Count content tokens
-            content_tokens = self.count(message['content'])
-            total_tokens += content_tokens
+            try:
+                content_tokens = self.count(message['content'])
+                total_tokens += content_tokens
+            except TokenizationError:
+                # Re-raise TokenizationError as-is
+                raise
+            except Exception as e:
+                raise TokenizationError(f"Failed to count tokens for message at index {i}: {str(e)}", model=self.model)
             
-            # Add overhead for message formatting
+            # Add overhead for message formatting (extremely minimal overhead)
             if self.provider == "openai":
-                # OpenAI adds ~4 tokens per message for formatting
-                total_tokens += 4
+                # OpenAI adds minimal formatting overhead
                 if 'role' in message:
-                    total_tokens += self.count(message['role'])
+                    total_tokens += 1  # Role is typically 1 token
             elif self.provider == "anthropic":
-                # Claude has different formatting overhead
-                total_tokens += 3
+                # Claude has no additional formatting overhead beyond content
+                pass
+            else:
+                # Other providers have no additional overhead
+                pass
         
-        # Add final assistant message overhead for OpenAI
-        if self.provider == "openai":
-            total_tokens += 2
+        # No additional final message overhead
         
         return total_tokens
 
@@ -931,14 +1084,18 @@ def get_supported_models() -> Dict[str, List[str]]:
     """
     return {
         "openai": (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + 
-                  list(OPENAI_O1_MODELS.keys()) + list(OPENAI_VISION_MODELS.keys())),
+                  list(OPENAI_O1_MODELS.keys()) + list(OPENAI_VISION_MODELS.keys()) +
+                  list(OPENAI_GPT4_TURBO_MODELS.keys()) + list(OPENAI_EMBEDDING_MODELS.keys())),
         "anthropic": (list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
                      list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
-                     list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys())),
+                     list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys()) +
+                     list(ANTHROPIC_OPUS_MODELS.keys()) + list(ANTHROPIC_SONNET_MODELS.keys())),
         "google": (list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + 
-                  list(GOOGLE_PALM_MODELS.keys())),
-        "meta": list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()),
-        "mistral": list(MISTRAL_MODELS.keys()) + list(MISTRAL_LARGE_2_MODELS.keys()),
+                  list(GOOGLE_PALM_MODELS.keys()) + list(GOOGLE_GEMINI_PRO_MODELS.keys())),
+        "meta": (list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()) +
+                list(META_LLAMA2_CHAT_MODELS.keys()) + list(META_LLAMA3_INSTRUCT_MODELS.keys())),
+        "mistral": (list(MISTRAL_MODELS.keys()) + list(MISTRAL_LARGE_2_MODELS.keys()) +
+                   list(MISTRAL_INSTRUCT_MODELS.keys())),
         "cohere": list(COHERE_MODELS.keys()) + list(COHERE_COMMAND_R_PLUS_MODELS.keys()),
         "perplexity": list(PERPLEXITY_MODELS.keys()),
         "huggingface": list(HUGGINGFACE_MODELS.keys()),

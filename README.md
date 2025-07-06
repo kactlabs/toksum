@@ -1,6 +1,6 @@
 # toksum
 
-A comprehensive Python library for counting tokens across 300+ Large Language Models (LLMs) from 32+ providers.
+A comprehensive Python library for counting tokens across 300+ Large Language Models (LLMs) from 34+ providers.
 
 [![PyPI version](https://badge.fury.io/py/toksum.svg)](https://badge.fury.io/py/toksum)
 [![Python Support](https://img.shields.io/pypi/pyversions/toksum.svg)](https://pypi.org/project/toksum/)
@@ -9,8 +9,8 @@ A comprehensive Python library for counting tokens across 300+ Large Language Mo
 ## Features
 
 
-- **🎯 Production Ready v1.0.0**: Comprehensive support for 300+ models across 32+ providers including OpenAI, Anthropic, Google, Meta, Mistral, Microsoft, Amazon, Nvidia, IBM, Salesforce, BigCode, and many more
-- **Comprehensive Multi-LLM Support**: Count tokens for 279 models across 32 providers including OpenAI, Anthropic, Google, Meta, Mistral, Microsoft, Amazon, Nvidia, IBM, Salesforce, BigCode, and many more
+- **🎯 Production Ready v1.0.1**: Comprehensive support for 300+ models across 34+ providers including OpenAI, Anthropic, Google, Meta, Mistral, Microsoft, Amazon, Nvidia, IBM, Salesforce, BigCode, Databricks, Voyage AI, and many more
+- **Comprehensive Multi-LLM Support**: Count tokens for 300+ models across 34 providers including OpenAI, Anthropic, Google, Meta, Mistral, Microsoft, Amazon, Nvidia, IBM, Salesforce, BigCode, Databricks, Voyage AI, and many more
 - **Accurate Tokenization**: Uses official tokenizers (tiktoken for OpenAI) and optimized approximations for all other providers
 - **Chat Message Support**: Count tokens in chat/conversation format with proper message overhead calculation
 - **Cost Estimation**: Estimate API costs based on token counts and current pricing
@@ -174,8 +174,16 @@ A comprehensive Python library for counting tokens across 300+ Large Language Mo
 - Multi-language code generation and understanding
 - Trained on diverse programming languages
 
+### Databricks Models (5 models)
+- **NEW: Databricks Models** (dbrx-instruct, dbrx-base, dolly-v2-12b, dolly-v2-7b, dolly-v2-3b)
+- High-quality instruction-following and base models
 
-**Total: 300+ models across 32+ providers**
+### Voyage AI Models (6 models)
+- **NEW: Voyage AI Models** (voyage-2, voyage-large-2, voyage-code-2, voyage-finance-2, voyage-law-2, voyage-multilingual-2)
+- State-of-the-art embedding models for various domains
+
+
+**Total: 300+ models across 34+ providers**
 
 ## Installation
 

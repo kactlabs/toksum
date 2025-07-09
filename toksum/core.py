@@ -1163,18 +1163,18 @@ def get_supported_models() -> Dict[str, List[str]]:
 
 def estimate_cost(token_count: int, model: str, input_tokens: bool = True) -> float:
     """
-    Estimate the cost for a given number of tokens and model.
-    
+    Estimate the cost in USD for a given number of tokens and model.
+
     Args:
-        token_count: Number of tokens
-        model: Model name
-        input_tokens: Whether these are input tokens (True) or output tokens (False)
-        
+        token_count: The number of tokens to estimate the cost for.
+        model: The name of the language model (e.g., "gpt-4", "claude-v1").
+        input_tokens: A boolean indicating whether the tokens are input (True) or output (False).  Defaults to True.
+
     Returns:
-        Estimated cost in USD
-        
+        The estimated cost in USD.  Returns 0.0 if the model is not found in the pricing dictionary.
+
     Note:
-        Prices are approximate and may change. Always check current pricing.
+        Prices are approximate and may change. Always check the current pricing for the most up-to-date information.
     """
     # Approximate pricing per 1K tokens (as of 2024)
     pricing = {

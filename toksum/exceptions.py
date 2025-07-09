@@ -54,14 +54,9 @@ class InvalidTokenError(TokenizationError):
         full_message = f"Invalid token '{token}': {message}"
         super().__init__(full_message, model, text_preview)
 
-
-class NullTextError(ToksumError):
-    """Raised when attempting to tokenize null text."""
-    def __init__(self, model: Optional[str] = None):
-        super().__init__(f"Cannot tokenize null text. {model}")
-
+        
 class EmptyTextError(TokenizationError):
     """Raised when attempting to tokenize empty text."""
     def __init__(self, model: Optional[str] = None):
         super().__init__("Cannot tokenize empty text.", model)
-        super().__init__("Cannot tokenize empty text.", model)
+

@@ -590,11 +590,30 @@ VOYAGE_MODELS = {
 
 class TokenCounter:
     """
-    A token counter for various LLM models.
-    
-    Supports OpenAI GPT models and Anthropic Claude models.
-    """
-    
+A token counter for various Large Language Model (LLM) providers.
+
+This class provides functionality to count tokens for different LLMs, including OpenAI, Anthropic, Google, Meta, and many others.  It supports both individual text strings and lists of messages (for chat-like interactions).  The token counting is precise for OpenAI models using the official tiktoken library, and provides reasonable approximations for other providers.
+
+Example Usage:
+
+# Count tokens for a single text string
+counter = TokenCounter("gpt-4")
+token_count = counter.count("This is a test string.")
+print(f"Token count: {token_count}")
+
+# Count tokens for a list of messages (chat format)
+messages = [
+    {"role": "user", "content": "Hello!"},
+    {"role": "assistant", "content": "How can I help you?"},
+]
+token_count = counter.count_messages(messages)
+print(f"Token count (messages): {token_count}")
+
+# Estimate cost (requires model to be in pricing dictionary)
+cost = estimate_cost(token_count, "gpt-4")
+print(f"Estimated cost: ${cost:.4f}")
+
+"""
     def __init__(self, model: str):
         """
         Initialize the TokenCounter with a specific model.
@@ -840,6 +859,8 @@ class TokenCounter:
             if self.provider == "openai":
                 if self.tokenizer is None:
                     raise TokenizationError("Tokenizer not initialized", model=self.model)
+                if not text:
+                    return 0
                 return len(self.tokenizer.encode(text))
             else:
                 # Use approximation for all other providers

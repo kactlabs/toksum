@@ -1182,22 +1182,22 @@ def get_supported_models() -> Dict[str, List[str]]:
     }
 
 
-def estimate_cost(token_count: int, model: str, input_tokens: bool = True) -> float:
+def estimate_cost(token_count, model, input_tokens=True, currency="USD"):
     """
-    Estimate the cost in USD for a given number of tokens and model.
+    Estimate the cost for a given number of tokens and model in USD or INR.
 
     Args:
-        token_count: The number of tokens to estimate the cost for.
-        model: The name of the language model (e.g., "gpt-4", "claude-v1").
-        input_tokens: A boolean indicating whether the tokens are input (True) or output (False).  Defaults to True.
+        token_count (int): Number of tokens to estimate cost for.
+        model (str): Model name (e.g., "gpt-4", "gpt-4o").
+        input_tokens (bool): True if input tokens, False for output. Defaults to True.
+        currency (str): Currency code ("USD" or "INR"). Defaults to "USD".
 
     Returns:
-        The estimated cost in USD.  Returns 0.0 if the model is not found in the pricing dictionary.
-
-    Note:
-        Prices are approximate and may change. Always check the current pricing for the most up-to-date information.
+        float: Estimated cost in specified currency. Returns 0.0 if model not supported.
     """
-    # Approximate pricing per 1K tokens (as of 2024)
+    USD_TO_INR = 83.0  # Conversion rate as of July 10 2025
+
+    # Approximate pricing per 1K tokens (in USD)
     pricing = {
         "gpt-4": {"input": 0.03, "output": 0.06},
         "gpt-4-32k": {"input": 0.06, "output": 0.12},
@@ -1228,10 +1228,12 @@ def estimate_cost(token_count: int, model: str, input_tokens: bool = True) -> fl
         "claude-3.5-haiku-20241022": {"input": 0.001, "output": 0.005},
         "claude-3-5-sonnet-20240620": {"input": 0.003, "output": 0.015},
     }
-    
-    model_lower = model.lower()
-    if model_lower not in pricing:
+
+    model = model.lower()
+    if model not in pricing:
         return 0.0
-    
-    price_per_1k = pricing[model_lower]["input" if input_tokens else "output"]
-    return (token_count / 1000) * price_per_1k
+
+    rate = pricing[model]["input" if input_tokens else "output"]
+    cost_usd = (token_count / 1000) * rate
+
+    return cost_usd * USD_TO_INR if currency.upper() == "INR" else cost_usd

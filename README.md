@@ -253,6 +253,19 @@ for text in texts:
     tokens = counter.count(text)
     print(f"'{text[:30]}...': {tokens} tokens")
 ```
+### 💰 Token Cost Estimation (USD / INR)
+
+```python
+from toksum.core import estimate_cost
+
+# Estimate cost in USD
+usd_cost = estimate_cost(1000, "gpt-3.5-turbo")
+print(f"Cost in USD: ${usd_cost:.4f}")  # ➝ $0.0010
+
+# Estimate cost in INR
+inr_cost = estimate_cost(1000, "gpt-3.5-turbo", currency="INR")
+print(f"Cost in INR: ₹{inr_cost:.2f}")  # ➝ ₹0.08
+```
 
 ### Chat Message Token Counting
 
@@ -271,6 +284,36 @@ total_tokens = counter.count_messages(messages)
 print(f"Total conversation tokens: {total_tokens}")
 ```
 
+### 💬 Token Counting + 💰 Cost Estimation (USD / INR)
+
+```python
+from toksum import TokenCounter
+from toksum.core import estimate_cost
+
+# Initialize counter for a specific model
+counter = TokenCounter("gpt-4")
+
+# Define chat messages
+messages = [
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "What is the capital of France?"},
+    {"role": "assistant", "content": "The capital of France is Paris."}
+]
+
+# Count total tokens in the conversation
+total_tokens = counter.count_messages(messages)
+print(f"Total conversation tokens: {total_tokens}")
+
+# Estimate cost in USD
+usd_cost = estimate_cost(total_tokens, "gpt-4", input_tokens=True)
+print(f"Estimated cost in USD: ${usd_cost:.4f}")
+
+# Estimate cost in INR
+inr_cost = estimate_cost(total_tokens, "gpt-4", input_tokens=True, currency="INR")
+print(f"Estimated cost in INR: ₹{inr_cost:.2f}")
+```
+
+
 ### Cost Estimation
 
 ```python
@@ -286,6 +329,35 @@ output_cost = estimate_cost(tokens, model, input_tokens=False)
 print(f"Tokens: {tokens}")
 print(f"Estimated input cost: ${input_cost:.4f}")
 print(f"Estimated output cost: ${output_cost:.4f}")
+```
+
+### 🔢 Token & Cost Analyzer (USD / INR)
+
+```python
+from toksum import count_tokens, estimate_cost
+
+# Sample input
+text = "Hiii my name is meeran" * 1  # Simulate large input for testing
+model = "gpt-4"
+
+# Count tokens
+tokens = count_tokens(text, model)
+
+# Estimate input/output costs in USD
+input_cost_usd = estimate_cost(tokens, model, input_tokens=True)
+output_cost_usd = estimate_cost(tokens, model, input_tokens=False)
+
+# Estimate input/output costs in INR
+input_cost_inr = estimate_cost(tokens, model, input_tokens=True, currency="INR")
+output_cost_inr = estimate_cost(tokens, model, input_tokens=False, currency="INR")
+
+# Print results
+print(f"The given text is:{text}")
+print(f"Tokens: {tokens}")
+print(f"Estimated input cost (USD): ${input_cost_usd:.4f}")
+print(f"Estimated output cost (USD): ${output_cost_usd:.4f}")
+print(f"Estimated input cost (INR): ₹{input_cost_inr:.2f}")
+print(f"Estimated output cost (INR): ₹{output_cost_inr:.2f}")
 ```
 
 ### List Supported Models

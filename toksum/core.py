@@ -1182,7 +1182,12 @@ def get_supported_models() -> Dict[str, List[str]]:
     }
 
 
-def estimate_cost(token_count, model, input_tokens=True, currency="USD")-> float:
+def estimate_cost(
+    token_count: int,
+    model: str,
+    input_tokens: bool = True,
+    currency: str = "USD"
+) -> float:
     """
     Estimate the cost for a given number of tokens and model in USD or INR.
 
@@ -1233,7 +1238,7 @@ def estimate_cost(token_count, model, input_tokens=True, currency="USD")-> float
     if model not in pricing:
         return 0.0
 
-    rate = pricing[model]["input" if input_tokens else "output"]
-    cost_usd = (token_count / 1000) * rate
+    rate: float = pricing[model]["input" if input_tokens else "output"]
+    cost_usd: float = (token_count / 1000) * rate
 
     return cost_usd * USD_TO_INR if currency.upper() == "INR" else cost_usd

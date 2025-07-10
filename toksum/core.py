@@ -1182,7 +1182,7 @@ def get_supported_models() -> Dict[str, List[str]]:
     }
 
 
-def estimate_cost(token_count, model, input_tokens=True, currency="USD"):
+def estimate_cost(token_count, model, input_tokens=True, currency="USD")-> float:
     """
     Estimate the cost for a given number of tokens and model in USD or INR.
 

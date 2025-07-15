@@ -312,7 +312,6 @@ cost_eur = estimate_cost(tokens, model_name, currency="EUR")
 print(f"Estimated cost in EUR: €{cost_eur:.6f}")
 ```
 
-
 ### Cost Estimation
 
 ```python

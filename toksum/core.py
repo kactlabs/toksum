@@ -1201,6 +1201,7 @@ def estimate_cost(
         float: Estimated cost in specified currency. Returns 0.0 if model not supported.
     """
     USD_TO_INR = 83.0  # Conversion rate as of July 10 2025
+    USD_TO_EUR = 0.92  # Placeholder: 1 USD = 0.92 EUR (as of July 15 2025, please update if needed)
 
     # Approximate pricing per 1K tokens (in USD)
     pricing = {
@@ -1241,4 +1242,9 @@ def estimate_cost(
     rate: float = pricing[model]["input" if input_tokens else "output"]
     cost_usd: float = (token_count / 1000) * rate
 
-    return cost_usd * USD_TO_INR if currency.upper() == "INR" else cost_usd
+    if currency.upper() == "INR":
+        return cost_usd * USD_TO_INR
+    elif currency.upper() == "EUR":
+        return cost_usd * USD_TO_EUR
+    else:
+        return cost_usd

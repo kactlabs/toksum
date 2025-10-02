@@ -5,7 +5,7 @@ Tests for the toksum library.
 import pytest
 from unittest.mock import Mock, patch
 
-from toksum.core import TokenCounter, count_tokens, get_supported_models
+from toksum import TokenCounter, count_tokens, get_supported_models
 from toksum.exceptions import UnsupportedModelError, TokenizationError
 
 

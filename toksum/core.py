@@ -387,6 +387,31 @@ GOOGLE_GEMINI_2_MODELS = {
     "gemini-exp-1121": "gemini-exp",  # NEW
 }
 
+# Google Gemini 2.5 Models (using approximation)
+GOOGLE_GEMINI_25_MODELS = {
+    "gemini-2.5-pro": "gemini-2.5",  # NEW
+    "gemini-2.5-flash": "gemini-2.5",  # NEW
+    "gemini-2.5-flash-lite": "gemini-2.5",  # NEW
+    "gemini-2.5-flash-image": "gemini-2.5",  # NEW
+    "gemini-2.5-deep-think": "gemini-2.5",  # NEW
+}
+
+# Google Gemini Robotics Models (using approximation)
+GOOGLE_GEMINI_ROBOTICS_MODELS = {
+    "gemini-robotics": "gemini-robotics",  # NEW
+    "gemini-robotics-er": "gemini-robotics",  # NEW
+}
+
+# Google Genie Models (using approximation)
+GOOGLE_GENIE_MODELS = {
+    "genie-3": "genie",  # NEW
+}
+
+# Google Gemma Models (using approximation)
+GOOGLE_GEMMA_MODELS = {
+    "gemma-3n": "gemma",  # NEW
+}
+
 # Meta Llama 3.3 Models (using approximation)
 META_LLAMA_33_MODELS = {
     "llama-3.3-70b": "llama-3.3",  # NEW
@@ -647,6 +672,10 @@ print(f"Estimated cost: ${cost:.4f}")
         anthropic_instant_2_models_lower = {k.lower(): v for k, v in ANTHROPIC_INSTANT_2_MODELS.items()}
         google_models_lower = {k.lower(): v for k, v in GOOGLE_MODELS.items()}
         google_gemini_2_models_lower = {k.lower(): v for k, v in GOOGLE_GEMINI_2_MODELS.items()}
+        google_gemini_25_models_lower = {k.lower(): v for k, v in GOOGLE_GEMINI_25_MODELS.items()}
+        google_gemini_robotics_models_lower = {k.lower(): v for k, v in GOOGLE_GEMINI_ROBOTICS_MODELS.items()}
+        google_genie_models_lower = {k.lower(): v for k, v in GOOGLE_GENIE_MODELS.items()}
+        google_gemma_models_lower = {k.lower(): v for k, v in GOOGLE_GEMMA_MODELS.items()}
         google_palm_models_lower = {k.lower(): v for k, v in GOOGLE_PALM_MODELS.items()}
         meta_models_lower = {k.lower(): v for k, v in META_MODELS.items()}
         meta_llama_33_models_lower = {k.lower(): v for k, v in META_LLAMA_33_MODELS.items()}
@@ -705,7 +734,9 @@ print(f"Estimated cost: ${cost:.4f}")
               self.model in anthropic_claude_21_models_lower or self.model in anthropic_instant_2_models_lower or
               self.model in anthropic_opus_models_lower or self.model in anthropic_sonnet_models_lower):
             return "anthropic"
-        elif (self.model in google_models_lower or self.model in google_gemini_2_models_lower or 
+        elif (self.model in google_models_lower or self.model in google_gemini_2_models_lower or
+              self.model in google_gemini_25_models_lower or self.model in google_gemini_robotics_models_lower or
+              self.model in google_genie_models_lower or self.model in google_gemma_models_lower or
               self.model in google_palm_models_lower or self.model in google_gemini_pro_models_lower):
             return "google"
         elif (self.model in meta_models_lower or self.model in meta_llama_33_models_lower or
@@ -773,7 +804,9 @@ print(f"Estimated cost: ${cost:.4f}")
                         list(OPENAI_VISION_MODELS.keys()) + list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
                         list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
                         list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys()) +
-                        list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + list(GOOGLE_PALM_MODELS.keys()) +
+                        list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + list(GOOGLE_GEMINI_25_MODELS.keys()) +
+                        list(GOOGLE_GEMINI_ROBOTICS_MODELS.keys()) + list(GOOGLE_GENIE_MODELS.keys()) +
+                        list(GOOGLE_GEMMA_MODELS.keys()) + list(GOOGLE_PALM_MODELS.keys()) +
                         list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()) + 
                         list(MISTRAL_MODELS.keys()) + list(MISTRAL_LARGE_2_MODELS.keys()) + 
                         list(COHERE_MODELS.keys()) + list(COHERE_COMMAND_R_PLUS_MODELS.keys()) + list(PERPLEXITY_MODELS.keys()) + 
@@ -1146,7 +1179,9 @@ def get_supported_models() -> Dict[str, List[str]]:
                      list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
                      list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys()) +
                      list(ANTHROPIC_OPUS_MODELS.keys()) + list(ANTHROPIC_SONNET_MODELS.keys())),
-        "google": (list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + 
+        "google": (list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) +
+                  list(GOOGLE_GEMINI_25_MODELS.keys()) + list(GOOGLE_GEMINI_ROBOTICS_MODELS.keys()) +
+                  list(GOOGLE_GENIE_MODELS.keys()) + list(GOOGLE_GEMMA_MODELS.keys()) +
                   list(GOOGLE_PALM_MODELS.keys()) + list(GOOGLE_GEMINI_PRO_MODELS.keys())),
         "meta": (list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()) +
                 list(META_LLAMA2_CHAT_MODELS.keys()) + list(META_LLAMA3_INSTRUCT_MODELS.keys())),
@@ -1232,6 +1267,15 @@ def estimate_cost(
         "claude-3.5-sonnet-20241022": {"input": 0.003, "output": 0.015},
         "claude-3.5-haiku-20241022": {"input": 0.001, "output": 0.005},
         "claude-3-5-sonnet-20240620": {"input": 0.003, "output": 0.015},
+        "gemini-2.5-pro": {"input": 0.01, "output": 0.03}, # Placeholder pricing
+        "gemini-2.5-flash": {"input": 0.005, "output": 0.015}, # Placeholder pricing
+        "gemini-2.5-flash-lite": {"input": 0.0005, "output": 0.0015}, # Placeholder pricing
+        "gemini-2.5-flash-image": {"input": 0.005, "output": 0.015}, # Placeholder pricing
+        "gemini-2.5-deep-think": {"input": 0.02, "output": 0.06}, # Placeholder pricing
+        "gemini-robotics": {"input": 0.002, "output": 0.004}, # Placeholder pricing
+        "gemini-robotics-er": {"input": 0.002, "output": 0.004}, # Placeholder pricing
+        "genie-3": {"input": 0.001, "output": 0.002}, # Placeholder pricing
+        "gemma-3n": {"input": 0.0005, "output": 0.001}, # Placeholder pricing
     }
 
     model = model.lower()

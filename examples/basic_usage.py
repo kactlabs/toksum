@@ -114,6 +114,25 @@ def main():
         print(f"  Tokens: {tokens}, Characters: {chars}, Chars/Token: {ratio:.2f}")
         print()
 
+    # Example 7: Testing a newly added Google Gemini 2.5 model
+    print("7. Testing a newly added Google Gemini 2.5 model:")
+    new_gemini_model = "gemini-2.5-pro"
+    new_gemini_text = "This is a test for the brand new Gemini 2.5 Pro model, ensuring its token counting and cost estimation are integrated."
+
+    try:
+        new_gemini_tokens = count_tokens(new_gemini_text, new_gemini_model)
+        new_gemini_input_cost = estimate_cost(new_gemini_tokens, new_gemini_model, input_tokens=True)
+        new_gemini_output_cost = estimate_cost(new_gemini_tokens, new_gemini_model, input_tokens=False)
+
+        print(f"Model: {new_gemini_model}")
+        print(f"  Text: '{new_gemini_text}'")
+        print(f"  Tokens: {new_gemini_tokens}")
+        print(f"  Input cost: ${new_gemini_input_cost:.4f}")
+        print(f"  Output cost: ${new_gemini_output_cost:.4f}")
+    except Exception as e:
+        print(f"Model: {new_gemini_model}: Error - {e}")
+    print()
+
 
 if __name__ == "__main__":
     main()

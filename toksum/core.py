@@ -1,1244 +1,305 @@
-"""
-Core functionality for token counting across different LLM providers.
-"""
+import functools
+from typing import List, Dict, Union, Any
 
-import re
-from typing import Dict, List, Optional, Union, TYPE_CHECKING, Any
+# Define custom exceptions
+class UnsupportedModelError(ValueError):
+    """Raised when an unsupported model is specified."""
+    pass
 
-if TYPE_CHECKING:
-    import tiktoken
-    from anthropic import Anthropic
-else:
-    try:
-        import tiktoken
-    except ImportError:
-        tiktoken = None
+class TokenizationError(Exception):
+    """Raised when tokenization fails."""
+    pass
 
-    try:
-        from anthropic import Anthropic
-    except ImportError:
-        Anthropic = None
-
-from .exceptions import UnsupportedModelError, TokenizationError
-
-
-# Model mappings for different providers
-OPENAI_MODELS = {
-    "gpt-4": "cl100k_base",
-    "gpt-4-0314": "cl100k_base",
-    "gpt-4-0613": "cl100k_base",
-    "gpt-4-32k": "cl100k_base",
-    "gpt-4-32k-0314": "cl100k_base",
-    "gpt-4-32k-0613": "cl100k_base",
-    "gpt-4-1106-preview": "cl100k_base",
-    "gpt-4-0125-preview": "cl100k_base",
-    "gpt-4-turbo-preview": "cl100k_base",
-    "gpt-4-vision-preview": "cl100k_base",
-    "gpt-4-turbo": "cl100k_base",  # NEW
-    "gpt-4-turbo-2024-04-09": "cl100k_base",  # NEW
-    "gpt-4o": "cl100k_base",  # NEW
-    "gpt-4o-2024-05-13": "cl100k_base",  # NEW
-    "gpt-4o-mini": "cl100k_base",  # NEW
-    "gpt-4o-mini-2024-07-18": "cl100k_base",  # NEW
-    "gpt-4o-2024-08-06": "cl100k_base",  # ADDED
-    "gpt-4o-2024-11-20": "cl100k_base",  # ADDED
-    "gpt-4-1106-vision-preview": "cl100k_base",  # ADDED
-    "gpt-4-turbo-2024-04-09": "cl100k_base",  # ADDED
-    "gpt-3.5-turbo": "cl100k_base",
-    "gpt-3.5-turbo-0301": "cl100k_base",
-    "gpt-3.5-turbo-0613": "cl100k_base",
-    "gpt-3.5-turbo-1106": "cl100k_base",
-    "gpt-3.5-turbo-0125": "cl100k_base",
-    "gpt-3.5-turbo-16k": "cl100k_base",
-    "gpt-3.5-turbo-16k-0613": "cl100k_base",
-    "gpt-3.5-turbo-instruct": "cl100k_base",  # ADDED
-    "text-davinci-003": "p50k_base",
-    "text-davinci-002": "p50k_base",
-    "text-curie-001": "r50k_base",
-    "text-babbage-001": "r50k_base",
-    "text-ada-001": "r50k_base",
-    "davinci": "r50k_base",
-    "curie": "r50k_base",
-    "babbage": "r50k_base",
-    "ada": "r50k_base",
+# Centralized model registry
+# This dictionary will store information about supported models,
+# including their tokenizers and pricing.
+MODEL_REGISTRY: Dict[str, Dict[str, Any]] = {
+    "gpt-4": {
+        "provider": "openai",
+        "tokenizer": "cl100k_base",
+        "pricing": {"input": 0.03, "output": 0.06}, # Example pricing per 1K tokens
+        "context_window": 8192,
+    },
+    "gpt-3.5-turbo": {
+        "provider": "openai",
+        "tokenizer": "cl100k_base",
+        "pricing": {"input": 0.0010, "output": 0.0020},
+        "context_window": 4096,
+    },
+    "claude-3-opus-20240229": {
+        "provider": "anthropic",
+        "tokenizer": "approximate", # Anthropic uses an approximation
+        "pricing": {"input": 0.15, "output": 0.75},
+        "context_window": 200000,
+    },
+    "gemini-1.5-flash": {
+        "provider": "google",
+        "tokenizer": "approximate",
+        "pricing": {"input": 0.00035, "output": 0.0007},
+        "context_window": 1000000,
+    },
+    # Add more models as needed
 }
 
-ANTHROPIC_MODELS = {
-    "claude-3-opus-20240229": "claude-3",
-    "claude-3-sonnet-20240229": "claude-3",
-    "claude-3-haiku-20240307": "claude-3",
-    "claude-3.5-sonnet-20240620": "claude-3.5",  # NEW
-    "claude-3.5-sonnet-20241022": "claude-3.5",  # NEW
-    "claude-3.5-haiku-20241022": "claude-3.5",  # NEW
-    "claude-3-5-sonnet-20240620": "claude-3.5",  # NEW (alternative naming)
-    "claude-3-opus": "claude-3",  # ADDED (short name)
-    "claude-3-sonnet": "claude-3",  # ADDED (short name)
-    "claude-3-haiku": "claude-3",  # ADDED (short name)
-    "claude-2.1": "claude-2",
-    "claude-2.0": "claude-2",
-    "claude-instant-1.2": "claude-instant",
-    "claude-instant-1.1": "claude-instant",
-    "claude-instant-1.0": "claude-instant",
-    "claude-instant": "claude-instant",  # ADDED (short name)
-}
-
-# Google Models (using approximation similar to Claude)
-GOOGLE_MODELS = {
-    "gemini-pro": "gemini",  # NEW
-    "gemini-pro-vision": "gemini",  # NEW
-    "gemini-1.5-pro": "gemini-1.5",  # NEW
-    "gemini-1.5-flash": "gemini-1.5",  # NEW
-    "gemini-1.5-pro-latest": "gemini-1.5",  # ADDED
-    "gemini-1.5-flash-latest": "gemini-1.5",  # ADDED
-    "gemini-1.0-pro": "gemini",  # ADDED
-    "gemini-1.0-pro-vision": "gemini",  # ADDED
-    "gemini-ultra": "gemini-ultra",  # ADDED
-}
-
-# Meta Models (using approximation)
-META_MODELS = {
-    "llama-2-7b": "llama-2",  # NEW
-    "llama-2-13b": "llama-2",  # NEW
-    "llama-2-70b": "llama-2",  # NEW
-    "llama-3-8b": "llama-3",  # ADDED
-    "llama-3-70b": "llama-3",  # ADDED
-    "llama-3.1-8b": "llama-3.1",  # ADDED
-    "llama-3.1-70b": "llama-3.1",  # ADDED
-    "llama-3.1-405b": "llama-3.1",  # ADDED
-    "llama-3.2-1b": "llama-3.2",  # ADDED
-    "llama-3.2-3b": "llama-3.2",  # ADDED
-}
-
-# Mistral Models (using approximation)
-MISTRAL_MODELS = {
-    "mistral-7b": "mistral",  # NEW
-    "mistral-8x7b": "mistral",  # NEW
-    "mistral-large": "mistral-large",  # ADDED
-    "mistral-medium": "mistral-medium",  # ADDED
-    "mistral-small": "mistral-small",  # ADDED
-    "mistral-tiny": "mistral-tiny",  # ADDED
-    "mixtral-8x7b": "mixtral",  # ADDED
-    "mixtral-8x22b": "mixtral",  # ADDED
-}
-
-# Cohere Models (using approximation)
-COHERE_MODELS = {
-    "command": "cohere",  # NEW
-    "command-light": "cohere",  # ADDED
-    "command-nightly": "cohere",  # ADDED
-    "command-r": "cohere-r",  # ADDED
-    "command-r-plus": "cohere-r",  # ADDED
-    "command-r-08-2024": "cohere-r",  # ADDED
-    "command-r-plus-08-2024": "cohere-r",  # ADDED
-}
-
-# Anthropic Legacy Models (using approximation)
-ANTHROPIC_LEGACY_MODELS = {
-    "claude-1": "claude-1",  # ADDED
-    "claude-1.3": "claude-1",  # ADDED
-    "claude-1.3-100k": "claude-1",  # ADDED
-}
-
-# OpenAI Legacy Models (additional variants)
-OPENAI_LEGACY_MODELS = {
-    "gpt-3": "r50k_base",  # ADDED
-    "text-embedding-ada-002": "cl100k_base",  # ADDED
-    "text-embedding-3-small": "cl100k_base",  # ADDED
-    "text-embedding-3-large": "cl100k_base",  # ADDED
-    "gpt-4-base": "cl100k_base",  # ADDED
-    "gpt-3.5-turbo-instruct-0914": "cl100k_base",  # ADDED
-}
-
-# Perplexity Models (using approximation)
-PERPLEXITY_MODELS = {
-    "pplx-7b-online": "perplexity",  # ADDED
-    "pplx-70b-online": "perplexity",  # ADDED
-    "pplx-7b-chat": "perplexity",  # ADDED
-    "pplx-70b-chat": "perplexity",  # ADDED
-    "codellama-34b-instruct": "perplexity",  # ADDED
-}
-
-# Hugging Face Models (using approximation)
-HUGGINGFACE_MODELS = {
-    "microsoft/DialoGPT-medium": "huggingface",  # ADDED
-    "microsoft/DialoGPT-large": "huggingface",  # ADDED
-    "facebook/blenderbot-400M-distill": "huggingface",  # ADDED
-    "facebook/blenderbot-1B-distill": "huggingface",  # ADDED
-    "facebook/blenderbot-3B": "huggingface",  # ADDED
-}
-
-# AI21 Models (using approximation)
-AI21_MODELS = {
-    "j2-light": "ai21",  # ADDED
-    "j2-mid": "ai21",  # ADDED
-    "j2-ultra": "ai21",  # ADDED
-    "j2-jumbo-instruct": "ai21",  # ADDED
-}
-
-# Together AI Models (using approximation)
-TOGETHER_MODELS = {
-    "togethercomputer/RedPajama-INCITE-Chat-3B-v1": "together",  # ADDED
-    "togethercomputer/RedPajama-INCITE-Chat-7B-v1": "together",  # ADDED
-    "NousResearch/Nous-Hermes-Llama2-13b": "together",  # ADDED
-}
-
-# xAI Models (using approximation)
-XAI_MODELS = {
-    "grok-1": "xai",  # NEW
-    "grok-1.5": "xai",  # NEW
-    "grok-2": "xai",  # NEW
-    "grok-beta": "xai",  # NEW
-}
-
-# Alibaba Models (using approximation)
-ALIBABA_MODELS = {
-    "qwen-1.5-0.5b": "qwen",  # NEW
-    "qwen-1.5-1.8b": "qwen",  # NEW
-    "qwen-1.5-4b": "qwen",  # NEW
-    "qwen-1.5-7b": "qwen",  # NEW
-    "qwen-1.5-14b": "qwen",  # NEW
-    "qwen-1.5-32b": "qwen",  # NEW
-    "qwen-1.5-72b": "qwen",  # NEW
-    "qwen-1.5-110b": "qwen",  # NEW
-    "qwen-2-0.5b": "qwen-2",  # NEW
-    "qwen-2-1.5b": "qwen-2",  # NEW
-    "qwen-2-7b": "qwen-2",  # NEW
-    "qwen-2-57b": "qwen-2",  # NEW
-    "qwen-2-72b": "qwen-2",  # NEW
-    "qwen-vl": "qwen-vl",  # NEW
-    "qwen-vl-chat": "qwen-vl",  # NEW
-    "qwen-vl-plus": "qwen-vl",  # NEW
-}
-
-# Baidu Models (using approximation)
-BAIDU_MODELS = {
-    "ernie-4.0": "ernie",  # NEW
-    "ernie-3.5": "ernie",  # NEW
-    "ernie-3.0": "ernie",  # NEW
-    "ernie-speed": "ernie",  # NEW
-    "ernie-lite": "ernie",  # NEW
-    "ernie-tiny": "ernie",  # NEW
-    "ernie-bot": "ernie",  # NEW
-    "ernie-bot-4": "ernie",  # NEW
-}
-
-# Huawei Models (using approximation)
-HUAWEI_MODELS = {
-    "pangu-alpha-2.6b": "pangu",  # NEW
-    "pangu-alpha-13b": "pangu",  # NEW
-    "pangu-alpha-200b": "pangu",  # NEW
-    "pangu-coder": "pangu",  # NEW
-    "pangu-coder-15b": "pangu",  # NEW
-}
-
-# Yandex Models (using approximation)
-YANDEX_MODELS = {
-    "yalm-100b": "yalm",  # NEW
-    "yalm-200b": "yalm",  # NEW
-    "yagpt": "yalm",  # NEW
-    "yagpt-2": "yalm",  # NEW
-}
-
-# Stability AI Models (using approximation)
-STABILITY_MODELS = {
-    "stablelm-alpha-3b": "stablelm",  # NEW
-    "stablelm-alpha-7b": "stablelm",  # NEW
-    "stablelm-base-alpha-3b": "stablelm",  # NEW
-    "stablelm-base-alpha-7b": "stablelm",  # NEW
-    "stablelm-tuned-alpha-3b": "stablelm",  # NEW
-    "stablelm-tuned-alpha-7b": "stablelm",  # NEW
-    "stablelm-zephyr-3b": "stablelm",  # NEW
-}
-
-# TII Models (using approximation)
-TII_MODELS = {
-    "falcon-7b": "falcon",  # NEW
-    "falcon-7b-instruct": "falcon",  # NEW
-    "falcon-40b": "falcon",  # NEW
-    "falcon-40b-instruct": "falcon",  # NEW
-    "falcon-180b": "falcon",  # NEW
-    "falcon-180b-chat": "falcon",  # NEW
-}
-
-# EleutherAI Models (using approximation)
-ELEUTHERAI_MODELS = {
-    "gpt-neo-125m": "gpt-neo",  # NEW
-    "gpt-neo-1.3b": "gpt-neo",  # NEW
-    "gpt-neo-2.7b": "gpt-neo",  # NEW
-    "gpt-neox-20b": "gpt-neox",  # NEW
-    "pythia-70m": "pythia",  # NEW
-    "pythia-160m": "pythia",  # NEW
-    "pythia-410m": "pythia",  # NEW
-    "pythia-1b": "pythia",  # NEW
-    "pythia-1.4b": "pythia",  # NEW
-    "pythia-2.8b": "pythia",  # NEW
-    "pythia-6.9b": "pythia",  # NEW
-    "pythia-12b": "pythia",  # NEW
-}
-
-# MosaicML Models (using approximation)
-MOSAICML_MODELS = {
-    "mpt-7b": "mpt",  # NEW
-    "mpt-7b-chat": "mpt",  # NEW
-    "mpt-7b-instruct": "mpt",  # NEW
-    "mpt-30b": "mpt",  # NEW
-    "mpt-30b-chat": "mpt",  # NEW
-    "mpt-30b-instruct": "mpt",  # NEW
-}
-
-# Replit Models (using approximation)
-REPLIT_MODELS = {
-    "replit-code-v1-3b": "replit",  # NEW
-    "replit-code-v1.5-3b": "replit",  # NEW
-    "replit-code-v2-3b": "replit",  # NEW
-}
-
-# MiniMax Models (using approximation)
-MINIMAX_MODELS = {
-    "abab5.5-chat": "minimax",  # NEW
-    "abab5.5s-chat": "minimax",  # NEW
-    "abab6-chat": "minimax",  # NEW
-    "abab6.5-chat": "minimax",  # NEW
-    "abab6.5s-chat": "minimax",  # NEW
-}
-
-# Aleph Alpha Models (using approximation)
-ALEPH_ALPHA_MODELS = {
-    "luminous-base": "luminous",  # NEW
-    "luminous-extended": "luminous",  # NEW
-    "luminous-supreme": "luminous",  # NEW
-    "luminous-supreme-control": "luminous",  # NEW
-}
-
-# DeepSeek Models (using approximation)
-DEEPSEEK_MODELS = {
-    "deepseek-coder-1.3b": "deepseek",  # NEW
-    "deepseek-coder-6.7b": "deepseek",  # NEW
-    "deepseek-coder-33b": "deepseek",  # NEW
-    "deepseek-coder-instruct": "deepseek",  # NEW
-    "deepseek-vl-1.3b": "deepseek-vl",  # NEW
-    "deepseek-vl-7b": "deepseek-vl",  # NEW
-    "deepseek-llm-7b": "deepseek",  # NEW
-    "deepseek-llm-67b": "deepseek",  # NEW
-}
-
-# Tsinghua KEG Lab Models (using approximation)
-TSINGHUA_MODELS = {
-    "chatglm-6b": "chatglm",  # NEW
-    "chatglm2-6b": "chatglm",  # NEW
-    "chatglm3-6b": "chatglm",  # NEW
-    "glm-4": "chatglm",  # NEW
-    "glm-4v": "chatglm",  # NEW
-}
-
-# RWKV Models (using approximation)
-RWKV_MODELS = {
-    "rwkv-4-169m": "rwkv",  # NEW
-    "rwkv-4-430m": "rwkv",  # NEW
-    "rwkv-4-1b5": "rwkv",  # NEW
-    "rwkv-4-3b": "rwkv",  # NEW
-    "rwkv-4-7b": "rwkv",  # NEW
-    "rwkv-4-14b": "rwkv",  # NEW
-    "rwkv-5-world": "rwkv",  # NEW
-}
-
-# Community Fine-tuned Models (using approximation)
-COMMUNITY_MODELS = {
-    "vicuna-7b": "vicuna",  # NEW
-    "vicuna-13b": "vicuna",  # NEW
-    "vicuna-33b": "vicuna",  # NEW
-    "alpaca-7b": "alpaca",  # NEW
-    "alpaca-13b": "alpaca",  # NEW
-    "wizardlm-7b": "wizardlm",  # NEW
-    "wizardlm-13b": "wizardlm",  # NEW
-    "wizardlm-30b": "wizardlm",  # NEW
-    "orca-mini-3b": "orca",  # NEW
-    "orca-mini-7b": "orca",  # NEW
-    "orca-mini-13b": "orca",  # NEW
-    "zephyr-7b-alpha": "zephyr",  # NEW
-    "zephyr-7b-beta": "zephyr",  # NEW
-}
-
-# Anthropic Claude 3.5 Haiku Models (using approximation)
-ANTHROPIC_HAIKU_MODELS = {
-    "claude-3.5-haiku-20241022": "claude-3.5-haiku",  # NEW
-    "claude-3-5-haiku-20241022": "claude-3.5-haiku",  # NEW (alternative naming)
-}
-
-# OpenAI O1 Models (using approximation)
-OPENAI_O1_MODELS = {
-    "o1-preview": "o1",  # NEW
-    "o1-mini": "o1",  # NEW
-    "o1-preview-2024-09-12": "o1",  # NEW
-    "o1-mini-2024-09-12": "o1",  # NEW
-}
-
-# Anthropic Computer Use Models (using approximation)
-ANTHROPIC_COMPUTER_USE_MODELS = {
-    "claude-3-5-sonnet-20241022": "claude-3.5-computer",  # NEW
-    "claude-3.5-sonnet-computer-use": "claude-3.5-computer",  # NEW
-}
-
-# Google Gemini 2.0 Models (using approximation)
-GOOGLE_GEMINI_2_MODELS = {
-    "gemini-2.0-flash-exp": "gemini-2.0",  # NEW
-    "gemini-2.0-flash": "gemini-2.0",  # NEW
-    "gemini-exp-1206": "gemini-exp",  # NEW
-    "gemini-exp-1121": "gemini-exp",  # NEW
-}
-
-# Meta Llama 3.3 Models (using approximation)
-META_LLAMA_33_MODELS = {
-    "llama-3.3-70b": "llama-3.3",  # NEW
-    "llama-3.3-70b-instruct": "llama-3.3",  # NEW
-}
-
-# Mistral Large 2 Models (using approximation)
-MISTRAL_LARGE_2_MODELS = {
-    "mistral-large-2": "mistral-large-2",  # NEW
-    "mistral-large-2407": "mistral-large-2",  # NEW
-}
-
-# DeepSeek V3 Models (using approximation)
-DEEPSEEK_V3_MODELS = {
-    "deepseek-v3": "deepseek-v3",  # NEW
-    "deepseek-v3-base": "deepseek-v3",  # NEW
-}
-
-# Qwen 2.5 Models (using approximation)
-QWEN_25_MODELS = {
-    "qwen-2.5-72b": "qwen-2.5",  # NEW
-    "qwen-2.5-32b": "qwen-2.5",  # NEW
-    "qwen-2.5-14b": "qwen-2.5",  # NEW
-    "qwen-2.5-7b": "qwen-2.5",  # NEW
-}
-
-# Anthropic Claude 2.1 Models (using approximation)
-ANTHROPIC_CLAUDE_21_MODELS = {
-    "claude-2.1-200k": "claude-2.1",  # NEW
-    "claude-2.1-100k": "claude-2.1",  # NEW
-}
-
-# OpenAI GPT-4 Vision Models (using approximation)
-OPENAI_VISION_MODELS = {
-    "gpt-4-vision": "cl100k_base",  # NEW
-    "gpt-4-vision-preview-0409": "cl100k_base",  # NEW
-    "gpt-4-vision-preview-1106": "cl100k_base",  # NEW
-}
-
-# Cohere Command R+ Models (using approximation)
-COHERE_COMMAND_R_PLUS_MODELS = {
-    "command-r-plus-04-2024": "cohere-r-plus",  # NEW
-    "command-r-plus-08-2024": "cohere-r-plus",  # NEW
-}
-
-# Anthropic Claude Instant 2 Models (using approximation)
-ANTHROPIC_INSTANT_2_MODELS = {
-    "claude-instant-2": "claude-instant-2",  # NEW
-    "claude-instant-2.0": "claude-instant-2",  # NEW
-}
-
-# Google PaLM Models (using approximation)
-GOOGLE_PALM_MODELS = {
-    "palm-2": "palm",  # NEW
-    "palm-2-chat": "palm",  # NEW
-    "palm-2-codechat": "palm",  # NEW
-}
-
-# Microsoft Models (using approximation)
-MICROSOFT_MODELS = {
-    "phi-3-mini": "phi",  # NEW
-    "phi-3-small": "phi",  # NEW
-    "phi-3-medium": "phi",  # NEW
-    "phi-3.5-mini": "phi",  # NEW
-}
-
-# Amazon Bedrock Models (using approximation)
-AMAZON_MODELS = {
-    "titan-text-express": "titan",  # NEW
-    "titan-text-lite": "titan",  # NEW
-    "titan-embed-text": "titan",  # NEW
-}
-
-# Nvidia Models (using approximation)
-NVIDIA_MODELS = {
-    "nemotron-4-340b": "nemotron",  # NEW
-    "nemotron-3-8b": "nemotron",  # NEW
-}
-
-# IBM Models (using approximation)
-IBM_MODELS = {
-    "granite-13b-chat": "granite",  # NEW
-    "granite-13b-instruct": "granite",  # NEW
-    "granite-20b-code": "granite",  # NEW
-}
-
-# Salesforce Models (using approximation)
-SALESFORCE_MODELS = {
-    "codegen-16b": "codegen",  # NEW
-    "codegen-6b": "codegen",  # NEW
-    "codegen-2b": "codegen",  # NEW
-}
-
-# BigCode Models (using approximation)
-BIGCODE_MODELS = {
-    "starcoder": "starcoder",  # NEW
-    "starcoder2-15b": "starcoder",  # NEW
-    "starcoderbase": "starcoder",  # NEW
-    "starcoder2-3b": "starcoder",  # ADDED
-    "starcoder2-7b": "starcoder",  # ADDED
-    "starcoder-plus": "starcoder",  # ADDED
-    "starcoderbase-1b": "starcoder",  # ADDED
-    "starcoderbase-3b": "starcoder",  # ADDED
-    "starcoderbase-7b": "starcoder",  # ADDED
-}
-
-# Anthropic Claude 3 Opus Models (using approximation)
-ANTHROPIC_OPUS_MODELS = {
-    "claude-3-opus-20240229": "claude-3-opus",  # ADDED
-    "claude-3-opus-latest": "claude-3-opus",  # ADDED
-    "claude-3-opus": "claude-3-opus",  # ADDED
-}
-
-# OpenAI GPT-4 Turbo Models (using approximation)
-OPENAI_GPT4_TURBO_MODELS = {
-    "gpt-4-turbo-preview": "cl100k_base",  # ADDED
-    "gpt-4-0125-preview": "cl100k_base",  # ADDED
-    "gpt-4-1106-preview": "cl100k_base",  # ADDED
-    "gpt-4-turbo-2024-04-09": "cl100k_base",  # ADDED
-}
-
-# Anthropic Claude 3 Sonnet Models (using approximation)
-ANTHROPIC_SONNET_MODELS = {
-    "claude-3-sonnet-20240229": "claude-3-sonnet",  # ADDED
-    "claude-3-sonnet-latest": "claude-3-sonnet",  # ADDED
-    "claude-3-sonnet": "claude-3-sonnet",  # ADDED
-}
-
-# Google Gemini Pro Models (using approximation)
-GOOGLE_GEMINI_PRO_MODELS = {
-    "gemini-pro": "gemini-pro",  # ADDED
-    "gemini-pro-vision": "gemini-pro",  # ADDED
-    "gemini-1.0-pro": "gemini-pro",  # ADDED
-    "gemini-1.0-pro-001": "gemini-pro",  # ADDED
-    "gemini-1.0-pro-latest": "gemini-pro",  # ADDED
-    "gemini-1.0-pro-vision-latest": "gemini-pro",  # ADDED
-}
-
-# Meta Llama 2 Chat Models (using approximation)
-META_LLAMA2_CHAT_MODELS = {
-    "llama-2-7b-chat": "llama-2-chat",  # ADDED
-    "llama-2-13b-chat": "llama-2-chat",  # ADDED
-    "llama-2-70b-chat": "llama-2-chat",  # ADDED
-    "llama-2-7b-chat-hf": "llama-2-chat",  # ADDED
-    "llama-2-13b-chat-hf": "llama-2-chat",  # ADDED
-    "llama-2-70b-chat-hf": "llama-2-chat",  # ADDED
-}
-
-# Meta Llama 3 Instruct Models (using approximation)
-META_LLAMA3_INSTRUCT_MODELS = {
-    "llama-3-8b-instruct": "llama-3-instruct",  # ADDED
-    "llama-3-70b-instruct": "llama-3-instruct",  # ADDED
-    "llama-3.1-8b-instruct": "llama-3-instruct",  # ADDED
-    "llama-3.1-70b-instruct": "llama-3-instruct",  # ADDED
-    "llama-3.1-405b-instruct": "llama-3-instruct",  # ADDED
-    "llama-3.2-1b-instruct": "llama-3-instruct",  # ADDED
-    "llama-3.2-3b-instruct": "llama-3-instruct",  # ADDED
-}
-
-# Mistral Instruct Models (using approximation)
-MISTRAL_INSTRUCT_MODELS = {
-    "mistral-7b-instruct": "mistral-instruct",  # ADDED
-    "mistral-7b-instruct-v0.1": "mistral-instruct",  # ADDED
-    "mistral-7b-instruct-v0.2": "mistral-instruct",  # ADDED
-    "mistral-7b-instruct-v0.3": "mistral-instruct",  # ADDED
-    "mixtral-8x7b-instruct": "mistral-instruct",  # ADDED
-    "mixtral-8x22b-instruct": "mistral-instruct",  # ADDED
-}
-
-# OpenAI Embedding Models (using approximation)
-OPENAI_EMBEDDING_MODELS = {
-    "text-embedding-ada-002": "cl100k_base",  # ADDED
-    "text-embedding-3-small": "cl100k_base",  # ADDED
-    "text-embedding-3-large": "cl100k_base",  # ADDED
-    "text-similarity-ada-001": "r50k_base",  # ADDED
-    "text-similarity-babbage-001": "r50k_base",  # ADDED
-    "text-similarity-curie-001": "r50k_base",  # ADDED
-    "text-similarity-davinci-001": "r50k_base",  # ADDED
-}
-
-# Databricks Models
-DATABRICKS_MODELS = {
-    "dbrx": "databricks", # ADDED
-    "dbrx-instruct": "databricks",
-    "dbrx-base": "databricks",
-    "dolly-v2-12b": "databricks",
-    "dolly-v2-7b": "databricks",
-    "dolly-v2-3b": "databricks",
-}
-
-# Voyage AI Models
-VOYAGE_MODELS = {
-    "voyage-2": "voyage",
-    "voyage-large-2": "voyage",
-    "voyage-code-2": "voyage",
-    "voyage-finance-2": "voyage",
-    "voyage-law-2": "voyage",
-    "voyage-multilingual-2": "voyage",
-}
-
-
-class TokenCounter:
+@functools.lru_cache(maxsize=128)
+def _get_tokenizer(model_name: str) -> Any:
     """
-A token counter for various Large Language Model (LLM) providers.
+    Retrieves the appropriate tokenizer for a given model.
+    This function is cached to avoid repeated tokenizer loading.
 
-This class provides functionality to count tokens for different LLMs, including OpenAI, Anthropic, Google, Meta, and many others.  It supports both individual text strings and lists of messages (for chat-like interactions).  The token counting is precise for OpenAI models using the official tiktoken library, and provides reasonable approximations for other providers.
+    Args:
+        model_name: The name of the model.
 
-Example Usage:
+    Returns:
+        The tokenizer object or a string indicating approximation.
 
-# Count tokens for a single text string
-counter = TokenCounter("gpt-4")
-token_count = counter.count("This is a test string.")
-print(f"Token count: {token_count}")
+    Raises:
+        UnsupportedModelError: If the model is not found in the registry.
+    """
+    model_info = MODEL_REGISTRY.get(model_name)
+    if not model_info:
+        raise UnsupportedModelError(f"Model '{model_name}' is not supported.")
 
-# Count tokens for a list of messages (chat format)
-messages = [
-    {"role": "user", "content": "Hello!"},
-    {"role": "assistant", "content": "How can I help you?"},
-]
-token_count = counter.count_messages(messages)
-print(f"Token count (messages): {token_count}")
+    tokenizer_type = model_info["tokenizer"]
 
-# Estimate cost (requires model to be in pricing dictionary)
-cost = estimate_cost(token_count, "gpt-4")
-print(f"Estimated cost: ${cost:.4f}")
-
-"""
-    def __init__(self, model: str):
-        """
-        Initialize the TokenCounter with a specific model.
-        
-        Args:
-            model: The model name (e.g., 'gpt-4', 'claude-3-opus-20240229')
-        
-        Raises:
-            UnsupportedModelError: If the model is not supported
-            TokenizationError: If required dependencies are missing
-        """
-        self.tokenizer: Optional[Any] = None
-        self.model = model.lower()
-        self.provider = self._detect_provider()
-        self._setup_tokenizer()
-    
-    def _detect_provider(self) -> str:
-        """Detect which provider the model belongs to."""
-        # Create lowercase versions of all model dictionaries for case-insensitive matching
-        openai_models_lower = {k.lower(): v for k, v in OPENAI_MODELS.items()}
-        openai_legacy_models_lower = {k.lower(): v for k, v in OPENAI_LEGACY_MODELS.items()}
-        openai_o1_models_lower = {k.lower(): v for k, v in OPENAI_O1_MODELS.items()}
-        openai_vision_models_lower = {k.lower(): v for k, v in OPENAI_VISION_MODELS.items()}
-        databricks_models_lower = {k.lower(): v for k, v in DATABRICKS_MODELS.items()}
-        voyage_models_lower = {k.lower(): v for k, v in VOYAGE_MODELS.items()}
-        anthropic_models_lower = {k.lower(): v for k, v in ANTHROPIC_MODELS.items()}
-        anthropic_legacy_models_lower = {k.lower(): v for k, v in ANTHROPIC_LEGACY_MODELS.items()}
-        anthropic_haiku_models_lower = {k.lower(): v for k, v in ANTHROPIC_HAIKU_MODELS.items()}
-        anthropic_computer_use_models_lower = {k.lower(): v for k, v in ANTHROPIC_COMPUTER_USE_MODELS.items()}
-        anthropic_claude_21_models_lower = {k.lower(): v for k, v in ANTHROPIC_CLAUDE_21_MODELS.items()}
-        anthropic_instant_2_models_lower = {k.lower(): v for k, v in ANTHROPIC_INSTANT_2_MODELS.items()}
-        google_models_lower = {k.lower(): v for k, v in GOOGLE_MODELS.items()}
-        google_gemini_2_models_lower = {k.lower(): v for k, v in GOOGLE_GEMINI_2_MODELS.items()}
-        google_palm_models_lower = {k.lower(): v for k, v in GOOGLE_PALM_MODELS.items()}
-        meta_models_lower = {k.lower(): v for k, v in META_MODELS.items()}
-        meta_llama_33_models_lower = {k.lower(): v for k, v in META_LLAMA_33_MODELS.items()}
-        mistral_models_lower = {k.lower(): v for k, v in MISTRAL_MODELS.items()}
-        mistral_large_2_models_lower = {k.lower(): v for k, v in MISTRAL_LARGE_2_MODELS.items()}
-        cohere_models_lower = {k.lower(): v for k, v in COHERE_MODELS.items()}
-        cohere_command_r_plus_models_lower = {k.lower(): v for k, v in COHERE_COMMAND_R_PLUS_MODELS.items()}
-        perplexity_models_lower = {k.lower(): v for k, v in PERPLEXITY_MODELS.items()}
-        huggingface_models_lower = {k.lower(): v for k, v in HUGGINGFACE_MODELS.items()}
-        ai21_models_lower = {k.lower(): v for k, v in AI21_MODELS.items()}
-        together_models_lower = {k.lower(): v for k, v in TOGETHER_MODELS.items()}
-        xai_models_lower = {k.lower(): v for k, v in XAI_MODELS.items()}
-        alibaba_models_lower = {k.lower(): v for k, v in ALIBABA_MODELS.items()}
-        qwen_25_models_lower = {k.lower(): v for k, v in QWEN_25_MODELS.items()}
-        baidu_models_lower = {k.lower(): v for k, v in BAIDU_MODELS.items()}
-        huawei_models_lower = {k.lower(): v for k, v in HUAWEI_MODELS.items()}
-        yandex_models_lower = {k.lower(): v for k, v in YANDEX_MODELS.items()}
-        stability_models_lower = {k.lower(): v for k, v in STABILITY_MODELS.items()}
-        tii_models_lower = {k.lower(): v for k, v in TII_MODELS.items()}
-        eleutherai_models_lower = {k.lower(): v for k, v in ELEUTHERAI_MODELS.items()}
-        mosaicml_models_lower = {k.lower(): v for k, v in MOSAICML_MODELS.items()}
-        replit_models_lower = {k.lower(): v for k, v in REPLIT_MODELS.items()}
-        minimax_models_lower = {k.lower(): v for k, v in MINIMAX_MODELS.items()}
-        aleph_alpha_models_lower = {k.lower(): v for k, v in ALEPH_ALPHA_MODELS.items()}
-        deepseek_models_lower = {k.lower(): v for k, v in DEEPSEEK_MODELS.items()}
-        deepseek_v3_models_lower = {k.lower(): v for k, v in DEEPSEEK_V3_MODELS.items()}
-        tsinghua_models_lower = {k.lower(): v for k, v in TSINGHUA_MODELS.items()}
-        rwkv_models_lower = {k.lower(): v for k, v in RWKV_MODELS.items()}
-        community_models_lower = {k.lower(): v for k, v in COMMUNITY_MODELS.items()}
-        microsoft_models_lower = {k.lower(): v for k, v in MICROSOFT_MODELS.items()}
-        amazon_models_lower = {k.lower(): v for k, v in AMAZON_MODELS.items()}
-        nvidia_models_lower = {k.lower(): v for k, v in NVIDIA_MODELS.items()}
-        ibm_models_lower = {k.lower(): v for k, v in IBM_MODELS.items()}
-        salesforce_models_lower = {k.lower(): v for k, v in SALESFORCE_MODELS.items()}
-        bigcode_models_lower = {k.lower(): v for k, v in BIGCODE_MODELS.items()}
-        anthropic_opus_models_lower = {k.lower(): v for k, v in ANTHROPIC_OPUS_MODELS.items()}
-        openai_gpt4_turbo_models_lower = {k.lower(): v for k, v in OPENAI_GPT4_TURBO_MODELS.items()}
-        anthropic_sonnet_models_lower = {k.lower(): v for k, v in ANTHROPIC_SONNET_MODELS.items()}
-        google_gemini_pro_models_lower = {k.lower(): v for k, v in GOOGLE_GEMINI_PRO_MODELS.items()}
-        meta_llama2_chat_models_lower = {k.lower(): v for k, v in META_LLAMA2_CHAT_MODELS.items()}
-        meta_llama3_instruct_models_lower = {k.lower(): v for k, v in META_LLAMA3_INSTRUCT_MODELS.items()}
-        mistral_instruct_models_lower = {k.lower(): v for k, v in MISTRAL_INSTRUCT_MODELS.items()}
-        openai_embedding_models_lower = {k.lower(): v for k, v in OPENAI_EMBEDDING_MODELS.items()}
-        
-        # Prioritize Databricks models as they are more specific
-        if self.model in databricks_models_lower:
-            return "databricks"
-        elif self.model in voyage_models_lower:
-            return "voyage"
-        elif (self.model in openai_models_lower or self.model in openai_legacy_models_lower or 
-            self.model in openai_o1_models_lower or self.model in openai_vision_models_lower or
-            self.model in openai_gpt4_turbo_models_lower or self.model in openai_embedding_models_lower):
-            return "openai"
-        elif (self.model in anthropic_models_lower or self.model in anthropic_legacy_models_lower or 
-              self.model in anthropic_haiku_models_lower or self.model in anthropic_computer_use_models_lower or
-              self.model in anthropic_claude_21_models_lower or self.model in anthropic_instant_2_models_lower or
-              self.model in anthropic_opus_models_lower or self.model in anthropic_sonnet_models_lower):
-            return "anthropic"
-        elif (self.model in google_models_lower or self.model in google_gemini_2_models_lower or 
-              self.model in google_palm_models_lower or self.model in google_gemini_pro_models_lower):
-            return "google"
-        elif (self.model in meta_models_lower or self.model in meta_llama_33_models_lower or
-              self.model in meta_llama2_chat_models_lower or self.model in meta_llama3_instruct_models_lower):
-            return "meta"
-        elif (self.model in mistral_models_lower or self.model in mistral_large_2_models_lower or
-              self.model in mistral_instruct_models_lower):
-            return "mistral"
-        elif self.model in cohere_models_lower or self.model in cohere_command_r_plus_models_lower:
-            return "cohere"
-        elif self.model in perplexity_models_lower:
-            return "perplexity"
-        elif self.model in huggingface_models_lower:
-            return "huggingface"
-        elif self.model in ai21_models_lower:
-            return "ai21"
-        elif self.model in together_models_lower:
-            return "together"
-        elif self.model in xai_models_lower:
-            return "xai"
-        elif self.model in alibaba_models_lower or self.model in qwen_25_models_lower:
-            return "alibaba"
-        elif self.model in baidu_models_lower:
-            return "baidu"
-        elif self.model in huawei_models_lower:
-            return "huawei"
-        elif self.model in yandex_models_lower:
-            return "yandex"
-        elif self.model in stability_models_lower:
-            return "stability"
-        elif self.model in tii_models_lower:
-            return "tii"
-        elif self.model in eleutherai_models_lower:
-            return "eleutherai"
-        elif self.model in mosaicml_models_lower:
-            return "mosaicml"
-        elif self.model in replit_models_lower:
-            return "replit"
-        elif self.model in minimax_models_lower:
-            return "minimax"
-        elif self.model in aleph_alpha_models_lower:
-            return "aleph_alpha"
-        elif self.model in deepseek_models_lower or self.model in deepseek_v3_models_lower:
-            return "deepseek"
-        elif self.model in tsinghua_models_lower:
-            return "tsinghua"
-        elif self.model in rwkv_models_lower:
-            return "rwkv"
-        elif self.model in community_models_lower:
-            return "community"
-        elif self.model in microsoft_models_lower:
-            return "microsoft"
-        elif self.model in amazon_models_lower:
-            return "amazon"
-        elif self.model in nvidia_models_lower:
-            return "nvidia"
-        elif self.model in ibm_models_lower:
-            return "ibm"
-        elif self.model in salesforce_models_lower:
-            return "salesforce"
-        elif self.model in bigcode_models_lower:
-            return "bigcode"
-        else:
-            supported = (list(DATABRICKS_MODELS.keys()) + list(VOYAGE_MODELS.keys()) + list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + list(OPENAI_O1_MODELS.keys()) +
-                        list(OPENAI_VISION_MODELS.keys()) + list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
-                        list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
-                        list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys()) +
-                        list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + list(GOOGLE_PALM_MODELS.keys()) +
-                        list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()) + 
-                        list(MISTRAL_MODELS.keys()) + list(MISTRAL_LARGE_2_MODELS.keys()) + 
-                        list(COHERE_MODELS.keys()) + list(COHERE_COMMAND_R_PLUS_MODELS.keys()) + list(PERPLEXITY_MODELS.keys()) + 
-                        list(HUGGINGFACE_MODELS.keys()) + list(AI21_MODELS.keys()) + 
-                        list(TOGETHER_MODELS.keys()) + list(XAI_MODELS.keys()) + 
-                        list(ALIBABA_MODELS.keys()) + list(QWEN_25_MODELS.keys()) +
-                        list(BAIDU_MODELS.keys()) + list(HUAWEI_MODELS.keys()) +
-                        list(YANDEX_MODELS.keys()) + list(STABILITY_MODELS.keys()) +
-                        list(TII_MODELS.keys()) + list(ELEUTHERAI_MODELS.keys()) +
-                        list(MOSAICML_MODELS.keys()) + list(REPLIT_MODELS.keys()) +
-                        list(MINIMAX_MODELS.keys()) + list(ALEPH_ALPHA_MODELS.keys()) +
-                        list(DEEPSEEK_MODELS.keys()) + list(DEEPSEEK_V3_MODELS.keys()) + 
-                        list(TSINGHUA_MODELS.keys()) + list(RWKV_MODELS.keys()) + 
-                        list(COMMUNITY_MODELS.keys()) + list(MICROSOFT_MODELS.keys()) +
-                        list(AMAZON_MODELS.keys()) + list(NVIDIA_MODELS.keys()) +
-                        list(IBM_MODELS.keys()) + list(SALESFORCE_MODELS.keys()) +
-                        list(BIGCODE_MODELS.keys()))
-            raise UnsupportedModelError(self.model, supported)
-    
-    def _setup_tokenizer(self) -> None:
-        """Setup the appropriate tokenizer for the model."""
-        if self.provider == "openai":
-            if tiktoken is None:
-                raise TokenizationError(
-                    "tiktoken is required for OpenAI models. Install with: pip install tiktoken",
-                    model=self.model
-                )
-            
-            # Create lowercase versions for case-insensitive matching
-            openai_models_lower = {k.lower(): v for k, v in OPENAI_MODELS.items()}
-            openai_legacy_models_lower = {k.lower(): v for k, v in OPENAI_LEGACY_MODELS.items()}
-            openai_o1_models_lower = {k.lower(): v for k, v in OPENAI_O1_MODELS.items()}
-            
-            # Check main, legacy, and O1 OpenAI models
-            if self.model in openai_models_lower:
-                encoding_name = openai_models_lower[self.model]
-            elif self.model in openai_legacy_models_lower:
-                encoding_name = openai_legacy_models_lower[self.model]
-            else:
-                # O1 models use cl100k_base encoding, but we'll map them to "o1" for approximation
-                encoding_name = "cl100k_base"
-            
-            try:
-                self.tokenizer = tiktoken.get_encoding(encoding_name)
-            except Exception as e:
-                raise TokenizationError(f"Failed to load tokenizer: {str(e)}", model=self.model)
-        
-        else:
-            # For all other providers, we'll use approximation since they don't provide public tokenizers
-            self.tokenizer = None
-    
-    def count(self, text: str) -> int:
-        """
-        Count tokens in the given text.
-        
-        Args:
-            text: The text to count tokens for
-            
-        Returns:
-            The number of tokens
-            
-        Raises:
-            TokenizationError: If tokenization fails
-        """
-        # Comprehensive input validation
-        if text is None:
-            raise TokenizationError("Input cannot be None", model=self.model)
-        
-        if not isinstance(text, str):
-            # Handle common invalid types explicitly
-            if isinstance(text, (int, float, bool)):
-                raise TokenizationError(f"Input must be a string, got {type(text).__name__}", model=self.model)
-            elif isinstance(text, (list, tuple, dict, set)):
-                raise TokenizationError(f"Input must be a string, got {type(text).__name__}", model=self.model)
-            else:
-                raise TokenizationError("Input must be a string", model=self.model)
-        
-        # Handle empty string case
-        if not text:
-            return 0
-        
+    if tokenizer_type == "cl100k_base":
         try:
-            if self.provider == "openai":
-                if self.tokenizer is None:
-                    raise TokenizationError("Tokenizer not initialized", model=self.model)
-                if not text:
-                    return 0
-                return len(self.tokenizer.encode(text))
-            else:
-                # Use approximation for all other providers
-                return self._approximate_tokens(text)
-        except TokenizationError:
-            # Re-raise TokenizationError as-is
-            raise
-        except Exception as e:
-            raise TokenizationError(str(e), model=self.model, text_preview=text)
-    
-    def _approximate_tokens(self, text: str) -> int:
-        """
-        Approximate token count for non-OpenAI models.
-        
-        This uses a general approximation algorithm that works reasonably well
-        for most LLMs, with slight adjustments based on the provider.
-        """
-        if not isinstance(text, str):
-            raise TokenizationError(f"Input must be a string, got {type(text).__name__}", model=self.model)
+            import tiktoken
+            return tiktoken.get_encoding(tokenizer_type)
+        except ImportError:
+            raise ImportError("The 'tiktoken' library is required for OpenAI models. Please install it with 'pip install tiktoken'.")
+    elif tokenizer_type == "approximate":
+        return "approximate" # Placeholder for approximation logic
+    else:
+        raise TokenizationError(f"Unknown tokenizer type: {tokenizer_type} for model {model_name}")
 
-        if not text:
-            return 0
-        
-        try:
-            # Basic character-based approximation
-            char_count = len(text)
-            
-            # Adjust for whitespace (spaces and newlines are often separate tokens)
-            whitespace_count = len(re.findall(r'\s+', text))
-            
-            # Adjust for punctuation (often separate tokens)
-            punctuation_count = len(re.findall(r'[^\w\s]', text))
-        except Exception as e:
-            raise TokenizationError(f"Failed to process text: {str(e)}", model=self.model, text_preview=text)
-        
-        # Provider-specific adjustments
-        if self.provider == "anthropic":
-            # Anthropic's guidance: ~4 characters = 1 token
-            base_tokens = char_count / 4
-            adjustment = (whitespace_count + punctuation_count) * 0.3
-        elif self.provider == "google":
-            # Gemini models tend to have similar tokenization to GPT
-            base_tokens = char_count / 3.8
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "meta":
-            # LLaMA models have slightly different tokenization
-            base_tokens = char_count / 3.5
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "mistral":
-            # Mistral models similar to GPT
-            base_tokens = char_count / 3.7
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "cohere":
-            # Cohere models
-            base_tokens = char_count / 4.2
-            adjustment = (whitespace_count + punctuation_count) * 0.3
-        elif self.provider == "perplexity":
-            # Perplexity models similar to LLaMA
-            base_tokens = char_count / 3.6
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "huggingface":
-            # HuggingFace models vary, use conservative estimate
-            base_tokens = char_count / 4.0
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "ai21":
-            # AI21 models similar to GPT
-            base_tokens = char_count / 3.8
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "together":
-            # Together AI models vary, use conservative estimate
-            base_tokens = char_count / 3.9
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "xai":
-            # xAI Grok models similar to GPT
-            base_tokens = char_count / 3.8
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "alibaba":
-            # Alibaba Qwen models, Chinese-optimized
-            base_tokens = char_count / 3.2
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "baidu":
-            # Baidu Ernie models, Chinese-optimized
-            base_tokens = char_count / 3.3
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "huawei":
-            # Huawei PanGu models, Chinese-optimized
-            base_tokens = char_count / 3.4
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "yandex":
-            # Yandex YaLM models, Russian-optimized
-            base_tokens = char_count / 3.6
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "stability":
-            # Stability AI StableLM models
-            base_tokens = char_count / 3.8
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "tii":
-            # TII Falcon models
-            base_tokens = char_count / 3.7
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "eleutherai":
-            # EleutherAI models (GPT-Neo, GPT-NeoX, Pythia)
-            base_tokens = char_count / 3.6
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "mosaicml":
-            # MosaicML/Databricks models (MPT, DBRX)
-            base_tokens = char_count / 3.7
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "replit":
-            # Replit code models
-            base_tokens = char_count / 3.5
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "minimax":
-            # MiniMax Chinese models
-            base_tokens = char_count / 3.3
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "aleph_alpha":
-            # Aleph Alpha Luminous models
-            base_tokens = char_count / 3.9
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "deepseek":
-            # DeepSeek models
-            base_tokens = char_count / 3.6
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "tsinghua":
-            # Tsinghua ChatGLM models, Chinese-optimized
-            base_tokens = char_count / 3.2
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "rwkv":
-            # RWKV models
-            base_tokens = char_count / 3.8
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "community":
-            # Community fine-tuned models (Vicuna, Alpaca, etc.)
-            base_tokens = char_count / 3.6
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "microsoft":
-            # Microsoft Phi models
-            base_tokens = char_count / 3.7
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "amazon":
-            # Amazon Titan models
-            base_tokens = char_count / 3.9
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "nvidia":
-            # Nvidia Nemotron models
-            base_tokens = char_count / 3.6
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "ibm":
-            # IBM Granite models
-            base_tokens = char_count / 3.8
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "salesforce":
-            # Salesforce CodeGen models
-            base_tokens = char_count / 3.5
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "bigcode":
-            # BigCode StarCoder models
-            base_tokens = char_count / 3.4
-            adjustment = (whitespace_count + punctuation_count) * 0.2
-        elif self.provider == "databricks":
-            # Databricks models
-            base_tokens = char_count / 4.0
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        elif self.provider == "voyage":
-            # Voyage AI models
-            base_tokens = char_count / 3.8
-            adjustment = (whitespace_count + punctuation_count) * 0.25
-        else:
-            # Default approximation
-            base_tokens = char_count / 4
-            adjustment = (whitespace_count + punctuation_count) * 0.3
-        
-        return max(1, int(base_tokens + adjustment))
-    
-    def count_messages(self, messages: List[Dict[str, str]]) -> int:
-        """
-        Count tokens for a list of messages (chat format).
-        
-        Args:
-            messages: List of message dictionaries with 'role' and 'content' keys
-            
-        Returns:
-            Total token count including message formatting overhead
-        """
-        # Comprehensive input validation
-        if messages is None:
-            raise TokenizationError("Messages cannot be None", model=self.model)
-        
-        if not isinstance(messages, list):
-            # Handle common invalid types explicitly
-            if isinstance(messages, str):
-                raise TokenizationError("Messages must be a list, got string", model=self.model)
-            elif isinstance(messages, (int, float, bool)):
-                raise TokenizationError(f"Messages must be a list, got {type(messages).__name__}", model=self.model)
-            elif isinstance(messages, (dict, tuple, set)):
-                raise TokenizationError(f"Messages must be a list, got {type(messages).__name__}", model=self.model)
-            else:
-                raise TokenizationError("Messages must be a list", model=self.model)
-        
-        total_tokens = 0
-        
-        for i, message in enumerate(messages):
-            if not isinstance(message, dict):
-                raise TokenizationError(f"Message at index {i} must be a dict, got {type(message).__name__}", model=self.model)
+def _count_openai_tokens(text: str, encoding: Any) -> int:
+    """
+    Counts tokens for OpenAI models using tiktoken.
 
-            if 'role' not in message:
-                raise TokenizationError(f"Message at index {i} must have 'role' key", model=self.model)
-            
-            if 'content' not in message:
-                raise TokenizationError(f"Message at index {i} must have 'content' key", model=self.model)
-            
-            # Validate content is a string
-            if not isinstance(message['content'], str):
-                if message['content'] is None:
-                    raise TokenizationError(f"Message content at index {i} cannot be None", model=self.model)
-                else:
-                    raise TokenizationError(f"Message content at index {i} must be a string, got {type(message['content']).__name__}", model=self.model)
-            
-            # Validate role if present
-            if 'role' in message and not isinstance(message['role'], str):
-                if message['role'] is None:
-                    raise TokenizationError(f"Message role at index {i} cannot be None", model=self.model)
-                else:
-                    raise TokenizationError(f"Message role at index {i} must be a string, got {type(message['role']).__name__}", model=self.model)
-            
-            # Count content tokens
-            try:
-                content_tokens = self.count(message['content'])
-                total_tokens += content_tokens
-            except TokenizationError:
-                # Re-raise TokenizationError as-is
-                raise
-            except Exception as e:
-                raise TokenizationError(f"Failed to count tokens for message at index {i}: {str(e)}", model=self.model)
-            
-            # Add overhead for message formatting (extremely minimal overhead)
-            if self.provider == "openai":
-                # OpenAI adds minimal formatting overhead
-                if 'role' in message:
-                    total_tokens += 1  # Role is typically 1 token
-            elif self.provider == "anthropic":
-                # Claude has no additional formatting overhead beyond content
-                pass
-            else:
-                # Other providers have no additional overhead
-                pass
-        
-        # No additional final message overhead
-        
-        return total_tokens
+    Args:
+        text: The input text.
+        encoding: The tiktoken encoding object.
 
+    Returns:
+        The number of tokens.
+    """
+    return len(encoding.encode(text))
 
+def _count_anthropic_tokens(text: str) -> int:
+    """
+    Approximates token count for Anthropic models.
+    Anthropic models typically use ~4 characters per token.
+
+    Args:
+        text: The input text.
+
+    Returns:
+        The approximate number of tokens.
+    """
+    return len(text) // 4 # Simple approximation
+
+def _count_generic_tokens(text: str) -> int:
+    """
+    Approximates token count for other models.
+    A common heuristic is word count or character count / 4.
+
+    Args:
+        text: The input text.
+
+    Returns:
+        The approximate number of tokens.
+    """
+    return len(text.split()) # Simple word count approximation
+
+@functools.lru_cache(maxsize=1024)
 def count_tokens(text: str, model: str) -> int:
     """
-    Convenience function to count tokens for a given text and model.
-    
-    Args:
-        text: The text to count tokens for
-        model: The model name
-        
-    Returns:
-        The number of tokens
-    """
-    counter = TokenCounter(model)
-    return counter.count(text)
+    Counts tokens in a given text for a specified LLM model.
 
+    Args:
+        text: The input text string.
+        model: The name of the LLM model (e.g., "gpt-4", "claude-3-opus-20240229").
+
+    Returns:
+        The number of tokens as an integer.
+
+    Raises:
+        ValueError: If `text` is not a string or `model` is not a string.
+        UnsupportedModelError: If the specified model is not supported.
+        TokenizationError: If an error occurs during tokenization.
+    """
+    if not isinstance(text, str):
+        raise ValueError("Input 'text' must be a string.")
+    if not isinstance(model, str):
+        raise ValueError("Input 'model' must be a string.")
+
+    model_info = MODEL_REGISTRY.get(model)
+    if not model_info:
+        raise UnsupportedModelError(f"Model '{model}' is not supported.")
+
+    provider = model_info["provider"]
+    tokenizer = _get_tokenizer(model)
+
+    try:
+        if provider == "openai":
+            return _count_openai_tokens(text, tokenizer)
+        elif provider == "anthropic":
+            return _count_anthropic_tokens(text)
+        else:
+            return _count_generic_tokens(text)
+    except Exception as e:
+        raise TokenizationError(f"Failed to tokenize text for model '{model}': {e}")
 
 def get_supported_models() -> Dict[str, List[str]]:
     """
-    Get a dictionary of supported models by provider.
-    
-    Returns:
-        Dictionary with provider names as keys and lists of model names as values
-    """
-    return {
-        "openai": (list(OPENAI_MODELS.keys()) + list(OPENAI_LEGACY_MODELS.keys()) + 
-                  list(OPENAI_O1_MODELS.keys()) + list(OPENAI_VISION_MODELS.keys()) +
-                  list(OPENAI_GPT4_TURBO_MODELS.keys()) + list(OPENAI_EMBEDDING_MODELS.keys())),
-        "databricks": list(DATABRICKS_MODELS.keys()),
-        "voyage": list(VOYAGE_MODELS.keys()),
-        "anthropic": (list(ANTHROPIC_MODELS.keys()) + list(ANTHROPIC_LEGACY_MODELS.keys()) + 
-                     list(ANTHROPIC_HAIKU_MODELS.keys()) + list(ANTHROPIC_COMPUTER_USE_MODELS.keys()) +
-                     list(ANTHROPIC_CLAUDE_21_MODELS.keys()) + list(ANTHROPIC_INSTANT_2_MODELS.keys()) +
-                     list(ANTHROPIC_OPUS_MODELS.keys()) + list(ANTHROPIC_SONNET_MODELS.keys())),
-        "google": (list(GOOGLE_MODELS.keys()) + list(GOOGLE_GEMINI_2_MODELS.keys()) + 
-                  list(GOOGLE_PALM_MODELS.keys()) + list(GOOGLE_GEMINI_PRO_MODELS.keys())),
-        "meta": (list(META_MODELS.keys()) + list(META_LLAMA_33_MODELS.keys()) +
-                list(META_LLAMA2_CHAT_MODELS.keys()) + list(META_LLAMA3_INSTRUCT_MODELS.keys())),
-        "mistral": (list(MISTRAL_MODELS.keys()) + list(MISTRAL_LARGE_2_MODELS.keys()) +
-                   list(MISTRAL_INSTRUCT_MODELS.keys())),
-        "cohere": list(COHERE_MODELS.keys()) + list(COHERE_COMMAND_R_PLUS_MODELS.keys()),
-        "perplexity": list(PERPLEXITY_MODELS.keys()),
-        "huggingface": list(HUGGINGFACE_MODELS.keys()),
-        "ai21": list(AI21_MODELS.keys()),
-        "together": list(TOGETHER_MODELS.keys()),
-        "xai": list(XAI_MODELS.keys()),
-        "alibaba": list(ALIBABA_MODELS.keys()) + list(QWEN_25_MODELS.keys()),
-        "baidu": list(BAIDU_MODELS.keys()),
-        "huawei": list(HUAWEI_MODELS.keys()),
-        "yandex": list(YANDEX_MODELS.keys()),
-        "stability": list(STABILITY_MODELS.keys()),
-        "tii": list(TII_MODELS.keys()),
-        "eleutherai": list(ELEUTHERAI_MODELS.keys()),
-        "mosaicml": list(MOSAICML_MODELS.keys()), # Only MPT models remain here
-        "replit": list(REPLIT_MODELS.keys()),
-        "minimax": list(MINIMAX_MODELS.keys()),
-        "aleph_alpha": list(ALEPH_ALPHA_MODELS.keys()),
-        "deepseek": list(DEEPSEEK_MODELS.keys()) + list(DEEPSEEK_V3_MODELS.keys()),
-        "tsinghua": list(TSINGHUA_MODELS.keys()),
-        "rwkv": list(RWKV_MODELS.keys()),
-        "community": list(COMMUNITY_MODELS.keys()),
-        "microsoft": list(MICROSOFT_MODELS.keys()),
-        "amazon": list(AMAZON_MODELS.keys()),
-        "nvidia": list(NVIDIA_MODELS.keys()),
-        "ibm": list(IBM_MODELS.keys()),
-        "salesforce": list(SALESFORCE_MODELS.keys()),
-        "bigcode": list(BIGCODE_MODELS.keys()),
-    }
+    Retrieves a dictionary of all supported models, grouped by provider.
 
+    Returns:
+        A dictionary where keys are provider names (str) and values are
+        lists of model names (List[str]) supported by that provider.
+    """
+    supported_models: Dict[str, List[str]] = {}
+    for model_name, info in MODEL_REGISTRY.items():
+        provider = info["provider"]
+        if provider not in supported_models:
+            supported_models[provider] = []
+        supported_models[provider].append(model_name)
+    return supported_models
 
 def estimate_cost(
-    token_count: int,
-    model: str,
-    input_tokens: bool = True,
-    currency: str = "USD"
+    token_count: int, model: str, input_tokens: bool = True, currency: str = "USD"
 ) -> float:
     """
-    Estimate the cost for a given number of tokens and model in USD or INR.
+    Estimates the cost for a given number of tokens and model.
 
     Args:
-        token_count (int): Number of tokens to estimate cost for.
-        model (str): Model name (e.g., "gpt-4", "gpt-4o").
-        input_tokens (bool): True if input tokens, False for output. Defaults to True.
-        currency (str): Currency code ("USD" or "INR"). Defaults to "USD".
+        token_count: The number of tokens.
+        model: The name of the LLM model.
+        input_tokens: True if counting input tokens, False for output tokens.
+        currency: The desired currency for cost estimation (e.g., "USD", "INR").
 
     Returns:
-        float: Estimated cost in specified currency. Returns 0.0 if model not supported.
+        The estimated cost as a float.
+
+    Raises:
+        ValueError: If `token_count` is not a non-negative integer, `model` is not a string,
+                    or `currency` is not supported.
+        UnsupportedModelError: If the specified model is not supported.
     """
-    USD_TO_INR = 83.0  # Conversion rate as of July 10 2025
+    if not isinstance(token_count, int) or token_count < 0:
+        raise ValueError("Input 'token_count' must be a non-negative integer.")
+    if not isinstance(model, str):
+        raise ValueError("Input 'model' must be a string.")
+    if currency not in ["USD", "INR"]: # Extend with more currencies as needed
+        raise ValueError(f"Unsupported currency: '{currency}'. Only 'USD' and 'INR' are supported.")
 
-    # Approximate pricing per 1K tokens (in USD)
-    pricing = {
-        "gpt-4": {"input": 0.03, "output": 0.06},
-        "gpt-4-32k": {"input": 0.06, "output": 0.12},
-        "dbrx-instruct": {"input": 0.001, "output": 0.002},
-        "dbrx-base": {"input": 0.001, "output": 0.002},
-        "dolly-v2-12b": {"input": 0.001, "output": 0.002},
-        "dolly-v2-7b": {"input": 0.001, "output": 0.002},
-        "dolly-v2-3b": {"input": 0.001, "output": 0.002},
-        "voyage-2": {"input": 0.0001, "output": 0.0001},
-        "voyage-large-2": {"input": 0.0001, "output": 0.0001},
-        "voyage-code-2": {"input": 0.0001, "output": 0.0001},
-        "voyage-finance-2": {"input": 0.0001, "output": 0.0001},
-        "voyage-law-2": {"input": 0.0001, "output": 0.0001},
-        "voyage-multilingual-2": {"input": 0.0001, "output": 0.0001},
-        "gpt-4-turbo": {"input": 0.01, "output": 0.03},
-        "gpt-4-turbo-2024-04-09": {"input": 0.01, "output": 0.03},
-        "gpt-4o": {"input": 0.005, "output": 0.015},
-        "gpt-4o-2024-05-13": {"input": 0.005, "output": 0.015},
-        "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
-        "gpt-4o-mini-2024-07-18": {"input": 0.00015, "output": 0.0006},
-        "gpt-3.5-turbo": {"input": 0.001, "output": 0.002},
-        "gpt-3.5-turbo-16k": {"input": 0.003, "output": 0.004},
-        "claude-3-opus-20240229": {"input": 0.015, "output": 0.075},
-        "claude-3-sonnet-20240229": {"input": 0.003, "output": 0.015},
-        "claude-3-haiku-20240307": {"input": 0.00025, "output": 0.00125},
-        "claude-3.5-sonnet-20240620": {"input": 0.003, "output": 0.015},
-        "claude-3.5-sonnet-20241022": {"input": 0.003, "output": 0.015},
-        "claude-3.5-haiku-20241022": {"input": 0.001, "output": 0.005},
-        "claude-3-5-sonnet-20240620": {"input": 0.003, "output": 0.015},
-    }
+    model_info = MODEL_REGISTRY.get(model)
+    if not model_info:
+        raise UnsupportedModelError(f"Model '{model}' is not supported for cost estimation.")
 
-    model = model.lower()
-    if model not in pricing:
-        return 0.0
+    pricing = model_info["pricing"]
+    cost_per_1k_tokens = pricing["input"] if input_tokens else pricing["output"]
 
-    rate: float = pricing[model]["input" if input_tokens else "output"]
-    cost_usd: float = (token_count / 1000) * rate
+    estimated_cost_usd = (token_count / 1000) * cost_per_1k_tokens
 
-    return cost_usd * USD_TO_INR if currency.upper() == "INR" else cost_usd
+    if currency == "INR":
+        # Example conversion rate, this should ideally be dynamic or configurable
+        usd_to_inr_rate = 83.0
+        return estimated_cost_usd * usd_to_inr_rate
+    return estimated_cost_usd
+
+class TokenCounter:
+    """
+    A class for counting tokens for a specific LLM model.
+
+    Attributes:
+        model: The name of the LLM model.
+        _tokenizer: The tokenizer object or approximation indicator for the model.
+    """
+
+    def __init__(self, model: str):
+        """
+        Initializes the TokenCounter with a specific model.
+
+        Args:
+            model: The name of the LLM model.
+
+        Raises:
+            ValueError: If `model` is not a string.
+            UnsupportedModelError: If the specified model is not supported.
+        """
+        if not isinstance(model, str):
+            raise ValueError("Input 'model' must be a string.")
+        if model not in MODEL_REGISTRY:
+            raise UnsupportedModelError(f"Model '{model}' is not supported.")
+
+        self.model: str = model
+        self._tokenizer: Any = _get_tokenizer(model)
+
+    @functools.lru_cache(maxsize=1024)
+    def count(self, text: str) -> int:
+        """
+        Counts tokens in a given text using the initialized model's tokenizer.
+
+        Args:
+            text: The input text string.
+
+        Returns:
+            The number of tokens as an integer.
+
+        Raises:
+            ValueError: If `text` is not a string.
+            TokenizationError: If an error occurs during tokenization.
+        """
+        if not isinstance(text, str):
+            raise ValueError("Input 'text' must be a string.")
+
+        model_info = MODEL_REGISTRY[self.model]
+        provider = model_info["provider"]
+
+        try:
+            if provider == "openai":
+                return _count_openai_tokens(text, self._tokenizer)
+            elif provider == "anthropic":
+                return _count_anthropic_tokens(text)
+            else:
+                return _count_generic_tokens(text)
+        except Exception as e:
+            raise TokenizationError(f"Failed to tokenize text for model '{self.model}': {e}")
+
+    def count_messages(self, messages: List[Dict[str, str]]) -> int:
+        """
+        Counts tokens in a list of chat messages for the initialized model.
+        This method approximates the token count for chat messages,
+        including overhead for roles and message structure.
+
+        Args:
+            messages: A list of message dictionaries, each with "role" and "content" keys.
+                      Example: [{"role": "user", "content": "Hello"}]
+
+        Returns:
+            The total number of tokens as an integer.
+
+        Raises:
+            ValueError: If `messages` is not a list or contains invalid message formats.
+            TokenizationError: If an error occurs during tokenization.
+        """
+        if not isinstance(messages, list):
+            raise ValueError("Input 'messages' must be a list of dictionaries.")
+
+        total_tokens = 0
+        for message in messages:
+            if not isinstance(message, dict) or "role" not in message or "content" not in message:
+                raise ValueError("Each message must be a dictionary with 'role' and 'content' keys.")
+            
+            # Add tokens for content
+            total_tokens += self.count(message["content"])
+            
+            # Add tokens for role and other overhead (approximation)
+            # This is a simplified approximation; actual overhead varies by model and API
+            total_tokens += self.count(message["role"]) + 3 # +3 for role, colon, and newline/separator
+
+        # Add a small overhead for the overall conversation structure
+        total_tokens += 3 # Example: for system message start, assistant response start, etc.
+        return total_tokens

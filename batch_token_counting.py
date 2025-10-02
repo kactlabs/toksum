@@ -1,8 +1,21 @@
 # Batch Token Counting
 # Count tokens for multiple texts at once — useful for documents, datasets, etc.
-import toksum
+from toksum import count_tokens
+from typing import List
 
-texts = ["Hello", "This is a test","count the words"]
+def main():
+    """
+    Demonstrates batch token counting using the toksum library.
+    """
+    texts: List[str] = ["Hello", "This is a test", "count the words"]
+    model_name: str = "gemini-1.5-flash"
 
-text_counts = [toksum.count_tokens(text, model="gpt-3.5-turbo") for text in texts]
-print("Batch Token Counting",text_counts)  
+    print(f"Counting tokens for texts using model: {model_name}")
+    text_counts: List[int] = [count_tokens(text, model=model_name) for text in texts]
+    
+    for i, text in enumerate(texts):
+        print(f"  Text: '{text}' -> Tokens: {text_counts[i]}")
+    print(f"\nBatch Token Counts: {text_counts}")
+
+if __name__ == "__main__":
+    main()

@@ -2,7 +2,7 @@
 Basic usage examples for the toksum library.
 """
 
-from toksum import TokenCounter, count_tokens, get_supported_models, estimate_cost
+from toksum import TokenCounter, count_tokens, get_supported_models, estimate_cost, SmartChunker
 
 def main():
     print("=== toksum Library Examples ===\n")
@@ -113,6 +113,83 @@ def main():
         print(f"  Text: '{text}'")
         print(f"  Tokens: {tokens}, Characters: {chars}, Chars/Token: {ratio:.2f}")
         print()
+    
+    # Example 7: Smart text chunking
+    print("7. Smart text chunking:")
+    
+    # Sample long text for demonstration
+    long_text = """
+Natural language processing (NLP) is a subfield of artificial intelligence, computer science, and linguistics concerned with the interaction between computers and human language. In practice, this means enabling computers to understand, interpret, and respond to human language in a meaningful way.
+
+NLP draws from various fields including computational linguistics, machine learning, and natural language understanding. It has applications in machine translation, sentiment analysis, question answering, and chatbots.
+
+The field has seen significant advancements with deep learning models like transformers and large language models such as GPT and BERT.
+"""
+    
+    # Sample code for chunking
+    sample_code = """
+class SmartChunker:
+    def __init__(self, model, max_tokens):
+        self.model = model
+        self.max_tokens = max_tokens
+    
+    def chunk_by_sentences(self, text):
+        sentences = self._split_sentences(text)
+        chunks = []
+        current_chunk = ""
+        for sentence in sentences:
+            test_chunk = current_chunk + ("" if not current_chunk else " ") + sentence
+            if count_tokens(test_chunk, self.model) <= self.max_tokens:
+                current_chunk = test_chunk
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk)
+                current_chunk = sentence
+        if current_chunk:
+            chunks.append(current_chunk)
+        return chunks
+
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+def calculate_factorial(n):
+    if n == 0:
+        return 1
+    return n * calculate_factorial(n-1)
+"""
+    
+    # Create chunker instance
+    chunker = SmartChunker("gpt-4", max_tokens=50)
+    
+    # Chunk by sentences
+    print("Chunking by sentences:")
+    sentence_chunks = chunker.chunk_by_sentences(long_text)
+    print(f"Number of sentence chunks: {len(sentence_chunks)}")
+    for i, chunk in enumerate(sentence_chunks, 1):
+        tokens = count_tokens(chunk, "gpt-4")
+        print(f"  Chunk {i} ({tokens} tokens): {chunk[:50]}...")
+    print()
+    
+    # Chunk by paragraphs
+    print("Chunking by paragraphs:")
+    paragraph_chunks = chunker.chunk_by_paragraphs(long_text)
+    print(f"Number of paragraph chunks: {len(paragraph_chunks)}")
+    for i, chunk in enumerate(paragraph_chunks, 1):
+        tokens = count_tokens(chunk, "gpt-4")
+        print(f"  Chunk {i} ({tokens} tokens): {chunk[:50]}...")
+    print()
+    
+    # Chunk code
+    print("Chunking code:")
+    code_chunks = chunker.chunk_code(sample_code, "python")
+    print(f"Number of code chunks: {len(code_chunks)}")
+    for i, chunk in enumerate(code_chunks, 1):
+        tokens = count_tokens(chunk, "gpt-4")
+        print(f"  Code Chunk {i} ({tokens} tokens):")
+        print(f"    {chunk[:100]}...")
+    print()
 
 
 if __name__ == "__main__":

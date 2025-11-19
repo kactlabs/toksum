@@ -17,7 +17,14 @@ Usage:
 """
 
 from .core import TokenCounter, count_tokens, get_supported_models, estimate_cost
-from .exceptions import UnsupportedModelError, TokenizationError
+from .exceptions import (
+    UnsupportedModelError, 
+    TokenizationError, 
+    ModelDeprecationError,
+    RateLimitError,
+    ConfigurationError,
+    BatchProcessingError
+)
 
 __version__ = "0.6.0"
 __author__ = "Raja CSP Raman"
@@ -30,4 +37,8 @@ __all__ = [
     "estimate_cost",
     "UnsupportedModelError",
     "TokenizationError",
+    "ModelDeprecationError",
+    "RateLimitError",
+    "ConfigurationError",
+    "BatchProcessingError",
 ]

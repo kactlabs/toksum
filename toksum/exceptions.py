@@ -60,3 +60,77 @@ class EmptyTextError(TokenizationError):
     def __init__(self, model: Optional[str] = None):
         super().__init__("Cannot tokenize empty text.", model)
 
+
+class ModelDeprecationError(ToksumError):
+    """Raised when a deprecated model is used and strict mode is enabled."""
+    
+    def __init__(self, model: str, replacement_model: Optional[str] = None, 
+                 deprecation_date: Optional[str] = None, removal_date: Optional[str] = None):
+        self.model = model
+        self.replacement_model = replacement_model
+        self.deprecation_date = deprecation_date
+        self.removal_date = removal_date
+        
+        message = f"Model '{model}' is deprecated"
+        if deprecation_date:
+            message += f" (deprecated on {deprecation_date})"
+        if removal_date:
+            message += f" and will be removed on {removal_date}"
+        if replacement_model:
+            message += f". Use '{replacement_model}' instead"
+        message += "."
+        
+        super().__init__(message)
+
+
+class RateLimitError(ToksumError):
+    """Raised when rate limits are exceeded during tokenization operations."""
+    
+    def __init__(self, message: str, retry_after: Optional[int] = None, 
+                 provider: Optional[str] = None):
+        self.retry_after = retry_after
+        self.provider = provider
+        
+        full_message = f"Rate limit exceeded: {message}"
+        if provider:
+            full_message += f" (provider: {provider})"
+        if retry_after:
+            full_message += f". Retry after {retry_after} seconds"
+        
+        super().__init__(full_message)
+
+
+class ConfigurationError(ToksumError):
+    """Raised when there's an issue with library configuration or setup."""
+    
+    def __init__(self, message: str, config_key: Optional[str] = None, 
+                 suggested_fix: Optional[str] = None):
+        self.config_key = config_key
+        self.suggested_fix = suggested_fix
+        
+        full_message = f"Configuration error: {message}"
+        if config_key:
+            full_message += f" (config key: {config_key})"
+        if suggested_fix:
+            full_message += f". Suggested fix: {suggested_fix}"
+        
+        super().__init__(full_message)
+
+
+class BatchProcessingError(ToksumError):
+    """Raised when batch processing operations fail."""
+    
+    def __init__(self, message: str, failed_items: Optional[List[int]] = None, 
+                 total_items: Optional[int] = None):
+        self.failed_items = failed_items or []
+        self.total_items = total_items
+        
+        full_message = f"Batch processing failed: {message}"
+        if failed_items and total_items:
+            success_count = total_items - len(failed_items)
+            full_message += f" ({success_count}/{total_items} items processed successfully)"
+        elif failed_items:
+            full_message += f" ({len(failed_items)} items failed)"
+        
+        super().__init__(full_message)
+

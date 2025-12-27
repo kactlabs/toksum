@@ -1,5 +1,50 @@
 """
 Command-line interface for toksum.
+
+This module provides a comprehensive command-line interface for the toksum library,
+allowing users to count tokens and estimate costs for various LLM models directly
+from the terminal.
+
+The CLI supports:
+    - Token counting for text input or files
+    - Cost estimation with detailed breakdowns
+    - Listing all supported models by provider
+    - Verbose output with detailed information
+    - Support for both input and output token pricing
+
+Examples:
+    Basic token counting:
+    
+    .. code-block:: bash
+    
+        toksum "Hello, world!" gpt-4
+        toksum --file input.txt claude-3-opus-20240229
+    
+    Cost estimation:
+    
+    .. code-block:: bash
+    
+        toksum --cost "Your text here" gpt-4
+        toksum --cost --output-tokens "Response text" gpt-4
+    
+    List supported models:
+    
+    .. code-block:: bash
+    
+        toksum --list-models
+    
+    Verbose output:
+    
+    .. code-block:: bash
+    
+        toksum --verbose --cost --file large_document.txt gpt-4
+
+Functions:
+    main: Main CLI entry point that handles argument parsing and execution
+    list_models: Display all supported models organized by provider
+
+The CLI provides comprehensive error handling and user-friendly output formatting
+for both simple token counting and detailed cost analysis workflows.
 """
 
 import argparse
@@ -11,7 +56,58 @@ from .exceptions import UnsupportedModelError, TokenizationError
 
 
 def main() -> None:
-    """Main CLI entry point."""
+    """
+    Main CLI entry point.
+    
+    Parses command-line arguments and executes the appropriate toksum functionality.
+    Supports token counting, cost estimation, model listing, and file input processing.
+    
+    The function handles:
+        - Argument parsing and validation
+        - Text input from command line or file
+        - Token counting for specified models
+        - Cost estimation with input/output token differentiation
+        - Model listing with provider organization
+        - Comprehensive error handling and user feedback
+        - Verbose output formatting
+    
+    Command-line Arguments:
+        text (str, optional): Text to count tokens for
+        model (str, optional): Model name (required unless using --list-models)
+        --file, -f (str): Read text from file instead of command line
+        --list-models, -l: List all supported models by provider
+        --cost, -c: Show cost estimation along with token count
+        --output-tokens: Calculate cost for output tokens instead of input
+        --verbose, -v: Show detailed output with additional information
+    
+    Exit Codes:
+        0: Success
+        1: Error (unsupported model, file not found, tokenization failure, etc.)
+    
+    Raises:
+        SystemExit: On error conditions or user interruption
+    
+    Examples:
+        Basic usage:
+        
+        .. code-block:: bash
+        
+            toksum "Hello, world!" gpt-4
+            toksum --file document.txt claude-3-opus-20240229
+        
+        With cost estimation:
+        
+        .. code-block:: bash
+        
+            toksum --cost --verbose "Long text content" gpt-4
+            toksum --cost --output-tokens "Response text" gpt-4
+        
+        List models:
+        
+        .. code-block:: bash
+        
+            toksum --list-models
+    """
     parser = argparse.ArgumentParser(
         description="Count tokens for various LLM models",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -143,7 +239,46 @@ Examples:
 
 
 def list_models() -> None:
-    """List all supported models."""
+    """
+    List all supported models organized by provider.
+    
+    Displays a comprehensive list of all supported models grouped by their
+    respective providers (OpenAI, Anthropic, Google, Meta, etc.). The output
+    includes model counts per provider and a total count across all providers.
+    
+    The function:
+        - Retrieves all supported models using get_supported_models()
+        - Groups models by provider with clear section headers
+        - Sorts models alphabetically within each provider
+        - Shows model counts for each provider and overall total
+        - Formats output for easy readability
+    
+    Output Format:
+        .. code-block:: text
+        
+            Supported models:
+            ==================================================
+            
+            OPENAI (25 models):
+            ------------------------------
+              gpt-3.5-turbo
+              gpt-4
+              gpt-4o
+              ...
+            
+            ANTHROPIC (12 models):
+            ------------------------------
+              claude-3-haiku-20240307
+              claude-3-opus-20240229
+              ...
+            
+            Total: 200+ models
+    
+    Note:
+        This function is typically called when the --list-models CLI flag is used.
+        It provides users with a complete overview of available models for token
+        counting and cost estimation.
+    """
     models = get_supported_models()
     
     print("Supported models:")

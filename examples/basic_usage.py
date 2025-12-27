@@ -1,10 +1,70 @@
 """
 Basic usage examples for the toksum library.
+
+This module demonstrates comprehensive usage patterns for the toksum library,
+showcasing various features and capabilities across different providers and
+use cases. The examples progress from simple token counting to advanced
+scenarios like cost estimation and multi-provider comparisons.
+
+The examples cover:
+    - Quick token counting with the convenience function
+    - TokenCounter class usage for multiple operations
+    - Chat message format token counting
+    - Cost estimation with different currencies
+    - Listing and exploring supported models
+    - Comparing tokenization across different text types
+    - Performance considerations and best practices
+
+Run this file directly to see all examples in action:
+    
+.. code-block:: bash
+
+    python examples/basic_usage.py
+
+The examples are designed to be educational and can be adapted for
+real-world applications involving token counting, cost estimation,
+and LLM usage planning.
 """
 
 from toksum import TokenCounter, count_tokens, get_supported_models, estimate_cost
 
 def main():
+    """
+    Demonstrate comprehensive toksum library usage with practical examples.
+    
+    This function showcases the main features of toksum through six detailed
+    examples that progress from basic usage to advanced scenarios. Each example
+    includes explanatory output and demonstrates best practices.
+
+    Examples Covered:
+        1. **Quick token counting**: Using the count_tokens convenience function
+        2. **TokenCounter class**: Efficient multiple operations with same model
+        3. **Chat message counting**: Token counting for conversation formats
+        4. **Cost estimation**: Calculating costs with different models and currencies
+        5. **Model exploration**: Discovering and listing supported models
+        6. **Text type comparison**: Analyzing tokenization across different content types
+
+    The examples demonstrate:
+        - Basic API usage patterns
+        - Performance considerations
+        - Error handling approaches
+        - Multi-provider comparisons
+        - Cost analysis workflows
+        - Content type optimization
+
+    Output Format:
+        Each example section includes:
+        - Clear section headers with example numbers
+        - Descriptive text explaining what's being demonstrated
+        - Code execution with formatted output
+        - Comparative analysis where relevant
+        - Performance and usage insights
+
+    Note:
+        This function is designed to be run interactively to see toksum
+        capabilities. The examples use real models and will show actual
+        token counts and cost estimates based on current pricing.
+    """
     print("=== toksum Library Examples ===\n")
     
     # Example 1: Quick token counting

@@ -3,18 +3,19 @@ Changelog
 
 This document tracks all notable changes to the toksum library.
 
-Version 0.7.0 (Current)
+Version 1.1.0 (Current)
 ------------------------
 
-**Major Documentation Enhancement:**
-- ✅ **Comprehensive Sphinx Documentation** - Added professional-grade documentation for all modules
-- ✅ **Enhanced Docstrings** - All functions, classes, and methods now have detailed Google/NumPy style docstrings
+**Major Documentation Enhancement Release:**
+- ✅ **Comprehensive Sphinx Documentation** - Professional-grade documentation for all modules
+- ✅ **Enhanced Docstrings** - All functions, classes, and methods with detailed Google/NumPy style docstrings
 - ✅ **Rich Examples** - Code examples for every major feature and use case
 - ✅ **API Reference** - Complete API documentation with cross-references
 - ✅ **Usage Guides** - Comprehensive examples including advanced patterns and integrations
 - ✅ **Error Handling** - Detailed exception documentation with handling patterns
 - ✅ **Build Tools** - Convenient documentation build and serve scripts
 - ✅ **Mobile Responsive** - Read the Docs theme with search functionality
+- ✅ **Read the Docs Integration** - Professional documentation hosting ready
 
 **Documentation Features:**
 - 📚 200+ models from 25+ providers fully documented
@@ -22,16 +23,18 @@ Version 0.7.0 (Current)
 - 🛡️ Comprehensive error handling patterns
 - ⚡ Performance optimization guidance
 - 🔗 Cross-referenced API documentation
-- 📱 Mobile-responsive design
+- 📱 Mobile-responsive design with proper branding
 - 🔍 Full-text search functionality
+- 🎨 Professional RTD theme with custom styling
 
 **Build System:**
 - Sphinx configuration with autodoc and Napoleon extensions
-- Read the Docs theme integration
+- Read the Docs theme integration with custom branding
 - Automated API reference generation
 - Local development server support
+- GitHub integration for contributors
 
-Version 0.6.0 (Previous)
+Version 1.0.1 (Previous)
 -------------------------
 
 **Features:**

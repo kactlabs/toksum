@@ -13,8 +13,8 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'toksum'
 copyright = '2024, Raja CSP Raman'
 author = 'Raja CSP Raman'
-release = '0.7.0'
-version = '0.7.0'
+release = '1.1.0'
+version = '1.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -1,0 +1,32 @@
+/* Custom CSS for toksum documentation */
+
+/* Ensure the site title is visible */
+.wy-nav-top a {
+    color: #2980B9 !important;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Style the main navigation header */
+.wy-nav-top {
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Make sure the project name shows up */
+.wy-nav-top .wy-nav-top-title {
+    font-weight: bold;
+    color: #2980B9;
+}
+
+/* Custom styling for code blocks */
+.highlight {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+}
+
+/* Style for badges */
+.badge {
+    margin-right: 5px;
+}

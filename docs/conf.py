@@ -27,6 +27,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
+    'sphinx.ext.githubpages',
 ]
 
 templates_path = ['_templates']
@@ -38,6 +39,25 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
+# HTML title and branding
+html_title = 'toksum - Token Counting for 200+ LLM Models'
+html_short_title = 'toksum'
+html_logo = None  # You can add a logo later if needed
+
+# Custom CSS
+html_css_files = [
+    'custom.css',
+]
+
+# Additional HTML context
+html_context = {
+    'display_github': True,
+    'github_user': 'kactlabs',
+    'github_repo': 'toksum',
+    'github_version': 'main',
+    'conf_py_path': '/docs/',
+}
+
 # Read the Docs theme options
 html_theme_options = {
     'canonical_url': '',
@@ -47,7 +67,7 @@ html_theme_options = {
     'prev_next_buttons_location': 'bottom',
     'style_external_links': False,
     'vcs_pageview_mode': '',
-    'style_nav_header_background': 'white',
+    'style_nav_header_background': '#2980B9',  # Nice blue color
     # Toc options
     'collapse_navigation': True,
     'sticky_navigation': True,

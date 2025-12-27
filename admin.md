@@ -42,3 +42,9 @@ sphinx-build -b html docs docs/_build/html
 - Docs build: ✅
 - Version sync: ✅
 - Examples work: ✅
+- RTD config: ✅
+
+## Read the Docs
+- Config: `.readthedocs.yaml`
+- URL: https://toksum.readthedocs.io/ (after setup)
+- Build: Auto on push to main

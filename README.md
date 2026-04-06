@@ -5,6 +5,7 @@ A comprehensive Python library for counting tokens across 300+ Large Language Mo
 [![PyPI version](https://badge.fury.io/py/toksum.svg)](https://badge.fury.io/py/toksum)
 [![Python Support](https://img.shields.io/pypi/pyversions/toksum.svg)](https://pypi.org/project/toksum/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kactlabs/toksum)
 
 ## Features
 

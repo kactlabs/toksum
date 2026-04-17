@@ -295,35 +295,33 @@ total_tokens = counter.count_messages(messages)
 print(f"Total conversation tokens: {total_tokens}")
 ```
 
-### 💬 Token Counting + 💰 Cost Estimation (USD / INR)
+### 💬 Token Counting + 💰 Cost Estimation (USD / INR / EUR)
 
 ```python
-from toksum import TokenCounter
-from toksum.core import estimate_cost
+from toksum.core import count_tokens, estimate_cost
 
-# Initialize counter for a specific model
-counter = TokenCounter("gpt-4")
+# Example text and model
+text = "This is a sample text to count tokens for."
+model_name = "gpt-4o-mini" # Using a model with defined pricing
 
-# Define chat messages
-messages = [
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": "What is the capital of France?"},
-    {"role": "assistant", "content": "The capital of France is Paris."}
-]
+# 1. Count tokens
+tokens = count_tokens(text, model_name)
+print(f"Text: '{text}'")
+print(f"Model: {model_name}")
+print(f"Token count: {tokens}")
 
-# Count total tokens in the conversation
-total_tokens = counter.count_messages(messages)
-print(f"Total conversation tokens: {total_tokens}")
+# 2. Estimate cost in USD
+cost_usd = estimate_cost(tokens, model_name, currency="USD")
+print(f"Estimated cost in USD: ${cost_usd:.6f}")
 
-# Estimate cost in USD
-usd_cost = estimate_cost(total_tokens, "gpt-4", input_tokens=True)
-print(f"Estimated cost in USD: ${usd_cost:.4f}")
+# 3. Estimate cost in INR
+cost_inr = estimate_cost(tokens, model_name, currency="INR")
+print(f"Estimated cost in INR: ₹{cost_inr:.6f}")
 
-# Estimate cost in INR
-inr_cost = estimate_cost(total_tokens, "gpt-4", input_tokens=True, currency="INR")
-print(f"Estimated cost in INR: ₹{inr_cost:.2f}")
+# 4. Estimate cost in EUR (using the new implementation)
+cost_eur = estimate_cost(tokens, model_name, currency="EUR")
+print(f"Estimated cost in EUR: €{cost_eur:.6f}")
 ```
-
 
 ### Cost Estimation
 
